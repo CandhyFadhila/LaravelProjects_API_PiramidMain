@@ -1,0 +1,110 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Piramid-Main API Documentation",
+        "description": "Dokumentasi API untuk aplikasi Piramid-Main.",
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "http://localhost:8000",
+            "description": "API Base URL"
+        }
+    ],
+    "paths": {
+        "/api/login": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Login user dan dapatkan token",
+                "description": "Melakukan login dengan email dan password untuk mendapatkan akses token.",
+                "operationId": "e79d023fd97d3aa34abede7b9daf8ba8",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "example": "studio.exium@gmail.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "example": "superadmin123"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Login sukses, token dikembalikan"
+                    },
+                    "401": {
+                        "description": "Email atau password salah"
+                    }
+                }
+            }
+        },
+        "/api/logout": {
+            "get": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Logout user dari sistem",
+                "description": "Logout akan menghapus token akses aktif.",
+                "operationId": "00d9e11f9ddaff6f8152a15fc11967ae",
+                "responses": {
+                    "200": {
+                        "description": "Logout berhasil"
+                    },
+                    "401": {
+                        "description": "Tidak ada sesi aktif"
+                    }
+                }
+            }
+        },
+        "/api/user-info": {
+            "get": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Get user info",
+                "description": "Mengambil informasi user berdasarkan token.",
+                "operationId": "9d62680f3ce9d019cc66c75512a2db64",
+                "responses": {
+                    "200": {
+                        "description": "User ditemukan"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Authentication",
+            "description": "Endpoint terkait autentikasi: login, logout, dan user-info"
+        }
+    ],
+    "components": {
+        "securitySchemes": {
+            "sanctum": {
+                "type": "apiKey",
+                "description": "Enter token in format (Bearer <token>)",
+                "name": "Authorization",
+                "in": "header"
+            }
+        }
+    }
+}
