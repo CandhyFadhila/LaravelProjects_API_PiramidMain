@@ -229,6 +229,28 @@ return [
             'level' => env('LOG_LEVEL', 'debug'),
             'replace_placeholders' => true,
         ],
+
+        // PAYMENT
+        'snap_token' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/Payment/Midtrans/midtrans_snap_token.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+            'replace_placeholders' => true,
+        ],
+
+        'midtrans_payment' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/Payment/Midtrans/midtrans_payment.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+            'replace_placeholders' => true,
+        ],
+
+        'coin_payment' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/Payment/Coinpayment/coin_payment.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+            'replace_placeholders' => true,
+        ],
     ],
 
 ];

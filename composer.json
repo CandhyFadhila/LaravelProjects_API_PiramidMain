@@ -12,6 +12,7 @@
         "laravel/tinker": "^2.9",
         "maatwebsite/excel": "^3.1",
         "masbug/flysystem-google-drive-ext": "^2.4",
+        "midtrans/midtrans-php": "^2.6",
         "spatie/laravel-backup": "^9.3",
         "spatie/laravel-permission": "^6.19"
     },
