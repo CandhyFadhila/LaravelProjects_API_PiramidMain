@@ -231,6 +231,34 @@ return [
         ],
 
         // PAYMENT
+        'transaction_order_detail' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/Transaction/transaction_order_detail.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+            'replace_placeholders' => true,
+        ],
+
+        'transaction_payment_detail' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/Transaction/transaction_payment_detail.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+            'replace_placeholders' => true,
+        ],
+
+        'transaction' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/Transaction/transaction.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+            'replace_placeholders' => true,
+        ],
+
+        'transaction_order' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/Transaction/transaction_order_detail.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+            'replace_placeholders' => true,
+        ],
+
         'snap_token' => [
             'driver' => 'single',
             'path' => storage_path('logs/Payment/Midtrans/midtrans_snap_token.log'),

@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('payment_details', function (Blueprint $table) {
-            $table->foreignId('transaction_id')->nullable()->constrained('transactions')->onUpdate('cascade')->onDelete('cascade')->before('payment_status_id');
+        Schema::table('users', function (Blueprint $table) {
+            $table->foreignId('primary_address')->nullable()->constrained('addresses')->onUpdate('cascade')->onDelete('cascade')->before('photo_profile_id');
         });
     }
 
@@ -21,7 +21,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('payment_details', function (Blueprint $table) {
+        Schema::table('users', function (Blueprint $table) {
             //
         });
     }

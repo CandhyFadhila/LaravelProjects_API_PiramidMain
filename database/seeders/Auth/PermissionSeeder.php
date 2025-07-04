@@ -20,6 +20,13 @@ class PermissionSeeder extends Seeder
             ['name' => 'masterdata.edit', 'description' => 'Edit Master Data', 'group' => 'master_data'],
             ['name' => 'masterdata.delete', 'description' => 'Delete Master Data', 'group' => 'master_data'],
             ['name' => 'masterdata.restore', 'description' => 'Restore Master Data', 'group' => 'master_data'],
+
+            // Service
+            ['name' => 'transaction.view', 'description' => 'View Transaction Data', 'group' => 'transaction_service'],
+            ['name' => 'transaction.create', 'description' => 'Create Transaction Data', 'group' => 'transaction_service'],
+            ['name' => 'transaction.edit', 'description' => 'Edit Transaction Data', 'group' => 'transaction_service'],
+            ['name' => 'transaction.delete', 'description' => 'Delete Transaction Data', 'group' => 'transaction_service'],
+            ['name' => 'transaction.restore', 'description' => 'Restore Transaction Data', 'group' => 'transaction_service'],
         ];
 
         foreach ($permissions as $permission) {

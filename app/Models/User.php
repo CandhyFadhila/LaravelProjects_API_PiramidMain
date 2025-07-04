@@ -7,6 +7,7 @@ namespace App\Models;
 use App\Traits\HasArrayRelations;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -49,7 +50,18 @@ class User extends Authenticatable
             'account_status' => 'integer',
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'primary_address' => 'integer'
         ];
+    }
+
+    /**
+     * Get all of the address for the User
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function address(): HasMany
+    {
+        return $this->hasMany(Address::class, 'primary_address', 'id');
     }
 
     public function getDocumentsAttribute()

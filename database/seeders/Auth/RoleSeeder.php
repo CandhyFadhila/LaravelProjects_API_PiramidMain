@@ -28,12 +28,20 @@ class RoleSeeder extends Seeder
 
         $SuperAdmin->givePermissionTo(Permission::all());
 
-        Role::create([
+        $user = Role::create([
             'name' => 'Marketplace',
             'description' => 'Ini adalah role Marketplace',
             'guard_name' => 'web',
             'created_at' => $created_at,
             'updated_at' => $updated_at
+        ]);
+
+        $user->givePermissionTo([
+            'transaction.view',
+            'transaction.create',
+            'transaction.edit',
+            'transaction.delete',
+            'transaction.restore',
         ]);
     }
 }
