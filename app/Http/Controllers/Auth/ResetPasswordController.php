@@ -59,10 +59,10 @@ class ResetPasswordController extends Controller
         // Ubah password user
         $user->update([
             'password' => Hash::make($credentials['password']),
-            'last_change_password' => Carbon::now('Asia/Jakarta')
+            'last_change_password' => Carbon::now()
         ]);
 
-        Log::channel('auth_reset')->info('| Reset Password | - Reset Password success for email: ' . $user->email . ', at ' . Carbon::now('Asia/Jakarta'));
+        Log::channel('auth_reset')->info('| Reset Password | - Reset Password success for email: ' . $user->email . ', at ' . Carbon::now());
 
         // Hapus OTP setelah digunakan
         $otpRecord->delete();

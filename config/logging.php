@@ -129,6 +129,13 @@ return [
 
         // Custom log per module
         // AUTH
+        'auth_signup' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/Auth/auth_signup.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+            'replace_placeholders' => true,
+        ],
+
         'auth_login' => [
             'driver' => 'single',
             'path' => storage_path('logs/Auth/auth_login.log'),

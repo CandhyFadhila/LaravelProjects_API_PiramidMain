@@ -25,7 +25,7 @@ class LoginController extends Controller
             'password' => $credential['password']
         ]);
         if (!$loginSuccess) {
-            Log::channel('auth_login')->info("| Login | - Invalid credentials for email: {$credential['email']}, at " . Carbon::now('Asia/Jakarta'));
+            Log::channel('auth_login')->info("| Login | - Invalid credentials for email: {$credential['email']}, at " . Carbon::now());
             return response()->json(
                 new WithoutDataResource(
                     Response::HTTP_UNAUTHORIZED,
@@ -154,7 +154,7 @@ class LoginController extends Controller
 
         Auth::guard('web')->logout();
 
-        $now = Carbon::now('Asia/Jakarta');
+        $now = Carbon::now();
 
         Log::channel('auth_login')->info("| Logout | - Logout success for email: " . $user->email . ", at " . $now);
 

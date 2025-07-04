@@ -16,7 +16,7 @@ class AccountSeeder extends Seeder
      */
     public function run(): void
     {
-        $dates = Carbon::now('Asia/Jakarta');
+        $dates = Carbon::now();
         $super_admin_account = User::create([
             'name' => 'Super Admin',
             'email' => 'studio.exium@gmail.com',

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\Management\Gen\Animal\AnimalBreedController;
 use App\Http\Controllers\Management\Gen\Animal\AnimalCategoryController;
@@ -13,8 +14,10 @@ use App\Http\Controllers\Public\PublicRequestController;
 use Illuminate\Support\Facades\Route;
 
 // Login Section
-Route::post('/login', [LoginController::class, 'login']);
+Route::post('/signup', [RegisterController::class, 'signUp']);
+Route::post('/signin', [LoginController::class, 'login']);
 Route::middleware(['custom.throttle:5,1'])->group(function () {
+    Route::post('/signup-verify-otp', [RegisterController::class, 'signUpVerifyOTP']);
     Route::post('/send-otp', [ForgotPasswordController::class, 'sendOTP']);
     Route::post('/verify-otp', [ForgotPasswordController::class, 'verifyOTP']);
     Route::post('/reset-password', [ResetPasswordController::class, 'resetPassword']);

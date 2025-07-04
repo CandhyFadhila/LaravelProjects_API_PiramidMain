@@ -47,7 +47,7 @@ class ForgotPasswordController extends Controller
 
         try {
             Mail::to($user->email)->send(new SendingOTPMail($user->name, $otp));
-            Log::channel('auth_otp')->info('| Send OTP | - Send OTP success for email: ' . $user->email .', at ' . Carbon::now('Asia/Jakarta'));
+            Log::channel('auth_otp')->info('| Send OTP | - Send OTP success for email: ' . $user->email .', at ' . Carbon::now());
 
             return response()->json(
                 new WithoutDataResource(
@@ -129,7 +129,7 @@ class ForgotPasswordController extends Controller
             );
         }
 
-        Log::channel('auth_otp')->info('| Verify OTP | - Verify OTP success for email: ' . $user->email . ', at ' . Carbon::now('Asia/Jakarta'));
+        Log::channel('auth_otp')->info('| Verify OTP | - Verify OTP success for email: ' . $user->email . ', at ' . Carbon::now());
 
         return response()->json(
             new WithoutDataResource(
