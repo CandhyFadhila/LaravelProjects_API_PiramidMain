@@ -10,6 +10,9 @@ use App\Http\Controllers\Management\Gen\Animal\AnimalController;
 use App\Http\Controllers\Management\Gen\Product\AqiqahProductController;
 use App\Http\Controllers\Management\Gen\Product\QurbanProductController;
 use App\Http\Controllers\Management\Gen\Product\SadaqahProductController;
+use App\Http\Controllers\Management\Settings\Account\AddressController;
+use App\Http\Controllers\Management\Settings\Account\ChangePasswordController;
+use App\Http\Controllers\Management\Settings\Account\ChangeProfileController;
 use App\Http\Controllers\Public\PublicRequestController;
 use Illuminate\Support\Facades\Route;
 
@@ -39,11 +42,6 @@ Route::middleware(['auth:sanctum', 'custom.throttle:60,1'])->group(function () {
         Route::group(['prefix' => 'admin', 'middleware' => ['verified.role:admin']], function () {
             Route::group(['prefix' => 'dashboard'], function () {});
 
-            // Route::group(['prefix' => 'product'], function () {
-            //     Route::apiResource('/qurban', QurbanProductController::class);
-            //     Route::post('/qurban/{id}/restore', [QurbanProductController::class, 'restore']);
-            // });
-
             Route::group(['prefix' => 'master-data'], function () {
                 Route::apiResource('/animal-category', AnimalCategoryController::class);
                 Route::post('/animal-category/{id}/restore', [AnimalCategoryController::class, 'restore']);
@@ -63,11 +61,21 @@ Route::middleware(['auth:sanctum', 'custom.throttle:60,1'])->group(function () {
                 Route::apiResource('/sadaqah-product', SadaqahProductController::class);
                 Route::post('/sadaqah-product/{id}/restore', [SadaqahProductController::class, 'restore']);
             });
+
+            Route::group(['prefix' => 'settings'], function () {
+                Route::post('/change-password', [ChangePasswordController::class, 'updatePasswordAdmin']);
+                Route::post('/change-profile', [ChangeProfileController::class, 'updateProfileAdmin']);
+            });
         });
 
         // Untuk Penjualan
         Route::group(['prefix' => 'marketplace', 'middleware' => ['verified.role:marketplace']], function () {
-            Route::group(['prefix' => 'dashboard'], function () {});
+            Route::group(['prefix' => 'settings'], function () {
+                Route::post('/change-password', [ChangePasswordController::class, 'updatePasswordUsers']);
+                Route::post('/change-profile', [ChangeProfileController::class, 'updateProfileUsers']);
+                Route::apiResource('/setup-address', AddressController::class);
+                Route::post('/setup-address/{id}/restore', [AddressController::class, 'restore']);
+            });
         });
     });
 });

@@ -157,6 +157,20 @@ return [
             'replace_placeholders' => true,
         ],
 
+        'auth_password' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/Auth/auth_change_password.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+            'replace_placeholders' => true,
+        ],
+
+        'auth_profile' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/Auth/auth_change_profile.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+            'replace_placeholders' => true,
+        ],
+
         // MAIN
         'main_user' => [
             'driver' => 'single',
@@ -211,6 +225,14 @@ return [
         'gen_sadaqah_product' => [
             'driver' => 'single',
             'path' => storage_path('logs/Modules/Gens/Product/sadaqah_product.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+            'replace_placeholders' => true,
+        ],
+
+        // SETTINGS
+        'setting_address' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/Modules/Settings/setting_address.log'),
             'level' => env('LOG_LEVEL', 'debug'),
             'replace_placeholders' => true,
         ],

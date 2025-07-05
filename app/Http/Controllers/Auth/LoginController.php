@@ -121,7 +121,7 @@ class LoginController extends Controller
                 Response::HTTP_OK,
                 'SUCCESS_GET_USER_INFO',
                 'Berhasil Medapatkan Data',
-                'Data pengguna ' . $user->name .' , berhasil didapatkan.',
+                'Data pengguna ' . $user->name .', berhasil didapatkan.',
                 [
                     'user' => $filteredUser,
                     'role' => $filteredRoles,

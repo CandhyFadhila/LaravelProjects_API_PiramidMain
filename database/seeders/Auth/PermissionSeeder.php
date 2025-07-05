@@ -21,6 +21,13 @@ class PermissionSeeder extends Seeder
             ['name' => 'masterdata.delete', 'description' => 'Delete Master Data', 'group' => 'master_data'],
             ['name' => 'masterdata.restore', 'description' => 'Restore Master Data', 'group' => 'master_data'],
 
+            // Master Setting
+            ['name' => 'mastersetting.view', 'description' => 'View Master Setting', 'group' => 'master_setting'],
+            ['name' => 'mastersetting.create', 'description' => 'Create Master Setting', 'group' => 'master_setting'],
+            ['name' => 'mastersetting.edit', 'description' => 'Edit Master Setting', 'group' => 'master_setting'],
+            ['name' => 'mastersetting.delete', 'description' => 'Delete Master Setting', 'group' => 'master_setting'],
+            ['name' => 'mastersetting.restore', 'description' => 'Restore Master Setting', 'group' => 'master_setting'],
+
             // Service
             ['name' => 'transaction.view', 'description' => 'View Transaction Data', 'group' => 'transaction_service'],
             ['name' => 'transaction.create', 'description' => 'Create Transaction Data', 'group' => 'transaction_service'],
