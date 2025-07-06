@@ -7,6 +7,7 @@ use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\Management\Gen\Animal\AnimalBreedController;
 use App\Http\Controllers\Management\Gen\Animal\AnimalCategoryController;
 use App\Http\Controllers\Management\Gen\Animal\AnimalController;
+use App\Http\Controllers\Management\Gen\Mosque\MosqueController;
 use App\Http\Controllers\Management\Gen\Product\AqiqahProductController;
 use App\Http\Controllers\Management\Gen\Product\QurbanProductController;
 use App\Http\Controllers\Management\Gen\Product\SadaqahProductController;
@@ -36,6 +37,7 @@ Route::middleware(['auth:sanctum', 'custom.throttle:60,1'])->group(function () {
             Route::get('/get-payment-status', [PublicRequestController::class, 'getPaymentStatus']);
             Route::get('/get-transaction-status', [PublicRequestController::class, 'getTransactionStatus']);
             Route::get('/get-payment-method', [PublicRequestController::class, 'getPaymentMethod']);
+            Route::get('/get-mosque-relation', [PublicRequestController::class, 'getMosqueRelation']);
         });
 
         // Untuk Admin
@@ -60,6 +62,9 @@ Route::middleware(['auth:sanctum', 'custom.throttle:60,1'])->group(function () {
 
                 Route::apiResource('/sadaqah-product', SadaqahProductController::class);
                 Route::post('/sadaqah-product/{id}/restore', [SadaqahProductController::class, 'restore']);
+
+                Route::apiResource('/mosque-relation', MosqueController::class);
+                Route::post('/mosque-relation/{id}/restore', [MosqueController::class, 'restore']);
             });
 
             Route::group(['prefix' => 'settings'], function () {

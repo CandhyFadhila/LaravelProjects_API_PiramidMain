@@ -9,6 +9,7 @@ use Database\Seeders\Auth\RoleSeeder;
 use Database\Seeders\Gens\AnimalBreedSeeder;
 use Database\Seeders\Gens\AnimalCategorySeeder;
 use Database\Seeders\Gens\AnimalSeeder;
+use Database\Seeders\Gens\MosqueRelationSeeder;
 use Database\Seeders\Static\PaymentMethodSeeder;
 use Database\Seeders\Static\PaymentStatusSeeder;
 use Database\Seeders\Static\ServiceTypeSeeder;
@@ -36,7 +37,8 @@ class DatabaseSeeder extends Seeder
             // Gens
             AnimalCategorySeeder::class,
             AnimalBreedSeeder::class,
-            AnimalSeeder::class
+            AnimalSeeder::class,
+            MosqueRelationSeeder::class,
         ]);
     }
 }

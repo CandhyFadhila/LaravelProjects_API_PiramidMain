@@ -229,6 +229,13 @@ return [
             'replace_placeholders' => true,
         ],
 
+        'gen_mosque' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/Modules/Gens/Mosque/mosque.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+            'replace_placeholders' => true,
+        ],
+
         // SETTINGS
         'setting_address' => [
             'driver' => 'single',

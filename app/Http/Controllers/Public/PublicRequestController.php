@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Templates\WithDataResource;
 use App\Http\Resources\Templates\WithoutDataResource;
 use App\Models\DocumentStatus;
+use App\Models\Mosque;
 use App\Models\PaymentMethod;
 use App\Models\PaymentStatus;
 use App\Models\ServiceType;
@@ -165,6 +166,46 @@ class PublicRequestController extends Controller
             );
         } catch (\Exception $e) {
             Log::error('| Public Request | - Error function getPaymentMethod : ' . $e->getMessage());
+            return response()->json(
+                new WithoutDataResource(
+                    Response::HTTP_INTERNAL_SERVER_ERROR,
+                    'ERROR_GET_DATA',
+                    'Gagal Mengambil Data',
+                    'Terjadi kesalahan pada sistem, silahkan coba lagi nanti atau hubungi admin.',
+                ),
+                Response::HTTP_INTERNAL_SERVER_ERROR
+            );
+        }
+    }
+
+    public function getMosqueRelation()
+    {
+        try {
+            $mosque = Mosque::all();
+            if ($mosque->isEmpty()) {
+                return response()->json(
+                    new WithoutDataResource(
+                        Response::HTTP_NOT_FOUND,
+                        'DATA_NOT_FOUND',
+                        'Tidak Ada Data',
+                        'Data relasi masjid tidak ditemukan.',
+                    ),
+                    Response::HTTP_NOT_FOUND
+                );
+            }
+
+            return response()->json(
+                new WithDataResource(
+                    Response::HTTP_OK,
+                    'SUCCESS_GET_DATA',
+                    'Berhasil Mengambil Data',
+                    'Berhasil mengambil Data relasi masjid.',
+                    $mosque
+                ),
+                Response::HTTP_OK
+            );
+        } catch (\Exception $e) {
+            Log::error('| Public Request | - Error function getMosqueRelation : ' . $e->getMessage());
             return response()->json(
                 new WithoutDataResource(
                     Response::HTTP_INTERNAL_SERVER_ERROR,
