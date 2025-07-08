@@ -171,7 +171,7 @@ return [
             'replace_placeholders' => true,
         ],
 
-        // MAIN
+        // TODO: Belum kepakek -- MAIN --
         'main_user' => [
             'driver' => 'single',
             'path' => storage_path('logs/Modules/Main/User/users.log'),
@@ -312,6 +312,14 @@ return [
         'coin_payment' => [
             'driver' => 'single',
             'path' => storage_path('logs/Payment/Coinpayment/coin_payment.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+            'replace_placeholders' => true,
+        ],
+
+        // Public
+        'public_request' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/Public/public_request.log'),
             'level' => env('LOG_LEVEL', 'debug'),
             'replace_placeholders' => true,
         ],

@@ -38,6 +38,12 @@ Route::middleware(['auth:sanctum', 'custom.throttle:60,1'])->group(function () {
             Route::get('/get-transaction-status', [PublicRequestController::class, 'getTransactionStatus']);
             Route::get('/get-payment-method', [PublicRequestController::class, 'getPaymentMethod']);
             Route::get('/get-mosque-relation', [PublicRequestController::class, 'getMosqueRelation']);
+            Route::get('/get-animal-category', [PublicRequestController::class, 'getAnimalCategory']);
+            Route::get('/get-animal-breed', [PublicRequestController::class, 'getAnimalBreed']);
+            Route::get('/get-animals', [PublicRequestController::class, 'getAnimal']);
+            Route::get('/get-qurban-product', [PublicRequestController::class, 'getQurbanProduct']);
+            Route::get('/get-aqiqah-product', [PublicRequestController::class, 'getAqiqahProduct']);
+            Route::get('/get-sadaqah-product', [PublicRequestController::class, 'getSadaqahProduct']);
         });
 
         // Untuk Admin
@@ -45,6 +51,7 @@ Route::middleware(['auth:sanctum', 'custom.throttle:60,1'])->group(function () {
             Route::group(['prefix' => 'dashboard'], function () {});
 
             Route::group(['prefix' => 'master-data'], function () {
+                // Gen
                 Route::apiResource('/animal-category', AnimalCategoryController::class);
                 Route::post('/animal-category/{id}/restore', [AnimalCategoryController::class, 'restore']);
 
@@ -54,6 +61,10 @@ Route::middleware(['auth:sanctum', 'custom.throttle:60,1'])->group(function () {
                 Route::apiResource('/animals', AnimalController::class);
                 Route::post('/animals/{id}/restore', [AnimalController::class, 'restore']);
 
+                Route::apiResource('/mosque-relation', MosqueController::class);
+                Route::post('/mosque-relation/{id}/restore', [MosqueController::class, 'restore']);
+
+                // Product
                 Route::apiResource('/qurban-product', QurbanProductController::class);
                 Route::post('/qurban-product/{id}/restore', [QurbanProductController::class, 'restore']);
 
@@ -62,9 +73,6 @@ Route::middleware(['auth:sanctum', 'custom.throttle:60,1'])->group(function () {
 
                 Route::apiResource('/sadaqah-product', SadaqahProductController::class);
                 Route::post('/sadaqah-product/{id}/restore', [SadaqahProductController::class, 'restore']);
-
-                Route::apiResource('/mosque-relation', MosqueController::class);
-                Route::post('/mosque-relation/{id}/restore', [MosqueController::class, 'restore']);
             });
 
             Route::group(['prefix' => 'settings'], function () {

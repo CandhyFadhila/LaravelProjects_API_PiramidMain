@@ -20,10 +20,6 @@ use Illuminate\Support\Facades\Log;
 
 class QurbanProductController extends Controller
 {
-    // TODO
-    //! 1. Cek lagi filter harga minimum dan maksimum
-    //! 2. Cek lagi filter stok minimum
-    //! Berlaku di semua produk
     public function index(Request $request)
     {
         try {
@@ -58,15 +54,11 @@ class QurbanProductController extends Controller
                         $q2->whereIn('id', (array) $val);
                     });
                 },
-                // TODO: Filter bagian ini belum work
                 'price_min' => function ($q, $val) {
                     $q->where('price', '>=', $val);  // Filter harga minimum
                 },
                 'price_max' => function ($q, $val) {
                     $q->where('price', '<=', $val);  // Filter harga maksimum
-                },
-                'stock_min' => function ($q, $val) {
-                    $q->where('stock', '>=', $val);  // Filter stok minimum
                 },
             ];
 

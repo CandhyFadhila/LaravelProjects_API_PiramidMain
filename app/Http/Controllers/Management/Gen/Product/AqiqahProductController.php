@@ -54,6 +54,12 @@ class AqiqahProductController extends Controller
                         $q2->whereIn('id', (array) $val);
                     });
                 },
+                'price_min' => function ($q, $val) {
+                    $q->where('price', '>=', $val);  // Filter harga minimum
+                },
+                'price_max' => function ($q, $val) {
+                    $q->where('price', '<=', $val);  // Filter harga maksimum
+                },
             ];
 
             $filters = $request->except(['limit', 'search']);

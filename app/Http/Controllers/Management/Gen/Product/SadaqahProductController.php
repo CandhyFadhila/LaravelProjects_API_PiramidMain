@@ -37,6 +37,18 @@ class SadaqahProductController extends Controller
 
             $query = SadaqahProduct::query()->withTrashed();
 
+            $filterRules = [
+                'price_min' => function ($q, $val) {
+                    $q->where('price', '>=', $val);  // Filter harga minimum
+                },
+                'price_max' => function ($q, $val) {
+                    $q->where('price', '<=', $val);  // Filter harga maksimum
+                },
+            ];
+
+            $filters = $request->except(['limit', 'search']);
+            $query   = QueryFilterSearch::applyFilters($query, $filters, $filterRules);
+
             if ($request->has('search')) {
                 $query = QueryFilterSearch::applySearch($query, $request->input('search'), [
                     'name',
