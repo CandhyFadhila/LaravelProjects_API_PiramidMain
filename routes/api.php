@@ -23,6 +23,13 @@ use Illuminate\Support\Facades\Route;
 Route::post('/signup', [RegisterController::class, 'signUp']);
 Route::post('/signin', [LoginController::class, 'login']);
 Route::middleware(['custom.throttle:5,1'])->group(function () {
+
+    // <!-- Test Throttle pakek ini -->
+    // Route::get('/test-throttle', function () {
+    //     return response()->json(['message' => 'OK']);
+    // });
+    // <!-- Test Throttle pakek ini -->
+
     Route::post('/signup-verify-otp', [RegisterController::class, 'signUpVerifyOTP']);
     Route::post('/send-otp', [ForgotPasswordController::class, 'sendOTP']);
     Route::post('/verify-otp', [ForgotPasswordController::class, 'verifyOTP']);

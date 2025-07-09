@@ -453,12 +453,25 @@ class PublicRequestController extends Controller
                 );
             }
 
+            $province = Province::find($provinceId);
+            if (!$province) {
+                return response()->json(
+                    new WithoutDataResource(
+                        Response::HTTP_NOT_FOUND,
+                        'DATA_NOT_FOUND',
+                        'Tidak Ada Data',
+                        'Tidak ditemukan kota dengan provinsi ID tersebut.',
+                    ),
+                    Response::HTTP_NOT_FOUND
+                );
+            }
+
             return response()->json(
                 new WithDataResource(
                     Response::HTTP_OK,
                     'SUCCESS_GET_DATA',
                     'Berhasil Mengambil Data',
-                    'Data kota berdasarkan provinsi berhasil didapatkan.',
+                    "Data kota berdasarkan provinsi '{$province->name}' berhasil didapatkan.",
                     CitiesResource::collection($cities)
                 ),
                 Response::HTTP_OK
