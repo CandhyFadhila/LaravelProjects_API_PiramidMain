@@ -237,7 +237,7 @@ class QurbanProductController extends Controller
                     Response::HTTP_OK,
                     'SUCCESS_GET_DATA',
                     'Berhasil Mengambil Data',
-                    "Detail data produk qurban {$qurbanProduct->name} berhasil didapatkan.",
+                    "Detail data produk qurban '{$qurbanProduct->name}' berhasil didapatkan.",
                     new QurbanProductResource($qurbanProduct)
                 ),
                 Response::HTTP_OK

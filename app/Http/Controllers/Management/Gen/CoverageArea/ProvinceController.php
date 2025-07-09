@@ -158,8 +158,8 @@ class ProvinceController extends Controller
                     Response::HTTP_OK,
                     'SUCCESS_GET_DATA',
                     'Berhasil Mengambil Data',
-                    "Detail data provinsi yang dikelola {$managedProvince->name} berhasil didapatkan.",
-                    $managedProvince
+                    "Detail data provinsi yang dikelola '{$managedProvince->name}' berhasil didapatkan.",
+                    new ProvinceResource($managedProvince)
                 ),
                 Response::HTTP_OK
             );

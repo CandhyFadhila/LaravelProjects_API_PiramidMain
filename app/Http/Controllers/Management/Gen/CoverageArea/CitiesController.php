@@ -172,8 +172,8 @@ class CitiesController extends Controller
                     Response::HTTP_OK,
                     'SUCCESS_GET_DATA',
                     'Berhasil Mengambil Data',
-                    "Detail Data nama kota yang dikelola {$managedCities->name} berhasil didapatkan.",
-                    $managedCities
+                    "Detail Data nama kota yang dikelola '{$managedCities->name}' berhasil didapatkan.",
+                    new CitiesResource($managedCities)
                 ),
                 Response::HTTP_OK
             );

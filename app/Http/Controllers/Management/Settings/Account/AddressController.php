@@ -162,7 +162,7 @@ class AddressController extends Controller
                     'SUCCESS_GET_DATA',
                     'Berhasil Mengambil Data',
                     "Detail data alamat berhasil didapatkan.",
-                    $address
+                    new AddressResource($address)
                 ),
                 Response::HTTP_OK
             );

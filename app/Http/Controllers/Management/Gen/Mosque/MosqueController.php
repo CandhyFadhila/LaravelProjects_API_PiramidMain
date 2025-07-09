@@ -169,8 +169,8 @@ class MosqueController extends Controller
                     Response::HTTP_OK,
                     'SUCCESS_GET_DATA',
                     'Berhasil Mengambil Data',
-                    "Detail Data relasi masjid {$mosque->name} berhasil didapatkan.",
-                    $mosque
+                    "Detail data relasi masjid '{$mosque->name}' berhasil didapatkan.",
+                    new MosqueResource($mosque)
                 ),
                 Response::HTTP_OK
             );

@@ -158,8 +158,8 @@ class AnimalBreedController extends Controller
                     Response::HTTP_OK,
                     'SUCCESS_GET_DATA',
                     'Berhasil Mengambil Data',
-                    "Detail data kategori ras hewan {$animalBreed->label} berhasil didapatkan.",
-                    $animalBreed
+                    "Detail data kategori ras hewan '{$animalBreed->label}' berhasil didapatkan.",
+                    new AnimalBreedResource($animalBreed)
                 ),
                 Response::HTTP_OK
             );

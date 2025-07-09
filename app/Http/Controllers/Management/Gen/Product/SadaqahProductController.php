@@ -232,7 +232,7 @@ class SadaqahProductController extends Controller
                     Response::HTTP_OK,
                     'SUCCESS_GET_DATA',
                     'Berhasil Mengambil Data',
-                    "Detail data produk sadaqah {$sadaqahProduct->name} berhasil didapatkan.",
+                    "Detail data produk sadaqah '{$sadaqahProduct->name}' berhasil didapatkan.",
                     new SadaqahProductResource($sadaqahProduct)
                 ),
                 Response::HTTP_OK

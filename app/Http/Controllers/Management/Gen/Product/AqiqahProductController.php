@@ -238,7 +238,7 @@ class AqiqahProductController extends Controller
                     Response::HTTP_OK,
                     'SUCCESS_GET_DATA',
                     'Berhasil Mengambil Data',
-                    "Detail data produk aqiqah {$aqiqahProduct->name} berhasil didapatkan.",
+                    "Detail data produk aqiqah '{$aqiqahProduct->name}' berhasil didapatkan.",
                     new AqiqahProductResource($aqiqahProduct)
                 ),
                 Response::HTTP_OK

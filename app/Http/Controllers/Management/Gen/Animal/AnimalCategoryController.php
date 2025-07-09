@@ -166,7 +166,7 @@ class AnimalCategoryController extends Controller
                     Response::HTTP_OK,
                     'SUCCESS_GET_DATA',
                     'Berhasil Mengambil Data',
-                    "Detail data kategori hewan {$animalCategory->label} berhasil didapatkan.",
+                    "Detail data kategori hewan '{$animalCategory->label}' berhasil didapatkan.",
                     new AnimalCategoryResource($animalCategory)
                 ),
                 Response::HTTP_OK

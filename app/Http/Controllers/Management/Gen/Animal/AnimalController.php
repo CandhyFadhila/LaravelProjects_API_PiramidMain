@@ -186,7 +186,7 @@ class AnimalController extends Controller
                     'SUCCESS_GET_DATA',
                     'Berhasil Mengambil Data',
                     "Detail data detail kategori hewan '{$kategoriHewan->label}' dengan ras hewan '{$rasHewan->label}' hewan berhasil didapatkan.",
-                    $animals
+                    new AnimalResource($animals)
                 ),
                 Response::HTTP_OK
             );
