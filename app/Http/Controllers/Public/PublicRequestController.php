@@ -7,6 +7,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Management\Gen\Animal\AnimalBreedResource;
 use App\Http\Resources\Management\Gen\Animal\AnimalCategoryResource;
 use App\Http\Resources\Management\Gen\Animal\AnimalResource;
+use App\Http\Resources\Management\Gen\CoverageArea\CitiesResource;
+use App\Http\Resources\Management\Gen\CoverageArea\ProvinceResource;
 use App\Http\Resources\Management\Gen\Mosque\MosqueResource;
 use App\Http\Resources\Management\Gen\Product\QurbanProductResource;
 use App\Http\Resources\Management\Gen\Product\AqiqahProductResource;
@@ -17,9 +19,11 @@ use App\Models\Animal;
 use App\Models\AnimalBreed;
 use App\Models\AnimalCategory;
 use App\Models\AqiqahProduct;
+use App\Models\Cities;
 use App\Models\Mosque;
 use App\Models\PaymentMethod;
 use App\Models\PaymentStatus;
+use App\Models\Province;
 use App\Models\QurbanProduct;
 use App\Models\SadaqahProduct;
 use App\Models\ServiceType;
@@ -339,6 +343,128 @@ class PublicRequestController extends Controller
             );
         } catch (\Exception $e) {
             Log::channel('public_request')->error('| Public Request | - Error function getAnimal : ' . $e->getMessage());
+            return response()->json(
+                new WithoutDataResource(
+                    Response::HTTP_INTERNAL_SERVER_ERROR,
+                    'ERROR_GET_DATA',
+                    'Gagal Mengambil Data',
+                    'Terjadi kesalahan pada sistem, silahkan coba lagi nanti atau hubungi admin.',
+                ),
+                Response::HTTP_INTERNAL_SERVER_ERROR
+            );
+        }
+    }
+
+    public function getCoverageProvince()
+    {
+        try {
+            $managedProvince = Province::all();
+            if ($managedProvince->isEmpty()) {
+                return response()->json(
+                    new WithoutDataResource(
+                        Response::HTTP_NOT_FOUND,
+                        'DATA_NOT_FOUND',
+                        'Tidak Ada Data',
+                        'Data nama provinsi tidak ditemukan.',
+                    ),
+                    Response::HTTP_NOT_FOUND
+                );
+            }
+
+            return response()->json(
+                new WithDataResource(
+                    Response::HTTP_OK,
+                    'SUCCESS_GET_DATA',
+                    'Berhasil Mengambil Data',
+                    'Berhasil mengambil data nama provinsi.',
+                    ProvinceResource::collection($managedProvince)
+                ),
+                Response::HTTP_OK
+            );
+        } catch (\Exception $e) {
+            Log::channel('public_request')->error('| Public Request | - Error function getCoverageProvince : ' . $e->getMessage());
+            return response()->json(
+                new WithoutDataResource(
+                    Response::HTTP_INTERNAL_SERVER_ERROR,
+                    'ERROR_GET_DATA',
+                    'Gagal Mengambil Data',
+                    'Terjadi kesalahan pada sistem, silahkan coba lagi nanti atau hubungi admin.',
+                ),
+                Response::HTTP_INTERNAL_SERVER_ERROR
+            );
+        }
+    }
+
+    public function getCoverageCities()
+    {
+        try {
+            $managedCities = Cities::all();
+            if ($managedCities->isEmpty()) {
+                return response()->json(
+                    new WithoutDataResource(
+                        Response::HTTP_NOT_FOUND,
+                        'DATA_NOT_FOUND',
+                        'Tidak Ada Data',
+                        'Data nama provinsi tidak ditemukan.',
+                    ),
+                    Response::HTTP_NOT_FOUND
+                );
+            }
+
+            return response()->json(
+                new WithDataResource(
+                    Response::HTTP_OK,
+                    'SUCCESS_GET_DATA',
+                    'Berhasil Mengambil Data',
+                    'Berhasil mengambil data nama provinsi.',
+                    CitiesResource::collection($managedCities)
+                ),
+                Response::HTTP_OK
+            );
+        } catch (\Exception $e) {
+            Log::channel('public_request')->error('| Public Request | - Error function getCoverageCities : ' . $e->getMessage());
+            return response()->json(
+                new WithoutDataResource(
+                    Response::HTTP_INTERNAL_SERVER_ERROR,
+                    'ERROR_GET_DATA',
+                    'Gagal Mengambil Data',
+                    'Terjadi kesalahan pada sistem, silahkan coba lagi nanti atau hubungi admin.',
+                ),
+                Response::HTTP_INTERNAL_SERVER_ERROR
+            );
+        }
+    }
+
+    public function getCitiesByProvince($provinceId)
+    {
+        try {
+            $cities = Cities::where('province_id', $provinceId)
+                ->where('is_active', true)
+                ->get();
+            if ($cities->isEmpty()) {
+                return response()->json(
+                    new WithoutDataResource(
+                        Response::HTTP_NOT_FOUND,
+                        'DATA_NOT_FOUND',
+                        'Tidak Ada Data',
+                        'Tidak ditemukan kota dengan provinsi ID tersebut.',
+                    ),
+                    Response::HTTP_NOT_FOUND
+                );
+            }
+
+            return response()->json(
+                new WithDataResource(
+                    Response::HTTP_OK,
+                    'SUCCESS_GET_DATA',
+                    'Berhasil Mengambil Data',
+                    'Data kota berdasarkan provinsi berhasil didapatkan.',
+                    CitiesResource::collection($cities)
+                ),
+                Response::HTTP_OK
+            );
+        } catch (\Exception $e) {
+            Log::channel('public_request')->error('| Public Request | - Error function getCitiesByProvince : ' . $e->getMessage());
             return response()->json(
                 new WithoutDataResource(
                     Response::HTTP_INTERNAL_SERVER_ERROR,

@@ -7,6 +7,8 @@ use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\Management\Gen\Animal\AnimalBreedController;
 use App\Http\Controllers\Management\Gen\Animal\AnimalCategoryController;
 use App\Http\Controllers\Management\Gen\Animal\AnimalController;
+use App\Http\Controllers\Management\Gen\CoverageArea\CitiesController;
+use App\Http\Controllers\Management\Gen\CoverageArea\ProvinceController;
 use App\Http\Controllers\Management\Gen\Mosque\MosqueController;
 use App\Http\Controllers\Management\Gen\Product\AqiqahProductController;
 use App\Http\Controllers\Management\Gen\Product\QurbanProductController;
@@ -41,6 +43,9 @@ Route::middleware(['auth:sanctum', 'custom.throttle:60,1'])->group(function () {
             Route::get('/get-animal-category', [PublicRequestController::class, 'getAnimalCategory']);
             Route::get('/get-animal-breed', [PublicRequestController::class, 'getAnimalBreed']);
             Route::get('/get-animals', [PublicRequestController::class, 'getAnimal']);
+            Route::get('/get-coverage-province', [PublicRequestController::class, 'getCoverageProvince']);
+            Route::get('/get-coverage-cities', [PublicRequestController::class, 'getCoverageCities']);
+            Route::get('/get-cities-by-province/{provinceId}', [PublicRequestController::class, 'getCitiesByProvince']);
             Route::get('/get-qurban-product', [PublicRequestController::class, 'getQurbanProduct']);
             Route::get('/get-aqiqah-product', [PublicRequestController::class, 'getAqiqahProduct']);
             Route::get('/get-sadaqah-product', [PublicRequestController::class, 'getSadaqahProduct']);
@@ -63,6 +68,12 @@ Route::middleware(['auth:sanctum', 'custom.throttle:60,1'])->group(function () {
 
                 Route::apiResource('/mosque-relation', MosqueController::class);
                 Route::post('/mosque-relation/{id}/restore', [MosqueController::class, 'restore']);
+
+                Route::apiResource('/province-coverage-area', ProvinceController::class);
+                Route::post('/province-coverage-area/{id}/restore', [ProvinceController::class, 'restore']);
+
+                Route::apiResource('/cities-coverage-area', CitiesController::class);
+                Route::post('/cities-coverage-area/{id}/restore', [CitiesController::class, 'restore']);
 
                 // Product
                 Route::apiResource('/qurban-product', QurbanProductController::class);

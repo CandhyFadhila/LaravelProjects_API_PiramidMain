@@ -236,6 +236,20 @@ return [
             'replace_placeholders' => true,
         ],
 
+        'gen_coverage_city' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/Modules/Gens/CoverageArea/coverage_city.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+            'replace_placeholders' => true,
+        ],
+
+        'gen_coverage_province' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/Modules/Gens/CoverageArea/coverage_province.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+            'replace_placeholders' => true,
+        ],
+
         // SETTINGS
         'setting_address' => [
             'driver' => 'single',

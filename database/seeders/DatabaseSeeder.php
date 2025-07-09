@@ -9,6 +9,7 @@ use Database\Seeders\Auth\RoleSeeder;
 use Database\Seeders\Gens\AnimalBreedSeeder;
 use Database\Seeders\Gens\AnimalCategorySeeder;
 use Database\Seeders\Gens\AnimalSeeder;
+use Database\Seeders\Gens\CoverageArea\ProvinceCitySeeder;
 use Database\Seeders\Gens\MosqueRelationSeeder;
 use Database\Seeders\Products\ProductSeeder;
 use Database\Seeders\Static\PaymentMethodSeeder;
@@ -40,6 +41,7 @@ class DatabaseSeeder extends Seeder
             AnimalBreedSeeder::class,
             AnimalSeeder::class,
             MosqueRelationSeeder::class,
+            ProvinceCitySeeder::class,
 
             // Products
             ProductSeeder::class
