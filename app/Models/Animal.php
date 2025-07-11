@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Helpers\DateHelper;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -37,5 +38,10 @@ class Animal extends Model
     public function animal_breeds(): BelongsTo
     {
         return $this->belongsTo(AnimalBreed::class, 'animal_breed_id', 'id');
+    }
+
+    public function setBirthDateAttribute($value)
+    {
+        $this->attributes['birth_date'] = DateHelper::formatTanggalIndonesia($value, 5);
     }
 }

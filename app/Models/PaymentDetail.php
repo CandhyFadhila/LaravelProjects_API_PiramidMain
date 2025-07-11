@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Helpers\DateHelper;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -47,5 +48,10 @@ class PaymentDetail extends Model
     public function payment_methods(): BelongsTo
     {
         return $this->belongsTo(PaymentMethod::class, 'payment_method_id', 'id');
+    }
+
+    public function setPaymentDateAttribute($value)
+    {
+        $this->attributes['payment_date'] = DateHelper::formatTanggalIndonesia($value, 5);
     }
 }

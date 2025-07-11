@@ -20,7 +20,8 @@ class DateHelper
 			return '-';
 		}
 
-		$carbonDate = Carbon::parse($dateTime)->locale('id');
+		$carbonDate = Carbon::parse($dateTime);
+		// $carbonDate = Carbon::parse($dateTime)->locale('id');
 
 		// Mapping nama hari dan bulan dalam bahasa Indonesia
 		$hari = $carbonDate->translatedFormat('l');
@@ -42,7 +43,10 @@ class DateHelper
 			case 4: // 01-01-2025
 				return $carbonDate->translatedFormat('d-m-Y');
 
-			case 5: // 01/01/2025
+			case 5: // 2025-01-01 15:30:00
+				return $carbonDate->translatedFormat('Y-m-d H:i:s');
+
+			case 6: // 01/01/2025
 				return $carbonDate->translatedFormat('d/m/Y');
 
 			default:

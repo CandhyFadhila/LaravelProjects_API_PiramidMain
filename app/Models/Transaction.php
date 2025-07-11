@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Helpers\DateHelper;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -58,5 +59,23 @@ class Transaction extends Model
     public function transaction_statuses(): BelongsTo
     {
         return $this->belongsTo(TransactionStatus::class, 'transaction_status_id', 'id');
+    }
+
+    /**
+     * Mutator untuk mengonversi format tanggal untuk beberapa kolom sekaligus.
+     *
+     * @param string $value
+     * @return void
+     */
+    public function setDateAttribute($value)
+    {
+        // Looping untuk setiap kolom timestamp yang ada dalam model
+        $timestampColumns = ['transaction_date', 'settlement_date'];
+
+        foreach ($timestampColumns as $column) {
+            if ($value && isset($this->attributes[$column])) {
+                $this->attributes[$column] = DateHelper::formatTanggalIndonesia($value, 5);
+            }
+        }
     }
 }
