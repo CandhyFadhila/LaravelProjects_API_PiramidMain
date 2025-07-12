@@ -14,6 +14,10 @@ class PermissionSeeder extends Seeder
     public function run(): void
     {
         $permissions = [
+            // Master Permission
+            ['name' => 'only-super-admin', 'description' => 'Only Super Admin', 'group' => 'master_permission'],
+
+
             // Master Data
             ['name' => 'masterdata.view', 'description' => 'View Master Data', 'group' => 'master_data'],
             ['name' => 'masterdata.create', 'description' => 'Create Master Data', 'group' => 'master_data'],
