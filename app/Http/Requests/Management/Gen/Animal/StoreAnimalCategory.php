@@ -28,7 +28,7 @@ class StoreAnimalCategory extends FormRequest
         return [
             'icon_id' => ['required', 'array', 'min:1', 'max:5'],
             'icon_id.*' => ['required', 'mimes:jpg,jpeg,png,svg', 'max:10240'],
-            'label' => ['required', 'string', 'max:255'],
+            'label' => ['required', 'string', 'max:255', 'unique:animal_categories,label'],
         ];
     }
 
@@ -37,6 +37,7 @@ class StoreAnimalCategory extends FormRequest
         return [
             'label.required' => 'Nama kategori hewan tidak boleh kosong.',
             'label.string' => 'Nama kategori hewan harus berupa string.',
+            'label.unique' => 'Nama kategori hewan tersebut sudah pernah dibuat.',
             'icon_id.required' => 'Icon kategori hewan qurban tidak boleh kosong.',
             'icon_id.min' => 'Minimal icon yang diunggah adalah 1 icon.',
             'icon_id.max' => 'Maksimal icon yang diunggah adalah 5 icon.',

@@ -30,7 +30,7 @@ class StoreSadaqahProduct extends FormRequest
             'animal_id.*' => ['integer', 'exists:animals,id'],
             'photo_product_id' => ['required', 'array', 'min:1'],
             'photo_product_id.*' => ['required', 'mimes:jpg,jpeg,png', 'max:10240'],
-            'name' => ['required'],
+            'name' => ['required', 'string', 'max:255', 'unique:sadaqah_products,name'],
             'description' => ['required'],
             'price' => ['required', 'integer', 'min:1'],
         ];
@@ -48,6 +48,8 @@ class StoreSadaqahProduct extends FormRequest
             'photo_product_id.*.mimes' => 'Dokumen hanya boleh berupa JPG, JPEG, dan PNG.',
             'photo_product_id.*.max' => 'Ukuran dokumen maksimal 10MB.',
             'name.required' => 'Nama produk sadaqah tidak boleh kosong.',
+            'name.string' => 'Nama produk sadaqah harus berupa string.',
+            'name.unique' => 'Nama produk sadaqah tersebut sudah pernah dibuat.',
             'description.required' => 'Deskripsi produk sadaqah tidak boleh kosong.',
             'price.required' => 'Harga produk sadaqah tidak boleh kosong.',
             'price.integer' => 'Harga produk sadaqah harus berupa angka.',

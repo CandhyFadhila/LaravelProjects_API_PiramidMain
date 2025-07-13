@@ -29,7 +29,7 @@ class StoreQurbanProduct extends FormRequest
             'animal_id' => ['required', 'exists:animals,id'],
             'photo_product_id' => ['required', 'array', 'min:1', 'max:5'],
             'photo_product_id.*' => ['required', 'mimes:jpg,jpeg,png', 'max:10240'],
-            'name' => ['required'],
+            'name' => ['required', 'string', 'max:255', 'unique:qurban_products,name'],
             'description' => ['required'],
             'price' => ['required', 'integer', 'min:0'],
         ];
@@ -46,6 +46,8 @@ class StoreQurbanProduct extends FormRequest
             'photo_product_id.*.mimes' => 'Dokumen hanya boleh berupa JPG, JPEG, dan PNG.',
             'photo_product_id.*.max' => 'Ukuran dokumen maksimal 10MB.',
             'name.required' => 'Nama produk hewan qurban tidak boleh kosong.',
+            'name.string' => 'Nama produk hewan qurban harus berupa string.',
+            'name.unique' => 'Nama produk hewan qurban tersebut sudah pernah dibuat.',
             'description.required' => 'Deskripsi produk hewan qurban tidak boleh kosong.',
             'price.required' => 'Harga produk hewan qurban tidak boleh kosong.',
             'price.integer' => 'Harga produk hewan qurban harus berupa angka.',

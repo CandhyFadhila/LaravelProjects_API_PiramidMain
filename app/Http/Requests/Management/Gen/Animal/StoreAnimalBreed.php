@@ -26,7 +26,7 @@ class StoreAnimalBreed extends FormRequest
     public function rules(): array
     {
         return [
-            'label' => ['required', 'string', 'max:255'],
+            'label' => ['required', 'string', 'max:255', 'unique:animal_breeds,label'],
         ];
     }
 
@@ -35,6 +35,7 @@ class StoreAnimalBreed extends FormRequest
         return [
             'label.required' => 'Nama ras hewan tidak boleh kosong.',
             'label.string' => 'Nama ras hewan harus berupa string.',
+            'label.unique' => 'Nama ras hewan tersebut sudah pernah dibuat.',
         ];
     }
 
