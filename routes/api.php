@@ -18,6 +18,7 @@ use App\Http\Controllers\Management\Settings\Account\ChangePasswordController;
 use App\Http\Controllers\Management\Settings\Account\ChangeProfileController;
 use App\Http\Controllers\Public\PublicRequestController;
 use App\Http\Controllers\Service\OrderDetailController;
+use App\Http\Controllers\Service\PaymentController;
 use Illuminate\Support\Facades\Route;
 
 // Login Section
@@ -112,6 +113,8 @@ Route::middleware(['auth:sanctum', 'custom.throttle:60,1'])->group(function () {
             Route::group(['prefix' => 'transaction'], function () {
                 Route::apiResource('/order-detail', OrderDetailController::class);
                 Route::post('/order-detail/{id}/restore', [OrderDetailController::class, 'restore']);
+                
+                Route::post('/payment', [PaymentController::class, 'createPayment']);
             });
         });
     });

@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('payment_gateway_id');
             $table->timestamp('payment_date');
             $table->bigInteger('amount_paid');
-            $table->string('transaction_ref');
+            $table->string('transaction_ref')->nullable();
             $table->string('currency');
             $table->softDeletes();
             $table->timestamps();

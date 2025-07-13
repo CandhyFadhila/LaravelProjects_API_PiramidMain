@@ -22,7 +22,7 @@ class DocumentHelper
 						'file_id'            => $uploadedFile['file_id'],
 						'file_name'          => $uploadedFile['filename'],
 						'file_path'          => $uploadedFile['url'],
-						'file_url'           => env('DOMAIN_STORAGE') . $uploadedFile['url'],
+						'file_url'           => $uploadedFile['url'],
 						'file_mime_type'     => $uploadedFile['mime_type'],
 						'file_size'          => $uploadedFile['size'],
 						'reason'             => null
