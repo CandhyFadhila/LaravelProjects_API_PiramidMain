@@ -46,12 +46,12 @@ class ProvinceController extends Controller
             if ($result->isEmpty()) {
                 return response()->json(
                     new WithoutDataResource(
-                        Response::HTTP_NOT_FOUND,
+                        Response::HTTP_OK,
                         'DATA_NOT_FOUND',
                         'Data Tidak Ditemukan',
                         'Tidak ada data yang sesuai dengan filter atau pencarian.'
                     ),
-                    Response::HTTP_NOT_FOUND
+                    Response::HTTP_OK
                 );
             }
 

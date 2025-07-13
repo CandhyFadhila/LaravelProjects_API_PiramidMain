@@ -55,10 +55,10 @@ class QurbanProductController extends Controller
                     });
                 },
                 'price_min' => function ($q, $val) {
-                    $q->where('price', '>=', $val);  // Filter harga minimum
+                    $q->where('price', '>', $val);  // Filter harga minimum
                 },
                 'price_max' => function ($q, $val) {
-                    $q->where('price', '<=', $val);  // Filter harga maksimum
+                    $q->where('price', '<', $val);  // Filter harga maksimum
                 },
             ];
 
@@ -76,12 +76,12 @@ class QurbanProductController extends Controller
             if ($result->isEmpty()) {
                 return response()->json(
                     new WithoutDataResource(
-                        Response::HTTP_NOT_FOUND,
+                        Response::HTTP_OK,
                         'DATA_NOT_FOUND',
                         'Data Tidak Ditemukan',
                         'Tidak ada data yang sesuai dengan filter atau pencarian.'
                     ),
-                    Response::HTTP_NOT_FOUND
+                    Response::HTTP_OK
                 );
             }
 
