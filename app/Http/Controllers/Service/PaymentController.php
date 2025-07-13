@@ -34,14 +34,32 @@ class PaymentController extends Controller
                 );
             }
 
+            $data = $request->validated();
+
+            $gateway = strtolower($data['payment_gateway_id']);
+
+            // Validasi gateway
+            // TODO: Kalau coinpayment sudah ready, pakek ini aja
+            // if (!in_array($gateway, ['midtrans', 'coinpayment'])) {
+            if (!in_array($gateway, ['midtrans'])) {
+                return response()->json(
+                    new WithoutDataResource(
+                        Response::HTTP_UNPROCESSABLE_ENTITY,
+                        'UNSUPPORTED_GATEWAY',
+                        'Gateway Tidak Didukung',
+                        "Payment gateway '{$data['payment_gateway_id']}' belum tersedia. Silakan pilih metode pembayaran lain."
+                    ),
+                    Response::HTTP_UNPROCESSABLE_ENTITY
+                );
+            }
+
             DB::beginTransaction();
 
-            $data = $request->validated();
             $user = $request->user();
 
             $paymentStatusId = PaymentStatus::where('label', 'Pending')->value('id');
             $transactionStatusId = TransactionStatus::where('label', 'Pending')->value('id');
-            $paymentMethodId = strtolower($data['payment_gateway_id']) === 'midtrans'
+            $paymentMethodId = $gateway === 'midtrans'
                 ? PaymentMethod::where('label', 'Fiat')->value('id')
                 : PaymentMethod::where('label', 'Crypto')->value('id');
 
@@ -53,7 +71,7 @@ class PaymentController extends Controller
                 'payment_gateway_id' => $data['payment_gateway_id'],
                 'payment_date' => now(),
                 'amount_paid' => $data['amount_paid'],
-                'transaction_ref' => $data['transaction_ref'] ?? null,
+                'transaction_ref' => null,
                 'currency' => $data['currency'],
             ]);
 
@@ -73,52 +91,25 @@ class PaymentController extends Controller
 
             Log::channel('transaction')->info('| createPayment | - Transaction successfully created.', $transaction->toArray());
 
-            $midtransOrderId = 'TRX-' . now()->format('Ymd') . '-' . $transaction->id;
-
-            // Midtrans Snap Token
-            $midtransParams = [
-                'transaction_details' => [
-                    'order_id' => $midtransOrderId,
-                    'gross_amount' => $data['amount_paid'],
-                ],
-                'customer_details' => [
-                    'first_name' => $user->name,
-                    'email' => $user->email,
-                ],
-            ];
-
-            $snapResponse = MidtransHelper::sendSnapToken($midtransParams, $transaction->id, $paymentDetail->id);
-
-            // $midtransStatus = MidtransHelper::getTransactionStatus($midtransOrderId);
-            // $midtransTransactionId = $midtransStatus->transaction_id ?? null;
-
-            // Update token Midtrans ke payment detail
             $paymentDetail->update([
-                'transaction_ref' => null,
                 'transaction_id' => $transaction->id,
             ]);
 
-            Log::channel('midtrans_payment')->info('| createPayment | - PaymentDetail updated with Snap Token and Redirect URL', [
-                'transaction_id' => $transaction->id,
-                'payment_detail_id' => $paymentDetail->id,
-                'snap_token' => $snapResponse->token,
-                'redirect_url' => $snapResponse->redirect_url,
-            ]);
+            // Gateway handler
+            switch ($gateway) {
+                case 'midtrans':
+                    $response = $this->handleMidtransPayment($user, $data, $transaction, $paymentDetail);
+                    break;
+                // TODO: Kalau coinpayment sudah ready
+                // case 'coinpayment':
+                //     $response = $this->handleCoinpaymentPayment();
+                //     break;
+                default:
+                    throw new \Exception('Gateway tersebut tidak didukung, silahkan pilih metode pembayaran lain.');
+            }
 
             DB::commit();
-            return response()->json(
-                new WithDataResource(
-                    Response::HTTP_CREATED,
-                    'SUCCESS_CREATE_DATA',
-                    'Pembayaran Berhasil Dibuat',
-                    'Data pembayaran berhasil disimpan dan diproses.',
-                    [
-                        'snap_token' => $snapResponse->token,
-                        'redirect_url' => $snapResponse->redirect_url,
-                    ]
-                ),
-                Response::HTTP_CREATED
-            );
+            return $response;
         } catch (\Exception $e) {
             DB::rollBack();
             Log::channel('transaction')->error('| createPayment | - Error function createPayment : ' . $e->getMessage());
@@ -136,6 +127,58 @@ class PaymentController extends Controller
 
     public function updateStatusPayment()
     {
-
+        // Ini untuk cek status pembayaran, jika sudah lunas, update status transaksi dan payment detail
+        // $midtransStatus = MidtransHelper::getTransactionStatus($midtransOrderId);
+        // $midtransTransactionId = $midtransStatus->transaction_id ?? null;
     }
+
+    private function handleMidtransPayment($user, $data, $transaction, $paymentDetail)
+    {
+        // Midtrans
+        $midtransOrderId = 'TRX-' . now()->format('Ymd') . '-' . $transaction->id;
+        $midtransParams = [
+            'transaction_details' => [
+                'order_id' => $midtransOrderId,
+                'gross_amount' => $data['amount_paid'],
+            ],
+            'customer_details' => [
+                'first_name' => $user->name,
+                'email' => $user->email,
+                'phone' => $user->phone_number ?? $user->wa_number,
+            ],
+            'item_details' => [
+                [
+                    'id' => 'ORDER-' . $data['order_detail_id'],
+                    'name' => 'Pembayaran Order #' . $data['order_detail_id'],
+                    'quantity' => 1,
+                    'price' => $data['amount_paid'],
+                ]
+            ],
+        ];
+
+        $snapResponse = MidtransHelper::sendSnapToken($midtransParams, $transaction->id, $paymentDetail->id);
+
+        Log::channel('midtrans_payment')->info('| createPayment | - PaymentDetail updated with Snap Token and Redirect URL', [
+            'transaction_id' => $transaction->id,
+            'payment_detail_id' => $paymentDetail->id,
+            'snap_token' => $snapResponse->token,
+            'redirect_url' => $snapResponse->redirect_url,
+        ]);
+
+        return response()->json(
+            new WithDataResource(
+                Response::HTTP_CREATED,
+                'SUCCESS_CREATE_DATA',
+                'Pembayaran Berhasil Dibuat',
+                'Data pembayaran berhasil disimpan dan diproses.',
+                [
+                    'snap_token' => $snapResponse->token,
+                    'redirect_url' => $snapResponse->redirect_url,
+                ]
+            ),
+            Response::HTTP_CREATED
+        );
+    }
+
+    private function handleCoinpaymentPayment() {}
 }
