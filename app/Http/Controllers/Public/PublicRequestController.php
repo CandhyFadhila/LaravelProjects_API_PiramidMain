@@ -41,12 +41,12 @@ class PublicRequestController extends Controller
             if ($serviceType->isEmpty()) {
                 return response()->json(
                     new WithoutDataResource(
-                        Response::HTTP_NOT_FOUND,
+                        Response::HTTP_OK,
                         'DATA_NOT_FOUND',
                         'Tidak Ada Data',
                         'Data service type tidak ditemukan.',
                     ),
-                    Response::HTTP_NOT_FOUND
+                    Response::HTTP_OK
                 );
             }
 
@@ -81,12 +81,12 @@ class PublicRequestController extends Controller
             if ($paymentStatus->isEmpty()) {
                 return response()->json(
                     new WithoutDataResource(
-                        Response::HTTP_NOT_FOUND,
+                        Response::HTTP_OK,
                         'DATA_NOT_FOUND',
                         'Tidak Ada Data',
                         'Data payment status tidak ditemukan.',
                     ),
-                    Response::HTTP_NOT_FOUND
+                    Response::HTTP_OK
                 );
             }
 
@@ -121,12 +121,12 @@ class PublicRequestController extends Controller
             if ($transactionStatus->isEmpty()) {
                 return response()->json(
                     new WithoutDataResource(
-                        Response::HTTP_NOT_FOUND,
+                        Response::HTTP_OK,
                         'DATA_NOT_FOUND',
                         'Tidak Ada Data',
                         'Data transaction status tidak ditemukan.',
                     ),
-                    Response::HTTP_NOT_FOUND
+                    Response::HTTP_OK
                 );
             }
 
@@ -161,12 +161,12 @@ class PublicRequestController extends Controller
             if ($paymentMethod->isEmpty()) {
                 return response()->json(
                     new WithoutDataResource(
-                        Response::HTTP_NOT_FOUND,
+                        Response::HTTP_OK,
                         'DATA_NOT_FOUND',
                         'Tidak Ada Data',
                         'Data metode pembayaran tidak ditemukan.',
                     ),
-                    Response::HTTP_NOT_FOUND
+                    Response::HTTP_OK
                 );
             }
 
