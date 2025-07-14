@@ -95,17 +95,9 @@ class PaymentController extends Controller
 
             Log::channel('transaction')->info('| Store | - Transaction successfully created.', $transaction->toArray());
 
-            $midtransOrderId = 'TRX-' . now('Asia/Jakarta')->format('Ymd') . '-' . $transaction->id;
+            $midtransOrderId = 'TRX-' . now('Asia/Jakarta')->format('Ymd-Hisv') . '-' . $transaction->id;
 
             $serviceType = ServiceType::find($transaction->order_details->service_type_id);
-
-            $paymentStatusProcessId = PaymentStatus::where('label', 'Processing')->value('id');
-
-            $paymentDetail->update([
-                'transaction_id' => $transaction->id,
-                'payment_status_id' => $paymentStatusProcessId,
-                'payment_order_id' => $midtransOrderId,
-            ]);
 
             // Gateway handler
             switch ($gateway) {
@@ -119,6 +111,20 @@ class PaymentController extends Controller
                 default:
                     throw new \Exception('Gateway tersebut tidak didukung, silahkan pilih metode pembayaran lain.');
             }
+
+            // Update payment detail and transaction
+            $paymentStatusProcessId = PaymentStatus::where('label', 'Processing')->value('id');
+            $transactionStatusProcessId = TransactionStatus::where('label', 'Processing')->value('id');
+
+            $paymentDetail->update([
+                'transaction_id' => $transaction->id,
+                'payment_status_id' => $paymentStatusProcessId,
+                'payment_order_id' => $midtransOrderId,
+            ]);
+
+            $transaction->update([
+                'transaction_status_id' => $transactionStatusProcessId,
+            ]);
 
             DB::commit();
             return $response;

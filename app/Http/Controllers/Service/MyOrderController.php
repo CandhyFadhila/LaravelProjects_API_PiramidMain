@@ -12,9 +12,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
 
-class CartController extends Controller
+class MyOrderController extends Controller
 {
-    public function index()
+        public function index()
     {
         try {
             if (!Gate::allows('transaction.view')) {
@@ -32,7 +32,9 @@ class CartController extends Controller
             $orderDetail = OrderDetail::with(['user', 'service_type', 'transaction'])
                 ->where('user_id', Auth::id())
                 ->where(function ($query) {
-                    $query->whereDoesntHave('transaction');
+                    $query->WhereHas('transaction', function ($q) {
+                            $q->whereNot('transaction_status_id', 1);
+                        });
                 })
                 ->get();
             if ($orderDetail->isEmpty()) {
@@ -52,7 +54,7 @@ class CartController extends Controller
                     Response::HTTP_OK,
                     'SUCCESS_GET_DATA',
                     'Berhasil Mengambil Data',
-                    'Data list keranjang saya berhasil didapatkan.',
+                    'Data list pesanan saya berhasil didapatkan.',
                     ServiceOrderDetail::collection($orderDetail)
                 ),
                 Response::HTTP_OK

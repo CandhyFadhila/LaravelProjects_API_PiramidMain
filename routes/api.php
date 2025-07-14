@@ -18,6 +18,7 @@ use App\Http\Controllers\Management\Settings\Account\ChangePasswordController;
 use App\Http\Controllers\Management\Settings\Account\ChangeProfileController;
 use App\Http\Controllers\Public\PublicRequestController;
 use App\Http\Controllers\Service\CartController;
+use App\Http\Controllers\Service\MyOrderController;
 use App\Http\Controllers\Service\OrderDetailController;
 use App\Http\Controllers\Service\PaymentController;
 use Illuminate\Support\Facades\Route;
@@ -109,6 +110,7 @@ Route::middleware(['auth:sanctum', 'custom.throttle:60,1'])->group(function () {
                 Route::post('/change-profile', [ChangeProfileController::class, 'updateProfileUsers']);
                 Route::apiResource('/setup-address', AddressController::class);
                 Route::post('/setup-address/{id}/restore', [AddressController::class, 'restore']);
+                Route::apiResource('/my-order', MyOrderController::class);
             });
 
             Route::group(['prefix' => 'service'], function () {
