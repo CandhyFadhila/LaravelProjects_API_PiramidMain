@@ -8,10 +8,12 @@ use App\Http\Requests\Service\Payment\StorePayment;
 use App\Http\Resources\Templates\WithDataResource;
 use App\Http\Resources\Templates\WithoutDataResource;
 use App\Models\PaymentDetail;
+use App\Models\PaymentLog;
 use App\Models\PaymentMethod;
 use App\Models\PaymentStatus;
 use App\Models\Transaction;
 use App\Models\TransactionStatus;
+use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
@@ -75,7 +77,7 @@ class PaymentController extends Controller
                 'currency' => $data['currency'],
             ]);
 
-            Log::channel('transaction_payment_detail')->info('| createPayment | - PaymentDetail successfully created.', $paymentDetail->toArray());
+            Log::channel('transaction_payment_detail')->info('| Store | - PaymentDetail successfully created.', $paymentDetail->toArray());
 
             // Create Transaction
             $transaction = Transaction::create([
@@ -89,7 +91,7 @@ class PaymentController extends Controller
                 'note' => $data['note'] ?? null,
             ]);
 
-            Log::channel('transaction')->info('| createPayment | - Transaction successfully created.', $transaction->toArray());
+            Log::channel('transaction')->info('| Store | - Transaction successfully created.', $transaction->toArray());
 
             $paymentDetail->update([
                 'transaction_id' => $transaction->id,
@@ -98,7 +100,7 @@ class PaymentController extends Controller
             // Gateway handler
             switch ($gateway) {
                 case 'midtrans':
-                    $response = $this->handleMidtransPayment($user, $data, $transaction, $paymentDetail);
+                    $response = $this->handleCreateMidtransPayment($user, $data, $transaction, $paymentDetail);
                     break;
                 // TODO: Kalau coinpayment sudah ready
                 // case 'coinpayment':
@@ -112,7 +114,7 @@ class PaymentController extends Controller
             return $response;
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::channel('transaction')->error('| createPayment | - Error function createPayment : ' . $e->getMessage() . ' - Line : ' . $e->getLine());
+            Log::channel('transaction')->error('| Store | - Error function createPayment : ' . $e->getMessage() . ' - Line : ' . $e->getLine());
             return response()->json(
                 new WithoutDataResource(
                     Response::HTTP_INTERNAL_SERVER_ERROR,
@@ -125,14 +127,139 @@ class PaymentController extends Controller
         }
     }
 
-    public function updateStatusPayment()
+    public function updateStatusPayment(Request $request)
     {
-        // Ini untuk cek status pembayaran, jika sudah lunas, update status transaksi dan payment detail
-        // $midtransStatus = MidtransHelper::getTransactionStatus($midtransOrderId);
-        // $midtransTransactionId = $midtransStatus->transaction_id ?? null;
+        try {
+            if (!Gate::allows('transaction.edit')) {
+                return response()->json(
+                    new WithoutDataResource(
+                        Response::HTTP_FORBIDDEN,
+                        'NO_ACCESS',
+                        'Tidak Memiliki Akses',
+                        'Anda tidak memiliki akses untuk mengakses halaman ini.',
+                    ),
+                    Response::HTTP_FORBIDDEN
+                );
+            }
+
+            DB::beginTransaction();
+
+            $orderId = $request->order_id;
+            if (!$request->filled('order_id')) {
+                return response()->json(
+                    new WithoutDataResource(
+                        Response::HTTP_BAD_REQUEST,
+                        'FAILED_VALIDATION',
+                        'Permintaan Tidak Valid',
+                        'Order ID tidak diperbolehkan kosong.'
+                    ),
+                    Response::HTTP_BAD_REQUEST
+                );
+            }
+
+            // Ambil status dari Midtrans
+            $statusResponse = MidtransHelper::getTransactionStatus($orderId);
+            $midtransStatus = $statusResponse->transaction_status ?? null;
+            $midtransTransactionId = $statusResponse->transaction_id ?? null;
+            $midtransStatusMessage = $statusResponse->status_message ?? null;
+
+            Log::channel('midtrans_payment')->info('| Update | - Midtrans response', [
+                'midtrans_order_id' => $orderId,
+                'midtrans_transaction_status' => $midtransStatus,
+                'midtrans_transaction_id' => $midtransTransactionId,
+                'midtrans_status_message' => $midtransStatusMessage
+            ]);
+
+            // Jika status tidak tersedia atau masih pending
+            if (empty($midtransStatus) || $midtransStatus === 'pending' || $midtransStatus === 'not_found') {
+                DB::commit();
+
+                return response()->json(
+                    new WithoutDataResource(
+                        Response::HTTP_OK,
+                        'STATUS_NOT_SETTLED',
+                        'Pembayaran Belum Diselesaikan',
+                        'Status transaksi saat ini: ' . ucfirst($midtransStatus ?? 'Unknown'),
+                    ),
+                    Response::HTTP_OK
+                );
+            }
+
+            // Validasi order_id yang sesuai format: TRX-YYYYMMDD-ID
+            $parts = explode('-', $orderId);
+            $transactionId = end($parts);
+
+            $transaction = Transaction::with('payment_details')->find($transactionId);
+            if (!$transaction || !$transaction->payment_details) {
+                return response()->json(
+                    new WithoutDataResource(
+                        Response::HTTP_NOT_FOUND,
+                        'DATA_NOT_FOUND',
+                        'Transaksi Tidak Ditemukan',
+                        'Data transaksi berdasarkan Order ID Midtrans tidak ditemukan.',
+                    ),
+                    Response::HTTP_NOT_FOUND
+                );
+            }
+
+            $successStatusId = TransactionStatus::where('label', 'Completed')->value('id');
+            $paidStatusId = PaymentStatus::where('label', 'Paid')->value('id');
+
+            if (in_array($midtransStatus, ['settlement', 'capture', 'success'])) {
+                $transaction->update([
+                    'transaction_status_id' => $successStatusId,
+                    'settlement_date' => now(),
+                ]);
+
+                $transaction->payment_details->update([
+                    'payment_status_id' => $paidStatusId,
+                    'transaction_ref' => $midtransTransactionId,
+                ]);
+
+                PaymentLog::create([
+                    'payment_detail_id' => $transaction->payment_details->id,
+                    'name' => 'midtrans_status_success',
+                    'type' => 'update',
+                    'payload' => [
+                        'order_id' => $orderId,
+                        'status' => $midtransStatus,
+                        'transaction_ref' => $midtransTransactionId,
+                    ],
+                ]);
+
+                DB::commit();
+
+                Log::channel('midtrans_payment')->info('| Update | - Status updated to success.', [
+                    'transaction_id' => $transaction->id,
+                    'payment_detail_id' => $transaction->payment_details->id,
+                ]);
+
+                return response()->json(
+                    new WithoutDataResource(
+                        Response::HTTP_OK,
+                        'STATUS_UPDATED',
+                        'Status Pembayaran Diperbarui',
+                        'Status transaksi berhasil diperbarui menjadi sukses.'
+                    ),
+                    Response::HTTP_OK
+                );
+            }
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::channel('transaction')->error('| Update | - Error function updateStatusPayment : ' . $e->getMessage() . ' - Line : ' . $e->getLine());
+            return response()->json(
+                new WithoutDataResource(
+                    Response::HTTP_INTERNAL_SERVER_ERROR,
+                    'ERROR_GET_DATA',
+                    'Gagal Mengambil Data',
+                    'Terjadi kesalahan pada sistem, silahkan coba lagi nanti atau hubungi admin.',
+                ),
+                Response::HTTP_INTERNAL_SERVER_ERROR
+            );
+        }
     }
 
-    private function handleMidtransPayment($user, $data, $transaction, $paymentDetail)
+    private function handleCreateMidtransPayment($user, $data, $transaction, $paymentDetail)
     {
         // Midtrans
         $midtransOrderId = 'TRX-' . now()->format('Ymd') . '-' . $transaction->id;
@@ -174,11 +301,12 @@ class PaymentController extends Controller
                 [
                     'snap_token' => $snapResponse->token,
                     'redirect_url' => $snapResponse->redirect_url,
+                    'order_id' => $midtransOrderId
                 ]
             ),
             Response::HTTP_CREATED
         );
     }
 
-    private function handleCoinpaymentPayment() {}
+    private function handleCreateCoinPayment() {}
 }

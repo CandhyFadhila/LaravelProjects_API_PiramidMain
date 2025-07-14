@@ -9,10 +9,10 @@ class MidtransService
 {
 	public function __construct()
 	{
-		Config::$serverKey = env('MIDTRANS_SERVER_KEY');
-		Config::$isProduction = false;
-		Config::$isSanitized = true;
-		Config::$is3ds = true;
+		Config::$serverKey = config('midtrans.server_key');
+		Config::$isProduction = config('midtrans.is_production');
+		Config::$isSanitized = config('midtrans.is_sanitized');
+		Config::$is3ds = config('midtrans.is_3ds');
 	}
 
 	public function createTransaction(array $params)

@@ -36,6 +36,8 @@ class MidtransHelper
     public static function getTransactionStatus(string $orderId)
     {
         try {
+            app(MidtransService::class); // trigger constructor untuk set config
+
             Log::channel('midtrans_payment')->info("| MidtransHelper | - Checking status for order_id: {$orderId}");
 
             $status = MidtransTransaction::status($orderId);
@@ -44,7 +46,19 @@ class MidtransHelper
 
             return $status;
         } catch (\Exception $e) {
-            Log::channel('midtrans_payment')->error("| MidtransHelper | - Error checking transaction status for order_id {$orderId}: " . $e->getMessage() . ' - Line : ' . $e->getLine());
+            // Coba parse pesan error-nya
+            $message = $e->getMessage();
+
+            if (str_contains($message, '404') && str_contains($message, "Transaction doesn't exist")) {
+                Log::channel('midtrans_payment')->warning("| MidtransHelper | - Transaction not found for order_id {$orderId}");
+                return (object)[
+                    'transaction_status' => 'not_found',
+                    'transaction_id' => null,
+                ];
+            }
+
+            // Log error selain 404
+            Log::channel('midtrans_payment')->error("| MidtransHelper | - Error checking transaction status for order_id {$orderId}: " . $message);
             throw $e;
         }
     }

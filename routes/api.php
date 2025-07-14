@@ -115,6 +115,7 @@ Route::middleware(['auth:sanctum', 'custom.throttle:60,1'])->group(function () {
                 Route::post('/order-detail/{id}/restore', [OrderDetailController::class, 'restore']);
                 
                 Route::post('/payment', [PaymentController::class, 'createPayment']);
+                Route::post('/update-payment', [PaymentController::class, 'updateStatusPayment']);
             });
         });
     });
