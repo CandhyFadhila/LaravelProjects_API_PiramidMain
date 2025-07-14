@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Service;
 use App\Helpers\MidtransHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Service\Payment\StorePayment;
+use App\Http\Requests\Service\Payment\UpdatePayment;
 use App\Http\Resources\Templates\WithDataResource;
 use App\Http\Resources\Templates\WithoutDataResource;
 use App\Models\PaymentDetail;
@@ -60,8 +61,8 @@ class PaymentController extends Controller
 
             $user = $request->user();
 
-            $paymentStatusId = PaymentStatus::where('label', 'Pending')->value('id');
-            $transactionStatusId = TransactionStatus::where('label', 'Pending')->value('id');
+            $paymentStatusPendingId = PaymentStatus::where('label', 'Pending')->value('id');
+            $transactionStatusPendingId = TransactionStatus::where('label', 'Pending')->value('id');
             $paymentMethodId = $gateway === 'midtrans'
                 ? PaymentMethod::where('label', 'Fiat')->value('id')
                 : PaymentMethod::where('label', 'Crypto')->value('id');
@@ -69,7 +70,7 @@ class PaymentController extends Controller
             // Create Payment Detail
             $paymentDetail = PaymentDetail::create([
                 'transaction_id' => null, // Diisi setelah transaksi dibuat
-                'payment_status_id' => $paymentStatusId,
+                'payment_status_id' => $paymentStatusPendingId,
                 'payment_method_id' => $paymentMethodId,
                 'payment_gateway_id' => $data['payment_gateway_id'],
                 'payment_date' => now(),
@@ -85,7 +86,7 @@ class PaymentController extends Controller
                 'user_id' => $user->id,
                 'order_detail_id' => $data['order_detail_id'],
                 'payment_detail_id' => $paymentDetail->id,
-                'transaction_status_id' => $transactionStatusId,
+                'transaction_status_id' => $transactionStatusPendingId,
                 'transaction_date' => now(),
                 'settlement_date' => now()->addDay(),
                 'grand_total' => $data['amount_paid'],
@@ -98,9 +99,12 @@ class PaymentController extends Controller
 
             $serviceType = ServiceType::find($transaction->order_details->service_type_id);
 
+            $paymentStatusProcessId = PaymentStatus::where('label', 'Processing')->value('id');
+
             $paymentDetail->update([
                 'transaction_id' => $transaction->id,
-                'payment_order_id' => $midtransOrderId
+                'payment_status_id' => $paymentStatusProcessId,
+                'payment_order_id' => $midtransOrderId,
             ]);
 
             // Gateway handler
@@ -133,7 +137,7 @@ class PaymentController extends Controller
         }
     }
 
-    public function updateStatusPayment(Request $request)
+    public function updateStatusPayment(UpdatePayment $request)
     {
         try {
             if (!Gate::allows('transaction.edit')) {
@@ -281,7 +285,7 @@ class PaymentController extends Controller
             'item_details' => [
                 [
                     'id' => 'ORDER-' . $data['order_detail_id'],
-                    'name' => "Pembayaran layanan '{$serviceType->label}', Order-'{$data['order_detail_id']}",
+                    'name' => "Payment for order '{$serviceType->label}', #{$data['order_detail_id']}",
                     'quantity' => 1,
                     'price' => $data['amount_paid'],
                 ]
