@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class OrderDetail extends Model
@@ -37,5 +38,15 @@ class OrderDetail extends Model
     public function service_type(): BelongsTo
     {
         return $this->belongsTo(ServiceType::class, 'service_type_id', 'id');
+    }
+
+    /**
+     * Get the transaction associated with the OrderDetail
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function transaction(): HasOne
+    {
+        return $this->hasOne(Transaction::class, 'order_detail_id', 'id');
     }
 }

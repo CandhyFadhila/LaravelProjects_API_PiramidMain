@@ -280,52 +280,59 @@ return [
             'replace_placeholders' => true,
         ],
 
-        // PAYMENT
+        // SERVICE
         'transaction_order_detail' => [
             'driver' => 'single',
-            'path' => storage_path('logs/Transaction/transaction_order_detail.log'),
+            'path' => storage_path('logs/Service/Transaction/transaction_order_detail.log'),
             'level' => env('LOG_LEVEL', 'debug'),
             'replace_placeholders' => true,
         ],
 
         'transaction_payment_detail' => [
             'driver' => 'single',
-            'path' => storage_path('logs/Transaction/transaction_payment_detail.log'),
+            'path' => storage_path('logs/Service/Transaction/transaction_payment_detail.log'),
             'level' => env('LOG_LEVEL', 'debug'),
             'replace_placeholders' => true,
         ],
 
         'transaction' => [
             'driver' => 'single',
-            'path' => storage_path('logs/Transaction/transaction.log'),
+            'path' => storage_path('logs/Service/Transaction/transaction.log'),
             'level' => env('LOG_LEVEL', 'debug'),
             'replace_placeholders' => true,
         ],
 
         'transaction_order' => [
             'driver' => 'single',
-            'path' => storage_path('logs/Transaction/transaction_order_detail.log'),
+            'path' => storage_path('logs/Service/Transaction/transaction_order_detail.log'),
             'level' => env('LOG_LEVEL', 'debug'),
             'replace_placeholders' => true,
         ],
 
         'snap_token' => [
             'driver' => 'single',
-            'path' => storage_path('logs/Payment/Midtrans/midtrans_snap_token.log'),
+            'path' => storage_path('logs/Service/Payment/Midtrans/midtrans_snap_token.log'),
             'level' => env('LOG_LEVEL', 'debug'),
             'replace_placeholders' => true,
         ],
 
         'midtrans_payment' => [
             'driver' => 'single',
-            'path' => storage_path('logs/Payment/Midtrans/midtrans_payment.log'),
+            'path' => storage_path('logs/Service/Payment/Midtrans/midtrans_payment.log'),
             'level' => env('LOG_LEVEL', 'debug'),
             'replace_placeholders' => true,
         ],
 
         'coin_payment' => [
             'driver' => 'single',
-            'path' => storage_path('logs/Payment/Coinpayment/coin_payment.log'),
+            'path' => storage_path('logs/Service/Payment/Coinpayment/coin_payment.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+            'replace_placeholders' => true,
+        ],
+
+        'service_cart' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/Service/Cart/cart.log'),
             'level' => env('LOG_LEVEL', 'debug'),
             'replace_placeholders' => true,
         ],

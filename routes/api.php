@@ -17,6 +17,7 @@ use App\Http\Controllers\Management\Settings\Account\AddressController;
 use App\Http\Controllers\Management\Settings\Account\ChangePasswordController;
 use App\Http\Controllers\Management\Settings\Account\ChangeProfileController;
 use App\Http\Controllers\Public\PublicRequestController;
+use App\Http\Controllers\Service\CartController;
 use App\Http\Controllers\Service\OrderDetailController;
 use App\Http\Controllers\Service\PaymentController;
 use Illuminate\Support\Facades\Route;
@@ -110,12 +111,16 @@ Route::middleware(['auth:sanctum', 'custom.throttle:60,1'])->group(function () {
                 Route::post('/setup-address/{id}/restore', [AddressController::class, 'restore']);
             });
 
-            Route::group(['prefix' => 'transaction'], function () {
+            Route::group(['prefix' => 'service'], function () {
+                Route::apiResource('/cart', CartController::class);
+
                 Route::apiResource('/order-detail', OrderDetailController::class);
                 Route::post('/order-detail/{id}/restore', [OrderDetailController::class, 'restore']);
-                
-                Route::post('/payment', [PaymentController::class, 'createPayment']);
-                Route::post('/update-payment', [PaymentController::class, 'updateStatusPayment']);
+
+                Route::group(['prefix' => 'transaction'], function () {
+                    Route::post('/payment', [PaymentController::class, 'createPayment']);
+                    Route::post('/update-payment', [PaymentController::class, 'updateStatusPayment']);
+                });
             });
         });
     });

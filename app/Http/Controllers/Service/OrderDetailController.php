@@ -10,7 +10,6 @@ use App\Http\Resources\Templates\WithDataResource;
 use App\Http\Resources\Templates\WithoutDataResource;
 use App\Models\OrderDetail;
 use App\Models\ServiceType;
-use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -40,12 +39,12 @@ class OrderDetailController extends Controller
             if ($orderDetail->isEmpty()) {
                 return response()->json(
                     new WithoutDataResource(
-                        Response::HTTP_NOT_FOUND,
+                        Response::HTTP_OK,
                         'DATA_NOT_FOUND',
                         'Data Tidak Ditemukan',
                         'Tidak ada data yang sesuai.'
                     ),
-                    Response::HTTP_NOT_FOUND
+                    Response::HTTP_OK
                 );
             }
 
