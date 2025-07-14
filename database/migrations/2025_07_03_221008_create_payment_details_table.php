@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('payment_status_id')->constrained('payment_statuses')->onUpdate('cascade')->onDelete('cascade');
             $table->foreignId('payment_method_id')->constrained('payment_methods')->onUpdate('cascade')->onDelete('cascade');
             $table->string('payment_gateway_id');
+            $table->string('payment_order_id')->nullable();
             $table->timestamp('payment_date');
             $table->bigInteger('amount_paid');
             $table->string('transaction_ref')->nullable();

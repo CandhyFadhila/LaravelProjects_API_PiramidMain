@@ -11,6 +11,7 @@ use App\Models\PaymentDetail;
 use App\Models\PaymentLog;
 use App\Models\PaymentMethod;
 use App\Models\PaymentStatus;
+use App\Models\ServiceType;
 use App\Models\Transaction;
 use App\Models\TransactionStatus;
 use Illuminate\Http\Request;
@@ -93,14 +94,19 @@ class PaymentController extends Controller
 
             Log::channel('transaction')->info('| Store | - Transaction successfully created.', $transaction->toArray());
 
+            $midtransOrderId = 'TRX-' . now('Asia/Jakarta')->format('Ymd') . '-' . $transaction->id;
+
+            $serviceType = ServiceType::find($transaction->order_details->service_type_id);
+
             $paymentDetail->update([
                 'transaction_id' => $transaction->id,
+                'payment_order_id' => $midtransOrderId
             ]);
 
             // Gateway handler
             switch ($gateway) {
                 case 'midtrans':
-                    $response = $this->handleCreateMidtransPayment($user, $data, $transaction, $paymentDetail);
+                    $response = $this->handleCreateMidtransPayment($user, $data, $midtransOrderId, $transaction, $paymentDetail, $serviceType);
                     break;
                 // TODO: Kalau coinpayment sudah ready
                 // case 'coinpayment':
@@ -259,10 +265,9 @@ class PaymentController extends Controller
         }
     }
 
-    private function handleCreateMidtransPayment($user, $data, $transaction, $paymentDetail)
+    private function handleCreateMidtransPayment($user, $data, $midtransOrderId, $transaction, $paymentDetail, $serviceType)
     {
         // Midtrans
-        $midtransOrderId = 'TRX-' . now()->format('Ymd') . '-' . $transaction->id;
         $midtransParams = [
             'transaction_details' => [
                 'order_id' => $midtransOrderId,
@@ -276,7 +281,7 @@ class PaymentController extends Controller
             'item_details' => [
                 [
                     'id' => 'ORDER-' . $data['order_detail_id'],
-                    'name' => 'Pembayaran Order #' . $data['order_detail_id'],
+                    'name' => "Pembayaran layanan '{$serviceType->label}', Order-'{$data['order_detail_id']}",
                     'quantity' => 1,
                     'price' => $data['amount_paid'],
                 ]
