@@ -28,8 +28,8 @@ class UpdateSadaqahProduct extends FormRequest
         return [
             'animal_id' => ['nullable', 'array', 'min:1'],
             'animal_id.*' => ['integer', 'exists:animals,id'],
-            'photo_product_id' => ['required', 'array', 'min:1'],
-            'photo_product_id.*' => ['required', 'mimes:jpg,jpeg,png', 'max:10240'],
+            'photo_product_id' => ['nullable', 'array', 'min:1'],
+            'photo_product_id.*' => ['nullable', 'mimes:jpg,jpeg,png', 'max:10240'],
             'delete_document_ids' => ['nullable', 'array'],
             'delete_document_ids.*' => ['nullable', 'integer'],
             'name' => ['required'],
