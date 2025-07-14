@@ -13,10 +13,21 @@ class OrderDetail extends Model
     protected $guarded = ['id'];
 
     protected $casts = [
+        'user_id' => 'integer',
         'service_type_id' => 'integer',
         'detail' => 'array',
         'last_steps' => 'integer',
     ];
+
+    /**
+     * Get the users that owns the OrderDetail
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id', 'id');
+    }
 
     /**
      * Get the service_type that owns the OrderDetail

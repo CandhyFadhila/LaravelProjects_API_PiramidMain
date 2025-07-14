@@ -55,13 +55,13 @@ class User extends Authenticatable
     }
 
     /**
-     * Get all of the address for the User
+     * Get the address that owns the User
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function address(): HasMany
+    public function address(): BelongsTo
     {
-        return $this->hasMany(Address::class, 'primary_address', 'id');
+        return $this->belongsTo(Address::class, 'primary_address', 'id');
     }
 
     public function getDocumentsAttribute()

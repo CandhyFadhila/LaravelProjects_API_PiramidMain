@@ -3,6 +3,7 @@
 namespace App\Http\Resources\Service;
 
 use App\Http\Resources\Required\ServiceType;
+use App\Http\Resources\Required\UserResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -17,6 +18,7 @@ class OrderDetail extends JsonResource
     {
         return [
             'id' => $this->id,
+            'user' => new UserResource($this->user),
             'service_type' => new ServiceType($this->service_type),
             'detail' => $this->detail,
             'last_steps' => $this->last_steps,

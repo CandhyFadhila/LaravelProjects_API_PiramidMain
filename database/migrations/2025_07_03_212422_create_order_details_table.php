@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('order_details', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->constrained('users')->onUpdate('cascade');
             $table->foreignId('service_type_id')->constrained('service_types')->onUpdate('cascade')->onDelete('cascade');
             $table->json('detail');
             $table->integer('last_steps')->default(1);

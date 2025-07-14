@@ -10,7 +10,9 @@ use App\Http\Resources\Templates\WithDataResource;
 use App\Http\Resources\Templates\WithoutDataResource;
 use App\Models\OrderDetail;
 use App\Models\ServiceType;
+use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
@@ -32,7 +34,9 @@ class OrderDetailController extends Controller
                 );
             }
 
-            $orderDetail = OrderDetail::all();
+            $orderDetail = OrderDetail::with(['user', 'service_type'])
+                ->where('user_id', Auth::id())
+                ->get();
             if ($orderDetail->isEmpty()) {
                 return response()->json(
                     new WithoutDataResource(
@@ -86,6 +90,8 @@ class OrderDetailController extends Controller
 
             DB::beginTransaction();
 
+            $user = $request->user();
+
             $validatedData = $request->validated();
 
             $serviceType = ServiceType::find($validatedData['service_type_id']);
@@ -102,6 +108,7 @@ class OrderDetailController extends Controller
             }
 
             $orderDetail = OrderDetail::create([
+                'user_id' => $user->id,
                 'service_type_id' => $validatedData['service_type_id'],
                 'detail' => $validatedData['detail'],
                 'last_steps' => $validatedData['last_steps'] ?? 1,
