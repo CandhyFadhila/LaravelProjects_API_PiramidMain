@@ -68,7 +68,7 @@ class MosqueController extends Controller
                 Response::HTTP_OK
             );
         } catch (\Exception $e) {
-            Log::channel('gen_mosque')->error('| Index | - Error function index : ' . $e->getMessage());
+            Log::channel('gen_mosque')->error('| Index | - Error function index : ' . $e->getMessage() . ' - Line : ' . $e->getLine());
             return response()->json(
                 new WithoutDataResource(
                     Response::HTTP_INTERNAL_SERVER_ERROR,
@@ -123,7 +123,7 @@ class MosqueController extends Controller
             );
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::channel('gen_mosque')->error('| Store | - Error function store : ' . $e->getMessage());
+            Log::channel('gen_mosque')->error('| Store | - Error function store : ' . $e->getMessage() . ' - Line : ' . $e->getLine());
             return response()->json(
                 new WithoutDataResource(
                     Response::HTTP_INTERNAL_SERVER_ERROR,
@@ -175,7 +175,7 @@ class MosqueController extends Controller
                 Response::HTTP_OK
             );
         } catch (\Exception $e) {
-            Log::channel('gen_mosque')->error('| Detail | - Error function show : ' . $e->getMessage());
+            Log::channel('gen_mosque')->error('| Detail | - Error function show : ' . $e->getMessage() . ' - Line : ' . $e->getLine());
             return response()->json(
                 new WithoutDataResource(
                     Response::HTTP_INTERNAL_SERVER_ERROR,
@@ -243,7 +243,7 @@ class MosqueController extends Controller
             );
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::channel('gen_mosque')->error('| Update | - Error function update : ' . $e->getMessage());
+            Log::channel('gen_mosque')->error('| Update | - Error function update : ' . $e->getMessage() . ' - Line : ' . $e->getLine());
             return response()->json(
                 new WithoutDataResource(
                     Response::HTTP_INTERNAL_SERVER_ERROR,
@@ -300,7 +300,7 @@ class MosqueController extends Controller
             );
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::channel('gen_mosque')->error('| Destroy | - Error function destroy : ' . $e->getMessage());
+            Log::channel('gen_mosque')->error('| Destroy | - Error function destroy : ' . $e->getMessage() . ' - Line : ' . $e->getLine());
             return response()->json(
                 new WithoutDataResource(
                     Response::HTTP_INTERNAL_SERVER_ERROR,
@@ -357,7 +357,7 @@ class MosqueController extends Controller
             );
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::channel('gen_mosque')->error('| Restore | - Error function restore : ' . $e->getMessage());
+            Log::channel('gen_mosque')->error('| Restore | - Error function restore : ' . $e->getMessage() . ' - Line : ' . $e->getLine());
             return response()->json(
                 new WithoutDataResource(
                     Response::HTTP_INTERNAL_SERVER_ERROR,

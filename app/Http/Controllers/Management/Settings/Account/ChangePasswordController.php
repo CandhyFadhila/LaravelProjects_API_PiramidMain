@@ -68,7 +68,7 @@ class ChangePasswordController extends Controller
             );
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::channel('auth_password')->error("| Update Password {$type} | - Error function {$type} : " . $e->getMessage());
+            Log::channel('auth_password')->error("| Update Password {$type} | - Error function {$type} : " . $e->getMessage() . ' - Line : ' . $e->getLine());
             return response()->json(
                 new WithoutDataResource(
                     Response::HTTP_INTERNAL_SERVER_ERROR,

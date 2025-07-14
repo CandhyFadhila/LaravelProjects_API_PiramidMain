@@ -47,7 +47,7 @@ class ForgotPasswordController extends Controller
 
         try {
             Mail::to($user->email)->send(new SendingOTPMail($user->name, $otp));
-            Log::channel('auth_otp')->info('| Send OTP | - Send OTP success for email: ' . $user->email .', at ' . Carbon::now());
+            Log::channel('auth_otp')->info('| Send OTP | - Send OTP success for email: ' . $user->email . ', at ' . Carbon::now());
 
             return response()->json(
                 new WithoutDataResource(
@@ -59,7 +59,7 @@ class ForgotPasswordController extends Controller
                 Response::HTTP_OK
             );
         } catch (\Exception $e) {
-            Log::channel('auth_otp')->error('| Send OTP | - Send OTP failed for email: ' . $user->email .', Error: ' . $e->getMessage());
+            Log::channel('auth_otp')->error('| Send OTP | - Send OTP failed for email: ' . $user->email . ', Error: ' . $e->getMessage() . ' - Line : ' . $e->getLine());
             return response()->json(
                 new WithoutDataResource(
                     Response::HTTP_INTERNAL_SERVER_ERROR,

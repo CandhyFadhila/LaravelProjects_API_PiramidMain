@@ -70,7 +70,7 @@ class RegisterController extends Controller
             );
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::channel('auth_signup')->error('| Signup | - Error function signUp : ' . $e->getMessage());
+            Log::channel('auth_signup')->error('| Signup | - Error function signUp : ' . $e->getMessage() . ' - Line : ' . $e->getLine());
             return response()->json(
                 new WithoutDataResource(
                     Response::HTTP_INTERNAL_SERVER_ERROR,

@@ -44,7 +44,7 @@ class MidtransHelper
 
             return $status;
         } catch (\Exception $e) {
-            Log::channel('midtrans_payment')->error("| MidtransHelper | - Error checking transaction status for order_id {$orderId}: " . $e->getMessage());
+            Log::channel('midtrans_payment')->error("| MidtransHelper | - Error checking transaction status for order_id {$orderId}: " . $e->getMessage() . ' - Line : ' . $e->getLine());
             throw $e;
         }
     }

@@ -112,7 +112,7 @@ class PaymentController extends Controller
             return $response;
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::channel('transaction')->error('| createPayment | - Error function createPayment : ' . $e->getMessage());
+            Log::channel('transaction')->error('| createPayment | - Error function createPayment : ' . $e->getMessage() . ' - Line : ' . $e->getLine());
             return response()->json(
                 new WithoutDataResource(
                     Response::HTTP_INTERNAL_SERVER_ERROR,

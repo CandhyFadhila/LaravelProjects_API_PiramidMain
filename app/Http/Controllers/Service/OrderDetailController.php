@@ -56,7 +56,7 @@ class OrderDetailController extends Controller
                 Response::HTTP_OK
             );
         } catch (\Exception $e) {
-            Log::channel('transaction_order_detail')->error('| Index | - Error function index : ' . $e->getMessage());
+            Log::channel('transaction_order_detail')->error('| Index | - Error function index : ' . $e->getMessage() . ' - Line : ' . $e->getLine());
             return response()->json(
                 new WithoutDataResource(
                     Response::HTTP_INTERNAL_SERVER_ERROR,
@@ -120,7 +120,7 @@ class OrderDetailController extends Controller
             );
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::channel('transaction_order_detail')->error('| Store | - Error function storeOrderDetail : ' . $e->getMessage());
+            Log::channel('transaction_order_detail')->error('| Store | - Error function storeOrderDetail : ' . $e->getMessage() . ' - Line : ' . $e->getLine());
             return response()->json(
                 new WithoutDataResource(
                     Response::HTTP_INTERNAL_SERVER_ERROR,
@@ -174,7 +174,7 @@ class OrderDetailController extends Controller
                 Response::HTTP_OK
             );
         } catch (\Exception $e) {
-            Log::channel('transaction_order_detail')->error('| Detail | - Error function show : ' . $e->getMessage());
+            Log::channel('transaction_order_detail')->error('| Detail | - Error function show : ' . $e->getMessage() . ' - Line : ' . $e->getLine());
             return response()->json(
                 new WithoutDataResource(
                     Response::HTTP_INTERNAL_SERVER_ERROR,
@@ -254,7 +254,7 @@ class OrderDetailController extends Controller
             );
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::channel('transaction_order_detail')->error('| Update | - Error function updateOrderDetail : ' . $e->getMessage());
+            Log::channel('transaction_order_detail')->error('| Update | - Error function updateOrderDetail : ' . $e->getMessage() . ' - Line : ' . $e->getLine());
             return response()->json(
                 new WithoutDataResource(
                     Response::HTTP_INTERNAL_SERVER_ERROR,
@@ -314,7 +314,7 @@ class OrderDetailController extends Controller
             );
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::channel('transaction_order_detail')->error('| Destroy | - Error function destroy : ' . $e->getMessage());
+            Log::channel('transaction_order_detail')->error('| Destroy | - Error function destroy : ' . $e->getMessage() . ' - Line : ' . $e->getLine());
             return response()->json(
                 new WithoutDataResource(
                     Response::HTTP_INTERNAL_SERVER_ERROR,
@@ -375,7 +375,7 @@ class OrderDetailController extends Controller
             );
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::channel('transaction_order_detail')->error('| Restore | - Error function restore : ' . $e->getMessage());
+            Log::channel('transaction_order_detail')->error('| Restore | - Error function restore : ' . $e->getMessage() . ' - Line : ' . $e->getLine());
             return response()->json(
                 new WithoutDataResource(
                     Response::HTTP_INTERNAL_SERVER_ERROR,

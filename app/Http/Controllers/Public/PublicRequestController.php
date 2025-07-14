@@ -61,7 +61,7 @@ class PublicRequestController extends Controller
                 Response::HTTP_OK
             );
         } catch (\Exception $e) {
-            Log::channel('public_request')->error('| Public Request | - Error function getServiceType : ' . $e->getMessage());
+            Log::channel('public_request')->error('| Public Request | - Error function getServiceType : ' . $e->getMessage() . ' - Line : ' . $e->getLine());
             return response()->json(
                 new WithoutDataResource(
                     Response::HTTP_INTERNAL_SERVER_ERROR,
@@ -101,7 +101,7 @@ class PublicRequestController extends Controller
                 Response::HTTP_OK
             );
         } catch (\Exception $e) {
-            Log::channel('public_request')->error('| Public Request | - Error function getPaymentStatus : ' . $e->getMessage());
+            Log::channel('public_request')->error('| Public Request | - Error function getPaymentStatus : ' . $e->getMessage() . ' - Line : ' . $e->getLine());
             return response()->json(
                 new WithoutDataResource(
                     Response::HTTP_INTERNAL_SERVER_ERROR,
@@ -141,7 +141,7 @@ class PublicRequestController extends Controller
                 Response::HTTP_OK
             );
         } catch (\Exception $e) {
-            Log::channel('public_request')->error('| Public Request | - Error function getTransactionStatus : ' . $e->getMessage());
+            Log::channel('public_request')->error('| Public Request | - Error function getTransactionStatus : ' . $e->getMessage() . ' - Line : ' . $e->getLine());
             return response()->json(
                 new WithoutDataResource(
                     Response::HTTP_INTERNAL_SERVER_ERROR,
@@ -181,7 +181,7 @@ class PublicRequestController extends Controller
                 Response::HTTP_OK
             );
         } catch (\Exception $e) {
-            Log::channel('public_request')->error('| Public Request | - Error function getPaymentMethod : ' . $e->getMessage());
+            Log::channel('public_request')->error('| Public Request | - Error function getPaymentMethod : ' . $e->getMessage() . ' - Line : ' . $e->getLine());
             return response()->json(
                 new WithoutDataResource(
                     Response::HTTP_INTERNAL_SERVER_ERROR,
@@ -222,7 +222,7 @@ class PublicRequestController extends Controller
                 Response::HTTP_OK
             );
         } catch (\Exception $e) {
-            Log::channel('public_request')->error('| Public Request | - Error function getMosqueRelation : ' . $e->getMessage());
+            Log::channel('public_request')->error('| Public Request | - Error function getMosqueRelation : ' . $e->getMessage() . ' - Line : ' . $e->getLine());
             return response()->json(
                 new WithoutDataResource(
                     Response::HTTP_INTERNAL_SERVER_ERROR,
@@ -262,7 +262,7 @@ class PublicRequestController extends Controller
                 Response::HTTP_OK
             );
         } catch (\Exception $e) {
-            Log::channel('public_request')->error('| Public Request | - Error function getAnimalCategory : ' . $e->getMessage());
+            Log::channel('public_request')->error('| Public Request | - Error function getAnimalCategory : ' . $e->getMessage() . ' - Line : ' . $e->getLine());
             return response()->json(
                 new WithoutDataResource(
                     Response::HTTP_INTERNAL_SERVER_ERROR,
@@ -302,7 +302,7 @@ class PublicRequestController extends Controller
                 Response::HTTP_OK
             );
         } catch (\Exception $e) {
-            Log::channel('public_request')->error('| Public Request | - Error function getAnimalBreed : ' . $e->getMessage());
+            Log::channel('public_request')->error('| Public Request | - Error function getAnimalBreed : ' . $e->getMessage() . ' - Line : ' . $e->getLine());
             return response()->json(
                 new WithoutDataResource(
                     Response::HTTP_INTERNAL_SERVER_ERROR,
@@ -342,7 +342,7 @@ class PublicRequestController extends Controller
                 Response::HTTP_OK
             );
         } catch (\Exception $e) {
-            Log::channel('public_request')->error('| Public Request | - Error function getAnimal : ' . $e->getMessage());
+            Log::channel('public_request')->error('| Public Request | - Error function getAnimal : ' . $e->getMessage() . ' - Line : ' . $e->getLine());
             return response()->json(
                 new WithoutDataResource(
                     Response::HTTP_INTERNAL_SERVER_ERROR,
@@ -382,7 +382,7 @@ class PublicRequestController extends Controller
                 Response::HTTP_OK
             );
         } catch (\Exception $e) {
-            Log::channel('public_request')->error('| Public Request | - Error function getCoverageProvince : ' . $e->getMessage());
+            Log::channel('public_request')->error('| Public Request | - Error function getCoverageProvince : ' . $e->getMessage() . ' - Line : ' . $e->getLine());
             return response()->json(
                 new WithoutDataResource(
                     Response::HTTP_INTERNAL_SERVER_ERROR,
@@ -422,7 +422,7 @@ class PublicRequestController extends Controller
                 Response::HTTP_OK
             );
         } catch (\Exception $e) {
-            Log::channel('public_request')->error('| Public Request | - Error function getCoverageCities : ' . $e->getMessage());
+            Log::channel('public_request')->error('| Public Request | - Error function getCoverageCities : ' . $e->getMessage() . ' - Line : ' . $e->getLine());
             return response()->json(
                 new WithoutDataResource(
                     Response::HTTP_INTERNAL_SERVER_ERROR,
@@ -477,7 +477,7 @@ class PublicRequestController extends Controller
                 Response::HTTP_OK
             );
         } catch (\Exception $e) {
-            Log::channel('public_request')->error('| Public Request | - Error function getCitiesByProvince : ' . $e->getMessage());
+            Log::channel('public_request')->error('| Public Request | - Error function getCitiesByProvince : ' . $e->getMessage() . ' - Line : ' . $e->getLine());
             return response()->json(
                 new WithoutDataResource(
                     Response::HTTP_INTERNAL_SERVER_ERROR,
@@ -555,7 +555,7 @@ class PublicRequestController extends Controller
                 Response::HTTP_OK
             );
         } catch (\Exception $e) {
-            Log::channel('public_request')->error('| Public Request | - Error function getQurbanProduct : ' . $e->getMessage());
+            Log::channel('public_request')->error('| Public Request | - Error function getQurbanProduct : ' . $e->getMessage() . ' - Line : ' . $e->getLine());
             return response()->json(
                 new WithoutDataResource(
                     Response::HTTP_INTERNAL_SERVER_ERROR,
@@ -631,7 +631,7 @@ class PublicRequestController extends Controller
                 Response::HTTP_OK
             );
         } catch (\Exception $e) {
-            Log::channel('public_request')->error('| Public Request | - Error function getAqiqahProduct : ' . $e->getMessage());
+            Log::channel('public_request')->error('| Public Request | - Error function getAqiqahProduct : ' . $e->getMessage() . ' - Line : ' . $e->getLine());
             return response()->json(
                 new WithoutDataResource(
                     Response::HTTP_INTERNAL_SERVER_ERROR,
@@ -692,7 +692,7 @@ class PublicRequestController extends Controller
                 Response::HTTP_OK
             );
         } catch (\Exception $e) {
-            Log::channel('public_request')->error('| Public Request | - Error function getSadaqahProduct : ' . $e->getMessage());
+            Log::channel('public_request')->error('| Public Request | - Error function getSadaqahProduct : ' . $e->getMessage() . ' - Line : ' . $e->getLine());
             return response()->json(
                 new WithoutDataResource(
                     Response::HTTP_INTERNAL_SERVER_ERROR,
