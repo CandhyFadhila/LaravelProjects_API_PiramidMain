@@ -38,6 +38,7 @@ class AqiqahProductController extends Controller
             $query = AqiqahProduct::query()
                 ->withTrashed()
                 ->with([
+                    'animals',
                     'animals.animal_categories',
                     'animals.animal_breeds',
                 ]);

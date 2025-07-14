@@ -38,6 +38,7 @@ class QurbanProductController extends Controller
             $query = QurbanProduct::query()
                 ->withTrashed()
                 ->with([
+                    'animals',
                     'animals.animal_categories',
                     'animals.animal_breeds',
                 ]);

@@ -18,17 +18,19 @@ class QurbanProductResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'animal' => [
-                'id' => $this->animals->id,
-                'animal_category' => new AnimalCategoryResource($this->animals->animal_categories),
-                'animal_breed' => new AnimalBreedResource($this->animals->animal_breeds),
-                'average_weight' => $this->animals->average_weight,
-                'birth_date' => $this->animals->birth_date,
-                'stock' => $this->animals->stock,
-                'created_at' => $this->animals->created_at,
-                'updated_at' => $this->animals->updated_at,
-                'deleted_at' => $this->animals->deleted_at
-            ],
+            'animal' => $this->whenLoaded('animals', function () {
+                return $this->animals ? [
+                    'id' => $this->animals->id,
+                    'animal_category' => new AnimalCategoryResource($this->animals->animal_categories),
+                    'animal_breed' => new AnimalBreedResource($this->animals->animal_breeds),
+                    'average_weight' => $this->animals->average_weight,
+                    'birth_date' => $this->animals->birth_date,
+                    'stock' => $this->animals->stock,
+                    'created_at' => $this->animals->created_at,
+                    'updated_at' => $this->animals->updated_at,
+                    'deleted_at' => $this->animals->deleted_at
+                ] : null;
+            }),
             'name' => $this->name,
             'description' => $this->description,
             'price' => $this->price,

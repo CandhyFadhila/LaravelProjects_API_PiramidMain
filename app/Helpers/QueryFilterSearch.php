@@ -62,25 +62,4 @@ class QueryFilterSearch
 			]
 		];
 	}
-
-	public static function formatPaginationNormal($result)
-	{
-		return [
-			'data' => $result->items(),
-			'pagination' => [
-				'links' => [
-					'first' => $result->url(1),
-					'last'  => $result->url($result->lastPage()),
-					'prev'  => $result->previousPageUrl(),
-					'next'  => $result->nextPageUrl(),
-				],
-				'meta' => [
-					'current_page' => $result->currentPage(),
-					'last_page'    => $result->lastPage(),
-					'per_page'     => $result->perPage(),
-					'total'        => $result->total(),
-				]
-			]
-		];
-	}
 }
