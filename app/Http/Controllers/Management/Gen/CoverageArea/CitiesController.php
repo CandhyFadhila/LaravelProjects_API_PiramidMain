@@ -108,6 +108,21 @@ class CitiesController extends Controller
 
             DB::beginTransaction();
 
+            $duplicate = Cities::where('name', $request->name)
+                ->whereNull('deleted_at')
+                ->exists();
+            if ($duplicate) {
+                return response()->json(
+                    new WithoutDataResource(
+                        Response::HTTP_CONFLICT,
+                        'DUPLICATE_NAME',
+                        'Nama Kota Duplikat',
+                        "Nama kota '{$request->name}' sudah digunakan oleh data lain yang aktif. Silakan gunakan nama lain."
+                    ),
+                    Response::HTTP_CONFLICT
+                );
+            }
+
             Cities::create([
                 'province_id' => $request->province_id,
                 'name'        => $request->name,
