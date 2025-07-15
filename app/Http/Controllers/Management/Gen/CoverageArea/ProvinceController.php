@@ -323,6 +323,20 @@ class ProvinceController extends Controller
                 );
             }
 
+            // Validasi unik
+            $duplicate = Province::where('name', $managedProvince->name)->whereNull('deleted_at')->exists();
+            if ($duplicate) {
+                return response()->json(
+                    new WithoutDataResource(
+                        Response::HTTP_CONFLICT,
+                        'DUPLICATE_NAME',
+                        'Duplikasi Nama Kota',
+                        "Nama provinsi '{$managedProvince->name}' sudah digunakan oleh entri aktif lain. Silakan ubah nama terlebih dahulu sebelum merestore."
+                    ),
+                    Response::HTTP_CONFLICT
+                );
+            }
+
             $managedProvince->restore();
 
             DB::commit();

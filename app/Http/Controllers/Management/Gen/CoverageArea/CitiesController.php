@@ -339,6 +339,20 @@ class CitiesController extends Controller
                 );
             }
 
+            // Validasi unik
+            $duplicate = Cities::where('name', $managedCities->name)->whereNull('deleted_at')->exists();
+            if ($duplicate) {
+                return response()->json(
+                    new WithoutDataResource(
+                        Response::HTTP_CONFLICT,
+                        'DUPLICATE_NAME',
+                        'Duplikasi Nama Kota',
+                        "Nama kota '{$managedCities->name}' sudah digunakan oleh entri aktif lain. Silakan ubah nama terlebih dahulu sebelum merestore."
+                    ),
+                    Response::HTTP_CONFLICT
+                );
+            }
+
             $managedCities->restore();
 
             DB::commit();
