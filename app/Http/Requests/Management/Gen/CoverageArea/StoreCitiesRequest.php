@@ -40,7 +40,6 @@ class StoreCitiesRequest extends FormRequest
             'name.required'        => 'Nama kota tidak boleh kosong.',
             'name.string'          => 'Nama kota harus berupa teks.',
             'name.max'             => 'Nama kota tidak boleh lebih dari 255 karakter.',
-            'name.unique'          => 'Nama kota tersebut sudah pernah dibuat.',
             'is_active.boolean'    => 'Status aktif harus berupa 1 atau 0.',
         ];
     }
