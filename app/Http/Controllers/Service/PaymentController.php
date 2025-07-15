@@ -175,91 +175,11 @@ class PaymentController extends Controller
 
             // Ambil status dari Midtrans
             $statusResponse = MidtransHelper::getTransactionStatus($orderId);
-            $midtransStatus = $statusResponse->transaction_status ?? null;
-            $midtransTransactionId = $statusResponse->transaction_id ?? null;
-            $midtransStatusMessage = $statusResponse->status_message ?? null;
 
-            Log::channel('midtrans_payment')->info('| Update | - Midtrans response', [
-                'midtrans_order_id' => $orderId,
-                'midtrans_transaction_status' => $midtransStatus,
-                'midtrans_transaction_id' => $midtransTransactionId,
-                'midtrans_status_message' => $midtransStatusMessage
-            ]);
+            $response = $this->handleUpdateStatusMidtransPayment($orderId, $statusResponse);
 
-            // Jika status tidak tersedia atau masih pending
-            if (empty($midtransStatus) || $midtransStatus === 'pending' || $midtransStatus === 'not_found') {
-                DB::commit();
-
-                return response()->json(
-                    new WithoutDataResource(
-                        Response::HTTP_OK,
-                        'STATUS_NOT_SETTLED',
-                        'Pembayaran Belum Diselesaikan',
-                        'Status transaksi saat ini: ' . ucfirst($midtransStatus ?? 'Unknown'),
-                    ),
-                    Response::HTTP_OK
-                );
-            }
-
-            // Validasi order_id yang sesuai format: TRX-YYYYMMDD-ID
-            $parts = explode('-', $orderId);
-            $transactionId = end($parts);
-
-            $transaction = Transaction::with('payment_details')->find($transactionId);
-            if (!$transaction || !$transaction->payment_details) {
-                return response()->json(
-                    new WithoutDataResource(
-                        Response::HTTP_NOT_FOUND,
-                        'DATA_NOT_FOUND',
-                        'Transaksi Tidak Ditemukan',
-                        'Data transaksi berdasarkan Order ID Midtrans tidak ditemukan.',
-                    ),
-                    Response::HTTP_NOT_FOUND
-                );
-            }
-
-            $successStatusId = TransactionStatus::where('label', 'Completed')->value('id');
-            $paidStatusId = PaymentStatus::where('label', 'Paid')->value('id');
-
-            if (in_array($midtransStatus, ['settlement', 'capture', 'success'])) {
-                $transaction->update([
-                    'transaction_status_id' => $successStatusId,
-                    'settlement_date' => now(),
-                ]);
-
-                $transaction->payment_details->update([
-                    'payment_status_id' => $paidStatusId,
-                    'transaction_ref' => $midtransTransactionId,
-                ]);
-
-                PaymentLog::create([
-                    'payment_detail_id' => $transaction->payment_details->id,
-                    'name' => 'midtrans_status_success',
-                    'type' => 'update',
-                    'payload' => [
-                        'order_id' => $orderId,
-                        'status' => $midtransStatus,
-                        'transaction_ref' => $midtransTransactionId,
-                    ],
-                ]);
-
-                DB::commit();
-
-                Log::channel('midtrans_payment')->info('| Update | - Status updated to success.', [
-                    'transaction_id' => $transaction->id,
-                    'payment_detail_id' => $transaction->payment_details->id,
-                ]);
-
-                return response()->json(
-                    new WithoutDataResource(
-                        Response::HTTP_OK,
-                        'STATUS_UPDATED',
-                        'Status Pembayaran Diperbarui',
-                        'Status transaksi berhasil diperbarui menjadi sukses.'
-                    ),
-                    Response::HTTP_OK
-                );
-            }
+            DB::commit();
+            return $response;
         } catch (\Exception $e) {
             DB::rollBack();
             Log::channel('transaction')->error('| Update | - Error function updateStatusPayment : ' . $e->getMessage() . ' - Line : ' . $e->getLine());
@@ -323,5 +243,117 @@ class PaymentController extends Controller
         );
     }
 
-    private function handleCreateCoinPayment() {}
+    private function handleUpdateStatusMidtransPayment(string $orderId, object $statusResponse)
+    {
+        $midtransStatus = $statusResponse->transaction_status ?? null;
+        $midtransTransactionId = $statusResponse->transaction_id ?? null;
+        $midtransStatusMessage = $statusResponse->status_message ?? null;
+
+        Log::channel('midtrans_payment')->info('| Update | - Midtrans response', [
+            'midtrans_order_id' => $orderId,
+            'midtrans_transaction_status' => $midtransStatus,
+            'midtrans_transaction_id' => $midtransTransactionId,
+            'midtrans_status_message' => $midtransStatusMessage
+        ]);
+
+        if (empty($midtransStatus) || $midtransStatus === 'pending' || $midtransStatus === 'not_found') {
+            return response()->json(
+                new WithoutDataResource(
+                    Response::HTTP_OK,
+                    'STATUS_NOT_SETTLED',
+                    'Pembayaran Belum Diselesaikan',
+                    'Status transaksi saat ini: ' . ucfirst($midtransStatus ?? 'Unknown'),
+                ),
+                Response::HTTP_OK
+            );
+        }
+
+        $parts = explode('-', $orderId);
+        $transactionId = end($parts);
+
+        $transaction = Transaction::with('payment_details')->find($transactionId);
+        if (!$transaction || !$transaction->payment_details) {
+            return response()->json(
+                new WithoutDataResource(
+                    Response::HTTP_NOT_FOUND,
+                    'DATA_NOT_FOUND',
+                    'Transaksi Tidak Ditemukan',
+                    'Data transaksi berdasarkan Order ID Midtrans tidak ditemukan.',
+                ),
+                Response::HTTP_NOT_FOUND
+            );
+        }
+
+        // Pemetaan status Midtrans ke internal status
+        $map = [
+            'pending'               => ['transaction' => 'Pending',     'payment' => 'Pending'],
+            'authorize'             => ['transaction' => 'Processing',  'payment' => 'Processing'],
+            'capture'               => ['transaction' => 'Completed',   'payment' => 'Paid'],
+            'settlement'            => ['transaction' => 'Completed',   'payment' => 'Paid'],
+            'success'               => ['transaction' => 'Completed',   'payment' => 'Paid'],
+            'deny'                  => ['transaction' => 'Failed',      'payment' => 'Failed'],
+            'cancel'                => ['transaction' => 'Cancelled',   'payment' => 'Failed'],
+            'expire'                => ['transaction' => 'Cancelled',   'payment' => 'Expired'],
+            'failure'               => ['transaction' => 'Failed',      'payment' => 'Failed'],
+            'refund'                => ['transaction' => 'Refunded',    'payment' => 'Refunded'],
+            'partial_refund'        => ['transaction' => 'Refunded',    'payment' => 'Refunded'],
+            'chargeback'            => ['transaction' => 'Refunded',    'payment' => 'Refunded'],
+            'partial_chargeback'    => ['transaction' => 'Refunded',    'payment' => 'Refunded'],
+        ];
+
+        $mapStatus = $map[$midtransStatus] ?? null;
+
+        if (!$mapStatus) {
+            return response()->json(
+                new WithoutDataResource(
+                    Response::HTTP_OK,
+                    'STATUS_NOT_HANDLED',
+                    'Status Tidak Ditangani',
+                    'Status Midtrans belum ditangani: ' . $midtransStatus,
+                ),
+                Response::HTTP_OK
+            );
+        }
+
+        $transactionStatusId = TransactionStatus::where('label', $mapStatus['transaction'])->value('id');
+        $paymentStatusId = PaymentStatus::where('label', $mapStatus['payment'])->value('id');
+
+        $transaction->update([
+            'transaction_status_id' => $transactionStatusId,
+            'settlement_date' => in_array($midtransStatus, ['settlement', 'capture', 'success']) ? now() : null,
+        ]);
+
+        $transaction->payment_details->update([
+            'payment_status_id' => $paymentStatusId,
+            'transaction_ref' => $midtransTransactionId,
+        ]);
+
+        PaymentLog::create([
+            'payment_detail_id' => $transaction->payment_details->id,
+            'name' => 'midtrans_status_' . $midtransStatus,
+            'type' => 'update',
+            'payload' => [
+                'order_id' => $orderId,
+                'status' => $midtransStatus,
+                'transaction_ref' => $midtransTransactionId,
+            ],
+        ]);
+
+        Log::channel('midtrans_payment')->info('| Update | - Status updated.', [
+            'transaction_id' => $transaction->id,
+            'payment_detail_id' => $transaction->payment_details->id,
+            'transaction_status' => $mapStatus['transaction'],
+            'payment_status' => $mapStatus['payment'],
+        ]);
+
+        return response()->json(
+            new WithoutDataResource(
+                Response::HTTP_OK,
+                'STATUS_UPDATED',
+                'Status Pembayaran Diperbarui',
+                'Status transaksi saat ini: ' . ucfirst($midtransStatus ?? 'Unknown'),
+            ),
+            Response::HTTP_OK
+        );
+    }
 }
