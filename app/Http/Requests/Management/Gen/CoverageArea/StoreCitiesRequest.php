@@ -27,7 +27,7 @@ class StoreCitiesRequest extends FormRequest
     {
         return [
             'province_id' => ['required', 'exists:provinces,id'],
-            'name'        => ['required', 'string', 'max:255', 'unique:cities,name'],
+            'name'        => ['required', 'string', 'max:255'],
             'is_active'   => ['nullable', 'boolean'],
         ];
     }
