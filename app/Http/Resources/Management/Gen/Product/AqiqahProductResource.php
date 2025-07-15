@@ -35,6 +35,7 @@ class AqiqahProductResource extends JsonResource
             'description' => $this->description,
             'price' => $this->price,
             'portion_count' => $this->portion_count,
+            'gender' => $this->gender,
             'photo_product_id' => $this->documents,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,

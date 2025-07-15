@@ -32,16 +32,34 @@ class ProductSeeder extends Seeder
             }
 
             // Insert Aqiqah Products
-            for ($i = 0; $i < $stock - $qurbanPortions; $i++) {
-                DB::table('aqiqah_products')->insert([
-                    'animal_id' => $animal->id,
-                    'name' => 'Aqiqah - ' . Str::random(5),
-                    'description' => 'Aqiqah product description',
-                    'price' => rand(3000000, 7000000), // Harga acak
-                    'portion_count' => rand(1, 5), // Jumlah porsi acak
-                    'created_at' => Carbon::now(),
-                    'updated_at' => Carbon::now(),
-                ]);
+            for ($i = 0; $i < $stock - $qurbanPortions;) {
+                // Jika stok sisa minimal 2, buat produk untuk laki-laki (2 hewan)
+                if (($stock - $qurbanPortions - $i) >= 2) {
+                    DB::table('aqiqah_products')->insert([
+                        'animal_id' => $animal->id,
+                        'name' => 'Aqiqah - ' . Str::random(5),
+                        'description' => 'Aqiqah product description for boy',
+                        'price' => rand(5000000, 9000000), // Harga lebih tinggi
+                        'portion_count' => rand(2, 5),
+                        'gender' => 1,
+                        'created_at' => Carbon::now(),
+                        'updated_at' => Carbon::now(),
+                    ]);
+                    $i += 2;
+                } else {
+                    // Kalau sisa tinggal 1, buat untuk perempuan (1 hewan)
+                    DB::table('aqiqah_products')->insert([
+                        'animal_id' => $animal->id,
+                        'name' => 'Aqiqah - ' . Str::random(5),
+                        'description' => 'Aqiqah product description for girl',
+                        'price' => rand(3000000, 5000000),
+                        'portion_count' => rand(1, 3),
+                        'gender' => 0,
+                        'created_at' => Carbon::now(),
+                        'updated_at' => Carbon::now(),
+                    ]);
+                    $i += 1;
+                }
             }
         }
 

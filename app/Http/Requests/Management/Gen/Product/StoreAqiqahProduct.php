@@ -33,6 +33,7 @@ class StoreAqiqahProduct extends FormRequest
             'description' => ['required'],
             'price' => ['required', 'integer', 'min:1'],
             'portion_count' => ['required', 'integer', 'min:1'],
+            'gender' => ['required', 'boolean'],
         ];
     }
 
@@ -55,6 +56,8 @@ class StoreAqiqahProduct extends FormRequest
             'portion_count.required' => 'Berat rata-rata hewan aqiqah tidak boleh kosong.',
             'portion_count.integer' => 'Berat rata-rata hewan aqiqah harus berupa angka.',
             'portion_count.min' => 'Berat rata-rata hewan aqiqah minimal 1 Kg.',
+            'gender.required'   => 'Jenis kelamin utama harus diisi.',
+            'gender.boolean'    => 'Jenis kelamin utama harus berupa 1 atau 0.',
         ];
     }
 

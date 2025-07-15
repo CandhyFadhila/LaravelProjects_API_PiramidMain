@@ -20,6 +20,7 @@ class AqiqahProduct extends Model
         'photo_product_id' => 'array',
         'price' => 'float',
         'portion_count' => 'float',
+        'gender' => 'integer',
     ];
 
     /**

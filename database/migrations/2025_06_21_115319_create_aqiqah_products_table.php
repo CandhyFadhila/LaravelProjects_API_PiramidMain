@@ -19,6 +19,7 @@ return new class extends Migration
             $table->text('description');
             $table->bigInteger('price');
             $table->bigInteger('portion_count'); // Untuk menentukan porsi
+            $table->boolean('gender'); // 1 = laki-laki, 0 = perempuan
             $table->softDeletes();
             $table->timestamps();
         });
