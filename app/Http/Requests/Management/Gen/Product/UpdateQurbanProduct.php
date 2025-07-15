@@ -31,7 +31,7 @@ class UpdateQurbanProduct extends FormRequest
             'photo_product_id.*' => ['nullable', 'mimes:jpg,jpeg,png', 'max:10240'],
             'delete_document_ids' => ['nullable', 'array'],
             'delete_document_ids.*' => ['nullable', 'integer'],
-            'name' => ['required'],
+            'name' => ['required', 'string', 'max:255'],
             'description' => ['required'],
             'price' => ['required', 'integer', 'min:0'],
         ];
@@ -49,6 +49,7 @@ class UpdateQurbanProduct extends FormRequest
             'delete_document_ids.array' => 'Format dokumen yang dihapus harus berupa array.',
             'delete_document_ids.*.integer' => 'ID dokumen yang dihapus harus berupa angka.',
             'name.required' => 'Nama produk hewan qurban tidak boleh kosong.',
+            'name.string' => 'Nama produk hewan qurban harus berupa string.',
             'description.required' => 'Deskripsi produk hewan qurban tidak boleh kosong.',
             'price.required' => 'Harga produk hewan qurban tidak boleh kosong.',
             'price.integer' => 'Harga produk hewan qurban harus berupa angka.',

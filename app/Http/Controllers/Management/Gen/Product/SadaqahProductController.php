@@ -110,6 +110,21 @@ class SadaqahProductController extends Controller
 
             DB::beginTransaction();
 
+            $duplicate = SadaqahProduct::where('name', $request->name)
+                ->whereNull('deleted_at')
+                ->exists();
+            if ($duplicate) {
+                return response()->json(
+                    new WithoutDataResource(
+                        Response::HTTP_CONFLICT,
+                        'DUPLICATE_NAME',
+                        'Duplikat Data',
+                        "Nama produk sadaqah '{$request->name}' sudah digunakan oleh data lain yang aktif. Silakan gunakan nama lain."
+                    ),
+                    Response::HTTP_CONFLICT
+                );
+            }
+
             $animalIds = $request->animal_id ?? [];
             $animals = [];
 
@@ -280,6 +295,22 @@ class SadaqahProductController extends Controller
             }
 
             $data = $request->validated();
+
+            $duplicate = SadaqahProduct::where('name', $request->name)
+                ->whereNull('deleted_at')
+                ->where('id', '!=', $id)
+                ->exists();
+            if ($duplicate) {
+                return response()->json(
+                    new WithoutDataResource(
+                        Response::HTTP_CONFLICT,
+                        'DUPLICATE_NAME',
+                        'Duplikat Data',
+                        "Nama produk sadaqah '{$request->name}' sudah digunakan pada data yang sama."
+                    ),
+                    Response::HTTP_CONFLICT
+                );
+            }
 
             $existingAnimalIds = $sadaqahProduct->animal_id ?? [];
             $newAnimalIds = $data['animal_id'] ?? [];
@@ -497,6 +528,20 @@ class SadaqahProductController extends Controller
                         'Produk sadaqah dengan ID tersebut tidak ditemukan atau belum dihapus.',
                     ),
                     Response::HTTP_NOT_FOUND
+                );
+            }
+
+            // Validasi unik
+            $duplicate = SadaqahProduct::where('name', $sadaqahProduct->name)->whereNull('deleted_at')->exists();
+            if ($duplicate) {
+                return response()->json(
+                    new WithoutDataResource(
+                        Response::HTTP_CONFLICT,
+                        'DUPLICATE_NAME',
+                        'Duplikat Data',
+                        "Nama produk sadaqah '{$sadaqahProduct->name}' sudah digunakan oleh entri aktif lain. Silakan ubah nama terlebih dahulu sebelum merestore."
+                    ),
+                    Response::HTTP_CONFLICT
                 );
             }
 

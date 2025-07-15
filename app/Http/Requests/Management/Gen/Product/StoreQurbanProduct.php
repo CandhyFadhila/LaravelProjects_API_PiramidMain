@@ -29,7 +29,7 @@ class StoreQurbanProduct extends FormRequest
             'animal_id' => ['required', 'exists:animals,id'],
             'photo_product_id' => ['required', 'array', 'min:1', 'max:5'],
             'photo_product_id.*' => ['required', 'mimes:jpg,jpeg,png', 'max:10240'],
-            'name' => ['required', 'string', 'max:255', 'unique:qurban_products,name'],
+            'name' => ['required', 'string', 'max:255'],
             'description' => ['required'],
             'price' => ['required', 'integer', 'min:0'],
         ];

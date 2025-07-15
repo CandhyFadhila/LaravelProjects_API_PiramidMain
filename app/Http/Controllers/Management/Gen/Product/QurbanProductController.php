@@ -146,6 +146,21 @@ class QurbanProductController extends Controller
                 );
             }
 
+            $duplicate = QurbanProduct::where('name', $request->name)
+                ->whereNull('deleted_at')
+                ->exists();
+            if ($duplicate) {
+                return response()->json(
+                    new WithoutDataResource(
+                        Response::HTTP_CONFLICT,
+                        'DUPLICATE_NAME',
+                        'Duplikat Data',
+                        "Nama produk qurban '{$request->name}' sudah digunakan oleh data lain yang aktif. Silakan gunakan nama lain."
+                    ),
+                    Response::HTTP_CONFLICT
+                );
+            }
+
             if ($animal->stock < 1) {
                 $categoryLabel = optional($animal->animal_categories)->label ?? '-';
                 $breedLabel = optional($animal->animal_breeds)->label ?? '-';
@@ -286,6 +301,22 @@ class QurbanProductController extends Controller
             }
 
             $data = $request->validated();
+
+            $duplicate = QurbanProduct::where('name', $request->name)
+                ->whereNull('deleted_at')
+                ->where('id', '!=', $id)
+                ->exists();
+            if ($duplicate) {
+                return response()->json(
+                    new WithoutDataResource(
+                        Response::HTTP_CONFLICT,
+                        'DUPLICATE_NAME',
+                        'Duplikat Data',
+                        "Nama produk qurban '{$request->name}' sudah digunakan pada data yang sama."
+                    ),
+                    Response::HTTP_CONFLICT
+                );
+            }
 
             $existingDocumentIds = $qurbanProduct->photo_product_id ?? [];
             $deleteIds = $data['delete_document_ids'] ?? [];
@@ -493,6 +524,20 @@ class QurbanProductController extends Controller
                         'Produk qurban dengan ID tersebut tidak ditemukan atau belum dihapus.',
                     ),
                     Response::HTTP_NOT_FOUND
+                );
+            }
+
+            // Validasi unik
+            $duplicate = QurbanProduct::where('name', $qurbanProduct->name)->whereNull('deleted_at')->exists();
+            if ($duplicate) {
+                return response()->json(
+                    new WithoutDataResource(
+                        Response::HTTP_CONFLICT,
+                        'DUPLICATE_NAME',
+                        'Duplikat Data',
+                        "Nama produk qurban '{$qurbanProduct->name}' sudah digunakan oleh entri aktif lain. Silakan ubah nama terlebih dahulu sebelum merestore."
+                    ),
+                    Response::HTTP_CONFLICT
                 );
             }
 

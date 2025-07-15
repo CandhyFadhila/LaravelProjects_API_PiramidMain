@@ -30,7 +30,7 @@ class StoreSadaqahProduct extends FormRequest
             'animal_id.*' => ['integer', 'exists:animals,id'],
             'photo_product_id' => ['required', 'array', 'min:1'],
             'photo_product_id.*' => ['required', 'mimes:jpg,jpeg,png', 'max:10240'],
-            'name' => ['required', 'string', 'max:255', 'unique:sadaqah_products,name'],
+            'name' => ['required', 'string', 'max:255'],
             'description' => ['required'],
             'price' => ['required', 'integer', 'min:1'],
         ];
