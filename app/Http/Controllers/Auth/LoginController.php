@@ -28,12 +28,12 @@ class LoginController extends Controller
             Log::channel('auth_login')->info("| Login | - Invalid credentials for email: {$credential['email']}, at " . Carbon::now());
             return response()->json(
                 new WithoutDataResource(
-                    Response::HTTP_UNAUTHORIZED,
+                    Response::HTTP_BAD_REQUEST,
                     'INVALID_CREDENTIALS',
                     'Login Gagal',
                     'Password atau email yang anda masukkan tidak valid, silahkan periksa kembali dan pastikan akun anda sudah terdaftar.',
                 ),
-                Response::HTTP_UNAUTHORIZED
+                Response::HTTP_BAD_REQUEST
             );
         }
 
