@@ -16,7 +16,8 @@ class DocumentHelper
 		if (is_array($uploadedFiles) && count($uploadedFiles) > 0) {
 			foreach ($uploadedFiles as $uploadedFile) {
 				if (is_array($uploadedFile) && isset($uploadedFile['file_id'])) {
-					// Ekstrak ekstensi dari mime_type
+
+					// *Info, Kalau ada extension, gak ketemu. khusus download aja kalau ada extension
 					$extension = StorageServerHelper::getExtensionFromMimeType($uploadedFile['mime_type']);
 					$filePathWithExtension = $uploadedFile['url'] . '.' . $extension;
 
@@ -25,7 +26,7 @@ class DocumentHelper
 						'verified_by'        => 1,
 						'file_id'            => $uploadedFile['file_id'],
 						'file_name'          => $uploadedFile['filename'],
-						'file_path'			 => $filePathWithExtension,
+						'file_path'			 => $uploadedFile['url'],
 						'file_url'           => $uploadedFile['url'],
 						'file_mime_type'     => $uploadedFile['mime_type'],
 						'file_size'          => $uploadedFile['size'],
