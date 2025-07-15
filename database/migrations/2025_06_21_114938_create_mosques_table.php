@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('province');
             $table->string('postal_code');
             $table->string('country');
-            $table->string('latidude');
+            $table->string('latitude');
             $table->string('longitude');
             $table->softDeletes();
             $table->timestamps();

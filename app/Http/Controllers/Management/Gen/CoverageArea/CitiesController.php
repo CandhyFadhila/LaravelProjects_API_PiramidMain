@@ -236,6 +236,23 @@ class CitiesController extends Controller
                 );
             }
 
+            $duplicate = Cities::where('name', $request->name)
+                ->where('province_id', $request->province_id)
+                ->whereNull('deleted_at')
+                ->where('id', '!=', $id)
+                ->exists();
+            if ($duplicate) {
+                return response()->json(
+                    new WithoutDataResource(
+                        Response::HTTP_CONFLICT,
+                        'DUPLICATE_NAME',
+                        'Duplikat Data',
+                        "Nama kota '{$request->name}' sudah digunakan pada data yang sama."
+                    ),
+                    Response::HTTP_CONFLICT
+                );
+            }
+
             $managedCities->update([
                 'province_id' => $request->province_id,
                 'name'        => $request->name,

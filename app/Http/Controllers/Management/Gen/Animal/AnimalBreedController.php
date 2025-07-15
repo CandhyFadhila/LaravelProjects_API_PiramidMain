@@ -9,6 +9,7 @@ use App\Http\Requests\Management\Gen\Animal\UpdateAnimalBreed;
 use App\Http\Resources\Management\Gen\Animal\AnimalBreedResource;
 use App\Http\Resources\Templates\WithDataResource;
 use App\Http\Resources\Templates\WithoutDataResource;
+use App\Models\Animal;
 use App\Models\AnimalBreed;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -219,6 +220,22 @@ class AnimalBreedController extends Controller
                         'Kategori ras hewan dengan ID tersebut tidak ditemukan.',
                     ),
                     Response::HTTP_NOT_FOUND
+                );
+            }
+
+            $duplicate = AnimalBreed::where('label', $request->label)
+                ->whereNull('deleted_at')
+                ->where('id', '!=', $id)
+                ->exists();
+            if ($duplicate) {
+                return response()->json(
+                    new WithoutDataResource(
+                        Response::HTTP_CONFLICT,
+                        'DUPLICATE_NAME',
+                        'Duplikat Data',
+                        "Nama kategori ras hewan '{$request->label}' sudah digunakan pada data yang sama."
+                    ),
+                    Response::HTTP_CONFLICT
                 );
             }
 

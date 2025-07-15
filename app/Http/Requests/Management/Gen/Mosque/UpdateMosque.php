@@ -34,7 +34,7 @@ class UpdateMosque extends FormRequest
             'province'      => ['required', 'string', 'max:255'],
             'postal_code'   => ['required', 'string', 'max:20'],
             'country'       => ['required', 'string', 'max:255'],
-            'latidude'      => ['required', 'string', 'max:100'],
+            'latitude'      => ['required', 'string', 'max:100'],
             'longitude'     => ['required', 'string', 'max:100'],
         ];
     }
@@ -49,7 +49,7 @@ class UpdateMosque extends FormRequest
             'province.required'     => 'Provinsi tidak boleh kosong.',
             'postal_code.required'  => 'Kode pos tidak boleh kosong.',
             'country.required'      => 'Negara tidak boleh kosong.',
-            'latidude.required'     => 'Latitude tidak boleh kosong.',
+            'latitude.required'     => 'Latitude tidak boleh kosong.',
             'longitude.required'    => 'Longitude tidak boleh kosong.',
         ];
     }

@@ -35,7 +35,7 @@ class MosqueRelationSeeder extends Seeder
                 'province' => $cityData[1],
                 'postal_code' => rand(10000, 99999),
                 'country' => 'Indonesia',
-                'latidude' => '-' . rand(60, 80) . '.' . rand(100000, 999999),
+                'latitude' => '-' . rand(60, 80) . '.' . rand(100000, 999999),
                 'longitude' => rand(100, 120) . '.' . rand(100000, 999999),
                 'created_at' => now(),
                 'updated_at' => now(),

@@ -107,7 +107,7 @@ class MosqueController extends Controller
                 'province'    => $request->province,
                 'postal_code' => $request->postal_code,
                 'country'     => $request->country,
-                'latidude'    => $request->latidude,
+                'latitude'    => $request->latitude,
                 'longitude'   => $request->longitude,
             ]);
 
@@ -227,7 +227,7 @@ class MosqueController extends Controller
                 'province'    => $request->province,
                 'postal_code' => $request->postal_code,
                 'country'     => $request->country,
-                'latidude'    => $request->latidude,
+                'latitude'    => $request->latitude,
                 'longitude'   => $request->longitude,
             ]);
 

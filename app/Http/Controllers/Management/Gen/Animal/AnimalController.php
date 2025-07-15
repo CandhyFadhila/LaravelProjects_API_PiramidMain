@@ -252,6 +252,25 @@ class AnimalController extends Controller
                 );
             }
 
+            $duplicate = Animal::where('animal_category_id', $request->animal_category_id)
+                ->where('animal_breed_id', $request->animal_breed_id)
+                ->whereNull('deleted_at')
+                ->where('id', '!=', $id)
+                ->exists();
+            if ($duplicate) {
+                $kategoriHewan = AnimalCategory::find($request->animal_category_id);
+                $rasHewan = AnimalBreed::find($request->animal_breed_id);
+                return response()->json(
+                    new WithoutDataResource(
+                        Response::HTTP_CONFLICT,
+                        'DUPLICATE_ANIMAL_CATEGORY_AND_BREED',
+                        'Duplikat Data',
+                        "Data dengan kategori hewan '{$kategoriHewan->label}' dan ras '{$rasHewan->label}' sudah tersedia."
+                    ),
+                    Response::HTTP_CONFLICT
+                );
+            }
+
             $animals->update([
                 'animal_category_id' => $request->animal_category_id,
                 'animal_breed_id' => $request->animal_breed_id,

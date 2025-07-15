@@ -222,6 +222,22 @@ class ProvinceController extends Controller
                 );
             }
 
+            $duplicate = Province::where('name', $request->name)
+                ->whereNull('deleted_at')
+                ->where('id', '!=', $id)
+                ->exists();
+            if ($duplicate) {
+                return response()->json(
+                    new WithoutDataResource(
+                        Response::HTTP_CONFLICT,
+                        'DUPLICATE_NAME',
+                        'Duplikat Data',
+                        "Nama provinsi '{$request->name}' sudah digunakan pada data yang sama."
+                    ),
+                    Response::HTTP_CONFLICT
+                );
+            }
+
             $managedProvince->update([
                 'name' => $request->name,
             ]);

@@ -24,7 +24,7 @@ class MosqueResource extends JsonResource
             'province' => $this->province,
             'postal_code' => $this->postal_code,
             'country' => $this->country,
-            'latidude' => $this->latidude,
+            'latitude' => $this->latitude,
             'longitude' => $this->longitude,
             'is_primary' => $this->is_primary,
             'created_at' => $this->created_at,

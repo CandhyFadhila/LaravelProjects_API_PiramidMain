@@ -146,6 +146,21 @@ class AqiqahProductController extends Controller
                 );
             }
 
+            $duplicate = AqiqahProduct::where('name', $request->name)
+                ->whereNull('deleted_at')
+                ->exists();
+            if ($duplicate) {
+                return response()->json(
+                    new WithoutDataResource(
+                        Response::HTTP_CONFLICT,
+                        'DUPLICATE_NAME',
+                        'Duplikat Data',
+                        "Nama produk aqiqah '{$request->name}' sudah digunakan oleh data lain yang aktif. Silakan gunakan nama lain."
+                    ),
+                    Response::HTTP_CONFLICT
+                );
+            }
+
             if ($animal->stock < 1) {
                 $categoryLabel = optional($animal->animal_categories)->label ?? '-';
                 $breedLabel = optional($animal->animal_breeds)->label ?? '-';
@@ -315,6 +330,22 @@ class AqiqahProductController extends Controller
             }
 
             DB::beginTransaction();
+
+            $duplicate = AqiqahProduct::where('name', $request->name)
+                ->whereNull('deleted_at')
+                ->where('id', '!=', $id)
+                ->exists();
+            if ($duplicate) {
+                return response()->json(
+                    new WithoutDataResource(
+                        Response::HTTP_CONFLICT,
+                        'DUPLICATE_NAME',
+                        'Duplikat Data',
+                        "Nama produk aqiqah '{$request->name}' sudah digunakan pada data yang sama."
+                    ),
+                    Response::HTTP_CONFLICT
+                );
+            }
 
             // ✅ Jika animal baru berbeda dengan yg lama, jangan lupa update stock
             $oldAnimalId = $aqiqahProduct->animal_id;
@@ -495,6 +526,20 @@ class AqiqahProductController extends Controller
                         'Produk aqiqah dengan ID tersebut tidak ditemukan atau belum dihapus.',
                     ),
                     Response::HTTP_NOT_FOUND
+                );
+            }
+
+            // Validasi unik
+            $duplicate = AqiqahProduct::where('name', $aqiqahProduct->name)->whereNull('deleted_at')->exists();
+            if ($duplicate) {
+                return response()->json(
+                    new WithoutDataResource(
+                        Response::HTTP_CONFLICT,
+                        'DUPLICATE_NAME',
+                        'Duplikat Data',
+                        "Nama produk aqiqah '{$aqiqahProduct->name}' sudah digunakan oleh entri aktif lain. Silakan ubah nama terlebih dahulu sebelum merestore."
+                    ),
+                    Response::HTTP_CONFLICT
                 );
             }
 

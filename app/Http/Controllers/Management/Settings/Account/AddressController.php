@@ -102,7 +102,7 @@ class AddressController extends Controller
                 'province'    => $request->province,
                 'postal_code' => $request->postal_code,
                 'country'     => $request->country,
-                'latidude'    => $request->latidude,
+                'latitude'    => $request->latitude,
                 'longitude'   => $request->longitude,
                 'is_primary'  => $request->boolean('is_primary'),
             ]);
@@ -214,7 +214,7 @@ class AddressController extends Controller
                 'province'    => $data['province'],
                 'postal_code' => $data['postal_code'],
                 'country'     => $data['country'],
-                'latidude'    => $data['latidude'],
+                'latitude'    => $data['latitude'],
                 'longitude'   => $data['longitude'],
                 'is_primary'  => $data['is_primary'],
             ]);

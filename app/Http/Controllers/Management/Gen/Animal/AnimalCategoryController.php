@@ -216,6 +216,8 @@ class AnimalCategoryController extends Controller
                 );
             }
 
+            DB::beginTransaction();
+
             $animalCategory = AnimalCategory::withTrashed()->find($id);
             if (!$animalCategory) {
                 return response()->json(
@@ -230,6 +232,22 @@ class AnimalCategoryController extends Controller
             }
 
             $data = $request->validated();
+
+            $duplicate = AnimalCategory::where('label', $request->label)
+                ->whereNull('deleted_at')
+                ->where('id', '!=', $id)
+                ->exists();
+            if ($duplicate) {
+                return response()->json(
+                    new WithoutDataResource(
+                        Response::HTTP_CONFLICT,
+                        'DUPLICATE_NAME',
+                        'Duplikat Data',
+                        "Nama kategori ras hewan '{$request->label}' sudah digunakan pada data yang sama."
+                    ),
+                    Response::HTTP_CONFLICT
+                );
+            }
 
             $existingDocumentIds = $animalCategory->icon_id ?? [];
             $deleteIds = $data['delete_document_ids'] ?? [];
@@ -257,7 +275,6 @@ class AnimalCategoryController extends Controller
                 );
             }
 
-            DB::beginTransaction();
 
             // ✅ Hapus dokumen lama jika ada
             if (!empty($deleteIds)) {
