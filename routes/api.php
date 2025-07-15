@@ -52,6 +52,7 @@ Route::middleware(['auth:sanctum', 'custom.throttle:60,1'])->group(function () {
             Route::get('/get-payment-method', [PublicRequestController::class, 'getPaymentMethod']);
             Route::get('/get-mosque-relation', [PublicRequestController::class, 'getMosqueRelation']);
             Route::get('/get-animal-category', [PublicRequestController::class, 'getAnimalCategory']);
+            Route::get('/get-animal-category-aqiqah', [PublicRequestController::class, 'getAnimalCategoryAqiqah']);
             Route::get('/get-animal-breed', [PublicRequestController::class, 'getAnimalBreed']);
             Route::get('/get-animals', [PublicRequestController::class, 'getAnimal']);
             Route::get('/get-coverage-province', [PublicRequestController::class, 'getCoverageProvince']);
