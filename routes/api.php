@@ -83,8 +83,8 @@ Route::middleware(['auth:sanctum', 'custom.throttle:60,1'])->group(function () {
                 Route::apiResource('/province-coverage-area', ProvinceController::class);
                 Route::post('/province-coverage-area/{id}/restore', [ProvinceController::class, 'restore']);
 
-                Route::apiResource('/cities-coverage-area', CitiesController::class);
-                Route::post('/cities-coverage-area/{id}/restore', [CitiesController::class, 'restore']);
+                Route::apiResource('/city-coverage-area', CitiesController::class);
+                Route::post('/city-coverage-area/{id}/restore', [CitiesController::class, 'restore']);
 
                 // Product
                 Route::apiResource('/qurban-product', QurbanProductController::class);

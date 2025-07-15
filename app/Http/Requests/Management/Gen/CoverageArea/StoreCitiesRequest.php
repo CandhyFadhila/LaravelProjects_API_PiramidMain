@@ -27,7 +27,7 @@ class StoreCitiesRequest extends FormRequest
     {
         return [
             'province_id' => ['required', 'exists:provinces,id'],
-            'name'        => ['required', 'string', 'max:255'],
+            'name'        => ['required', 'string', 'max:255', 'unique:cities,name'],
             'is_active'   => ['nullable', 'boolean'],
         ];
     }
@@ -40,6 +40,7 @@ class StoreCitiesRequest extends FormRequest
             'name.required'        => 'Nama kota tidak boleh kosong.',
             'name.string'          => 'Nama kota harus berupa teks.',
             'name.max'             => 'Nama kota tidak boleh lebih dari 255 karakter.',
+            'name.unique'          => 'Nama kota tersebut sudah pernah dibuat.',
             'is_active.boolean'    => 'Status aktif harus berupa 1 atau 0.',
         ];
     }
