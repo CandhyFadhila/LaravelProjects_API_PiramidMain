@@ -243,7 +243,7 @@ class PaymentController extends Controller
         );
     }
 
-    private function handleUpdateStatusMidtransPayment(string $orderId, object $statusResponse)
+    public function handleUpdateStatusMidtransPayment(string $orderId, object $statusResponse)
     {
         $midtransStatus = $statusResponse->transaction_status ?? null;
         $midtransTransactionId = $statusResponse->transaction_id ?? null;

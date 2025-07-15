@@ -280,6 +280,14 @@ return [
             'replace_placeholders' => true,
         ],
 
+        // CRONJOB
+        'cronjob_midtrans_status' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/CronJob/midtrans_status.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+            'replace_placeholders' => true,
+        ],
+
         // SERVICE
         'transaction_order_detail' => [
             'driver' => 'single',
