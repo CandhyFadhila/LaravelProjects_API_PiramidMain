@@ -27,7 +27,7 @@ class UpdateAnimalCategory extends FormRequest
     {
         return [
             'icon_id' => ['nullable', 'array', 'min:1', 'max:5'],
-            'icon_id.*' => ['nullable', 'mimes:jpg,jpeg,png,svg', 'max:10240'],
+            'icon_id.*' => ['nullable', 'mimes:jpg,jpeg,png', 'max:10240'],
             'label' => ['required', 'string', 'max:255'],
             'delete_document_ids' => ['nullable', 'array'],
             'delete_document_ids.*' => ['nullable', 'integer'],
@@ -42,7 +42,7 @@ class UpdateAnimalCategory extends FormRequest
             'icon_id.required' => 'Icon kategori hewan qurban tidak boleh kosong.',
             'icon_id.min' => 'Minimal icon yang diunggah adalah 1 icon.',
             'icon_id.max' => 'Maksimal icon yang diunggah adalah 5 icon.',
-            'icon_id.*.mimes' => 'Icon hanya boleh berupa JPG, JPEG, PNG, dan SVG.',
+            'icon_id.*.mimes' => 'Icon hanya boleh berupa JPG, JPEG, dan PNG.',
             'icon_id.*.max' => 'Ukuran icon maksimal 10MB.',
             'delete_document_ids.array' => 'Format icon yang dihapus harus berupa array.',
             'delete_document_ids.*.integer' => 'ID icon yang dihapus harus berupa angka.',
