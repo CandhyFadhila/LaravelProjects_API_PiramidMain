@@ -16,6 +16,7 @@ class AnimalCategory extends Model
 
     protected $casts = [
         'icon_id' => 'array',
+        'for_aqiqah' => 'integer'
     ];
 
     public function getDocumentsAttribute()

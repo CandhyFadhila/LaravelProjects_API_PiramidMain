@@ -29,6 +29,7 @@ class UpdateAnimalCategory extends FormRequest
             'icon_id' => ['nullable', 'array', 'min:1', 'max:5'],
             'icon_id.*' => ['nullable', 'mimes:jpg,jpeg,png', 'max:10240'],
             'label' => ['required', 'string', 'max:255'],
+            'for_aqiqah' => ['nullable', 'boolean'],
             'delete_document_ids' => ['nullable', 'array'],
             'delete_document_ids.*' => ['nullable', 'integer'],
         ];
@@ -39,6 +40,7 @@ class UpdateAnimalCategory extends FormRequest
         return [
             'label.required' => 'Nama kategori hewan tidak boleh kosong.',
             'label.string' => 'Nama kategori hewan harus berupa string.',
+            'for_aqiqah.boolean'    => 'Status hewan untuk aqiqah harus berupa 1 atau 0.',
             'icon_id.required' => 'Icon kategori hewan qurban tidak boleh kosong.',
             'icon_id.min' => 'Minimal icon yang diunggah adalah 1 icon.',
             'icon_id.max' => 'Maksimal icon yang diunggah adalah 5 icon.',

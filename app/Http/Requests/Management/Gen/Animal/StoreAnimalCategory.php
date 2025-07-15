@@ -29,6 +29,7 @@ class StoreAnimalCategory extends FormRequest
             'icon_id' => ['required', 'array', 'min:1', 'max:5'],
             'icon_id.*' => ['required', 'mimes:jpg,jpeg,png', 'max:10240'],
             'label' => ['required', 'string', 'max:255'],
+            'for_aqiqah' => ['nullable', 'boolean'],
         ];
     }
 
@@ -42,6 +43,7 @@ class StoreAnimalCategory extends FormRequest
             'icon_id.max' => 'Maksimal icon yang diunggah adalah 5 icon.',
             'icon_id.*.mimes' => 'Icon hanya boleh berupa JPG, JPEG, dan PNG.',
             'icon_id.*.max' => 'Ukuran icon maksimal 10MB.',
+            'for_aqiqah.boolean'    => 'Status hewan untuk aqiqah harus berupa 1 atau 0.',
         ];
     }
 

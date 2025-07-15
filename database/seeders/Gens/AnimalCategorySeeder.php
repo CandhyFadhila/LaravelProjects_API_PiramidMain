@@ -18,6 +18,7 @@ class AnimalCategorySeeder extends Seeder
         foreach ($labels as $label) {
             DB::table('animal_categories')->insert([
                 'label' => $label,
+                'for_aqiqah' => in_array($label, ['Kambing', 'Domba']),
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);

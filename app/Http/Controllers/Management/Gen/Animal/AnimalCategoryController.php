@@ -37,6 +37,14 @@ class AnimalCategoryController extends Controller
 
             $query = AnimalCategory::withTrashed();
 
+            // filter
+            $filterRules = [
+                'for_aqiqah' => fn($q, $val) => $q->whereIn('for_aqiqah', (array) $val),
+            ];
+
+            $filters = $request->except(['limit', 'search']);
+            $query   = QueryFilterSearch::applyFilters($query, $filters, $filterRules);
+
             if ($request->has('search')) {
                 $query = QueryFilterSearch::applySearch($query, $request->input('search'), [
                     'label'
@@ -122,6 +130,7 @@ class AnimalCategoryController extends Controller
             AnimalCategory::create([
                 'icon_id' => $iconDocumentIds ?: null,
                 'label' => $request->label,
+                'for_aqiqah' => $request->boolean('for_aqiqah')
             ]);
 
             DB::commit();
@@ -293,6 +302,7 @@ class AnimalCategoryController extends Controller
             $animalCategory->update([
                 'icon_id' => $finalIconIds ?: null,
                 'label' => $request->label,
+                'for_aqiqah' => $request->boolean('for_aqiqah')
             ]);
 
             DB::commit();

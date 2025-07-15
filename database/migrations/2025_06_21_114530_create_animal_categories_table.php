@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->json('icon_id')->nullable();
             $table->string('label');
+            $table->boolean('for_aqiqah')->default(false);
             $table->softDeletes();
             $table->timestamps();
         });
