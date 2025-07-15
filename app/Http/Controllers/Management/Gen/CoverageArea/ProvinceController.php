@@ -96,6 +96,21 @@ class ProvinceController extends Controller
 
             DB::beginTransaction();
 
+            $duplicate = Province::where('name', $request->name)
+                ->whereNull('deleted_at')
+                ->exists();
+            if ($duplicate) {
+                return response()->json(
+                    new WithoutDataResource(
+                        Response::HTTP_CONFLICT,
+                        'DUPLICATE_NAME',
+                        'Duplikat Data',
+                        "Nama provinsi '{$request->name}' sudah digunakan oleh data lain yang aktif. Silakan gunakan nama lain."
+                    ),
+                    Response::HTTP_CONFLICT
+                );
+            }
+
             Province::create([
                 'name' => $request->name,
             ]);
@@ -330,7 +345,7 @@ class ProvinceController extends Controller
                     new WithoutDataResource(
                         Response::HTTP_CONFLICT,
                         'DUPLICATE_NAME',
-                        'Duplikasi Nama Kota',
+                        'Duplikat Data',
                         "Nama provinsi '{$managedProvince->name}' sudah digunakan oleh entri aktif lain. Silakan ubah nama terlebih dahulu sebelum merestore."
                     ),
                     Response::HTTP_CONFLICT

@@ -96,6 +96,21 @@ class AnimalBreedController extends Controller
 
             DB::beginTransaction();
 
+            $duplicate = AnimalBreed::where('label', $request->label)
+                ->whereNull('deleted_at')
+                ->exists();
+            if ($duplicate) {
+                return response()->json(
+                    new WithoutDataResource(
+                        Response::HTTP_CONFLICT,
+                        'DUPLICATE_NAME',
+                        'Duplikat Data',
+                        "Nama kategori ras hewan '{$request->label}' sudah digunakan oleh data lain yang aktif. Silakan gunakan nama lain."
+                    ),
+                    Response::HTTP_CONFLICT
+                );
+            }
+
             AnimalBreed::create([
                 'label' => $request->label,
             ]);
@@ -320,6 +335,20 @@ class AnimalBreedController extends Controller
                         'Kategori ras hewan dengan ID tersebut tidak ditemukan atau belum dihapus.',
                     ),
                     Response::HTTP_NOT_FOUND
+                );
+            }
+
+            // Validasi unik
+            $duplicate = AnimalBreed::where('label', $animalBreed->label)->whereNull('deleted_at')->exists();
+            if ($duplicate) {
+                return response()->json(
+                    new WithoutDataResource(
+                        Response::HTTP_CONFLICT,
+                        'DUPLICATE_NAME',
+                        'Duplikat Data',
+                        "Nama kategori ras hewan '{$animalBreed->label}' sudah digunakan oleh entri aktif lain. Silakan ubah nama terlebih dahulu sebelum merestore."
+                    ),
+                    Response::HTTP_CONFLICT
                 );
             }
 

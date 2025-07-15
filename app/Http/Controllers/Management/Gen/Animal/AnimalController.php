@@ -114,6 +114,24 @@ class AnimalController extends Controller
 
             DB::beginTransaction();
 
+            $duplicate = Animal::where('animal_category_id', $request->animal_category_id)
+                ->where('animal_breed_id', $request->animal_breed_id)
+                ->whereNull('deleted_at')
+                ->exists();
+            if ($duplicate) {
+                $kategoriHewan = AnimalCategory::find($request->animal_category_id);
+                $rasHewan = AnimalBreed::find($request->animal_breed_id);
+                return response()->json(
+                    new WithoutDataResource(
+                        Response::HTTP_CONFLICT,
+                        'DUPLICATE_ANIMAL_CATEGORY_AND_BREED',
+                        'Duplikat Data',
+                        "Kombinasi kategori hewan '{$kategoriHewan->label}' dan ras hewan '{$rasHewan->label}' sudah tersedia."
+                    ),
+                    Response::HTTP_CONFLICT
+                );
+            }
+
             Animal::create([
                 'animal_category_id' => $request->animal_category_id,
                 'animal_breed_id' => $request->animal_breed_id,
@@ -357,6 +375,25 @@ class AnimalController extends Controller
                         'Detail hewan dengan ID tersebut tidak ditemukan atau belum dihapus.',
                     ),
                     Response::HTTP_NOT_FOUND
+                );
+            }
+
+            // Validasi: kombinasi kategori & ras hewan sudah ada yang aktif?
+            $exists = Animal::where('animal_category_id', $animals->animal_category_id)
+                ->where('animal_breed_id', $animals->animal_breed_id)
+                ->whereNull('deleted_at')
+                ->exists();
+            if ($exists) {
+                $kategoriHewan = AnimalCategory::find($animals->animal_category_id);
+                $rasHewan = AnimalBreed::find($animals->animal_breed_id);
+                return response()->json(
+                    new WithoutDataResource(
+                        Response::HTTP_CONFLICT,
+                        'DUPLICATE_ANIMAL_CATEGORY_AND_BREED',
+                        'Duplikat Data',
+                        "Kombinasi kategori hewan '{$kategoriHewan->label}' dan ras hewan '{$rasHewan->label}' sudah tersedia dalam data aktif."
+                    ),
+                    Response::HTTP_CONFLICT
                 );
             }
 

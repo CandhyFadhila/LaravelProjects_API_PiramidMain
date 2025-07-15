@@ -26,7 +26,7 @@ class StoreProvinceRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name'  => ['required', 'string', 'max:255', 'unique:provinces,name'],
+            'name'  => ['required', 'string', 'max:255'],
         ];
     }
 
@@ -36,7 +36,6 @@ class StoreProvinceRequest extends FormRequest
             'name.required' => 'Nama provinsi tidak boleh kosong.',
             'name.string'   => 'Nama provinsi harus berupa teks.',
             'name.max'      => 'Nama provinsi tidak boleh lebih dari 255 karakter.',
-            'name.unique'   => 'Nama provinsi tersebut sudah pernah dibuat.',
         ];
     }
 

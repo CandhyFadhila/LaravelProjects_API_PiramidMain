@@ -116,7 +116,7 @@ class CitiesController extends Controller
                     new WithoutDataResource(
                         Response::HTTP_CONFLICT,
                         'DUPLICATE_NAME',
-                        'Nama Kota Duplikat',
+                        'Duplikat Data',
                         "Nama kota '{$request->name}' sudah digunakan oleh data lain yang aktif. Silakan gunakan nama lain."
                     ),
                     Response::HTTP_CONFLICT
@@ -361,7 +361,7 @@ class CitiesController extends Controller
                     new WithoutDataResource(
                         Response::HTTP_CONFLICT,
                         'DUPLICATE_NAME',
-                        'Duplikasi Nama Kota',
+                        'Duplikat Data',
                         "Nama kota '{$managedCities->name}' sudah digunakan oleh entri aktif lain. Silakan ubah nama terlebih dahulu sebelum merestore."
                     ),
                     Response::HTTP_CONFLICT

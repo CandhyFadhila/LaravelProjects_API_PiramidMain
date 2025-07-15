@@ -10,6 +10,7 @@ use App\Http\Requests\Management\Gen\Animal\UpdateAnimalCategory;
 use App\Http\Resources\Management\Gen\Animal\AnimalCategoryResource;
 use App\Http\Resources\Templates\WithDataResource;
 use App\Http\Resources\Templates\WithoutDataResource;
+use App\Models\Animal;
 use App\Models\AnimalCategory;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -96,6 +97,21 @@ class AnimalCategoryController extends Controller
             }
 
             DB::beginTransaction();
+
+            $duplicate = AnimalCategory::where('label', $request->label)
+                ->whereNull('deleted_at')
+                ->exists();
+            if ($duplicate) {
+                return response()->json(
+                    new WithoutDataResource(
+                        Response::HTTP_CONFLICT,
+                        'DUPLICATE_NAME',
+                        'Duplikat Data',
+                        "Nama kategori hewan '{$request->label}' sudah digunakan oleh data lain yang aktif. Silakan gunakan nama lain."
+                    ),
+                    Response::HTTP_CONFLICT
+                );
+            }
 
             $iconDocumentIds = [];
 
@@ -371,6 +387,20 @@ class AnimalCategoryController extends Controller
                         'Kategori hewan dengan ID tersebut tidak ditemukan atau belum dihapus.',
                     ),
                     Response::HTTP_NOT_FOUND
+                );
+            }
+
+            // Validasi unik
+            $duplicate = AnimalCategory::where('label', $animalCategory->label)->whereNull('deleted_at')->exists();
+            if ($duplicate) {
+                return response()->json(
+                    new WithoutDataResource(
+                        Response::HTTP_CONFLICT,
+                        'DUPLICATE_NAME',
+                        'Duplikat Data',
+                        "Nama kategori hewan '{$animalCategory->label}' sudah digunakan oleh entri aktif lain. Silakan ubah nama terlebih dahulu sebelum merestore."
+                    ),
+                    Response::HTTP_CONFLICT
                 );
             }
 
