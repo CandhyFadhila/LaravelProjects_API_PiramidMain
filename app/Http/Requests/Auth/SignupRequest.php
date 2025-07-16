@@ -27,7 +27,7 @@ class SignupRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'unique:users,email'],
+            'email' => ['required', 'string', 'email'],
             'password' => ['required', 'string', 'min:4', 'confirmed'],
             'phone_number' => ['nullable', 'string', 'min:6'],
             'wa_number' => ['nullable', 'string', 'min:6'],
@@ -55,7 +55,7 @@ class SignupRequest extends FormRequest
         $response = new WithoutDataResource(
             Response::HTTP_BAD_REQUEST,
             'FAILED_VALIDATION',
-            'Login Gagal',
+            'Registrasi Gagal',
             $messages
         );
 

@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Mail;
 
 class RegisterController extends Controller
 {
+    // Ini untuk signup dengan otp
     public function signUp(SignupRequest $request)
     {
         try {
@@ -28,19 +29,50 @@ class RegisterController extends Controller
 
             $password = Hash::make($validatedData['password']);
 
-            $user = User::create([
-                'name' => $validatedData['name'],
-                'email' => $validatedData['email'],
-                'password' => $password,
-                'phone_number' => $validatedData['phone_number'] ?? null,
-                'wa_number' => $validatedData['wa_number'] ?? null,
-                'account_status' => 1,  // Akun defaultnya inactive
-                'register_at' => now(),  // Waktu registrasi sekarang
-            ]);
+            $existingUser = User::where('email', $validatedData['email'])->first();
 
-            $user->assignRole('Marketplace');
+            if ($existingUser) {
+                if ($existingUser->account_status === 2) {
+                    return response()->json(
+                        new WithoutDataResource(
+                            Response::HTTP_CONFLICT,
+                            'EMAIL_ALREADY_ACTIVE',
+                            'Akun Sudah Aktif',
+                            'Email yang Anda masukkan sudah terdaftar dan aktif. Tidak perlu melakukan registrasi kembali.'
+                        ),
+                        Response::HTTP_CONFLICT
+                    );
+                }
 
-            Log::channel('auth_signup')->info('| Create User | - Success create user for email: ' . $user->email . ', at ' . Carbon::now());
+                // Jika akun belum aktif, update data
+                $existingUser->update([
+                    'name' => $validatedData['name'],
+                    'password' => $password,
+                    'phone_number' => $validatedData['phone_number'] ?? null,
+                    'wa_number' => $validatedData['wa_number'] ?? null,
+                    'register_at' => now(),
+                ]);
+
+                $user = $existingUser;
+            } else {
+                // Jika akun benar-benar baru
+                $user = User::create([
+                    'name' => $validatedData['name'],
+                    'email' => $validatedData['email'],
+                    'password' => $password,
+                    'phone_number' => $validatedData['phone_number'] ?? null,
+                    'wa_number' => $validatedData['wa_number'] ?? null,
+                    'account_status' => 1,
+                    'register_at' => now(),
+                ]);
+
+                $user->assignRole('Marketplace');
+            }
+
+            Log::channel('auth_signup')->info('| Signup | - Prepare OTP for email: ' . $user->email);
+
+            // Hapus OTP lama (jika ada)
+            Otp::where('user_id', $user->id)->delete();
 
             // Generate OTP
             $otp = rand(100000, 999999);
@@ -156,5 +188,54 @@ class RegisterController extends Controller
             ),
             Response::HTTP_OK
         );
+    }
+
+    // Ini untuk signup tanpa otp
+    public function signUpWithoutOTP(SignupRequest $request)
+    {
+        try {
+            DB::beginTransaction();
+
+            $validatedData = $request->validated();
+
+            $password = Hash::make($validatedData['password']);
+
+            $user = User::create([
+                'name' => $validatedData['name'],
+                'email' => $validatedData['email'],
+                'password' => $password,
+                'phone_number' => $validatedData['phone_number'] ?? null,
+                'wa_number' => $validatedData['wa_number'] ?? null,
+                'account_status' => 2,  // Akun defaultnya inactive
+                'register_at' => now(),  // Waktu registrasi sekarang
+            ]);
+
+            $user->assignRole('Marketplace');
+
+            Log::channel('auth_signup')->info('| Create User | - Success create user for email: ' . $user->email . ', at ' . Carbon::now());
+
+            DB::commit();
+            return response()->json(
+                new WithoutDataResource(
+                    Response::HTTP_CREATED,
+                    'SUCCESS_REGISTER',
+                    'Pendaftaran Berhasil',
+                    'Akun Anda berhasil didaftarkan. Silakan cek email Anda untuk aktivasi akun dengan kode OTP.'
+                ),
+                Response::HTTP_CREATED
+            );
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::channel('auth_signup')->error('| Signup | - Error function signUp : ' . $e->getMessage() . ' - Line : ' . $e->getLine());
+            return response()->json(
+                new WithoutDataResource(
+                    Response::HTTP_INTERNAL_SERVER_ERROR,
+                    'ERROR_GET_DATA',
+                    'Gagal Mengambil Data',
+                    'Terjadi kesalahan pada sistem, silahkan coba lagi nanti atau hubungi admin.',
+                ),
+                Response::HTTP_INTERNAL_SERVER_ERROR
+            );
+        }
     }
 }
