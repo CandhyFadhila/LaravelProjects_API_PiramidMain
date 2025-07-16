@@ -35,12 +35,12 @@ class RegisterController extends Controller
                 if ($existingUser->account_status === 2) {
                     return response()->json(
                         new WithoutDataResource(
-                            Response::HTTP_CONFLICT,
+                            Response::HTTP_BAD_REQUEST,
                             'EMAIL_ALREADY_ACTIVE',
                             'Akun Sudah Aktif',
                             'Email yang Anda masukkan sudah terdaftar dan aktif. Tidak perlu melakukan registrasi kembali.'
                         ),
-                        Response::HTTP_CONFLICT
+                        Response::HTTP_BAD_REQUEST
                     );
                 }
 
