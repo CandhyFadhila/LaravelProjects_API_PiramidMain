@@ -106,21 +106,23 @@ class OrderDetailController extends Controller
                 );
             }
 
+            // Ini step 1
             $orderDetail = OrderDetail::create([
                 'user_id' => $user->id,
                 'service_type_id' => $validatedData['service_type_id'],
-                'detail' => $validatedData['detail'],
-                'last_steps' => $validatedData['last_steps'] ?? 1,
+                // 'detail' => $validatedData['detail'],
+                // 'last_steps' => $validatedData['last_steps'] ?? 1,
             ]);
 
             DB::commit();
 
             return response()->json(
-                new WithoutDataResource(
+                new WithDataResource(
                     Response::HTTP_CREATED,
                     'SUCCESS_CREATE_DATA',
                     'Berhasil Menyimpan Data',
-                    "Detail order untuk layanan '{$serviceType->label}' berhasil ditambahkan."
+                    "Detail order untuk layanan '{$serviceType->label}' berhasil ditambahkan.",
+                    new ServiceOrderDetail($orderDetail)
                 ),
                 Response::HTTP_CREATED
             );
@@ -225,7 +227,7 @@ class OrderDetailController extends Controller
                 );
             }
 
-            $serviceType = ServiceType::find($validatedData['service_type_id']);
+            $serviceType = ServiceType::find($orderDetail->service_type_id);
             if (!$serviceType) {
                 return response()->json(
                     new WithoutDataResource(
@@ -241,8 +243,9 @@ class OrderDetailController extends Controller
             // Kalau last_steps tidak diisi, maka ambil last_steps yang ada di database
             $lastSteps = isset($validatedData['last_steps']) ? $validatedData['last_steps'] : $orderDetail->last_steps;
 
+            // Ini step 2
             $orderDetail->update([
-                'service_type_id' => $validatedData['service_type_id'],
+                // 'service_type_id' => $validatedData['service_type_id'],
                 'detail' => $validatedData['detail'],
                 'last_steps' => $lastSteps,
             ]);
@@ -250,11 +253,12 @@ class OrderDetailController extends Controller
             DB::commit();
 
             return response()->json(
-                new WithoutDataResource(
+                new WithDataResource(
                     Response::HTTP_OK,
                     'SUCCESS_UPDATE_DATA',
                     'Berhasil Memperbarui Data',
-                    "Detail order untuk layanan '{$serviceType->label}' berhasil diperbarui."
+                    "Detail order untuk layanan '{$serviceType->label}' berhasil diperbarui.",
+                    new ServiceOrderDetail($orderDetail)
                 ),
                 Response::HTTP_OK
             );

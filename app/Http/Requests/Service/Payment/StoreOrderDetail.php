@@ -27,8 +27,8 @@ class StoreOrderDetail extends FormRequest
     {
         return [
             'service_type_id' => ['required', 'exists:service_types,id'],
-            'detail' => ['required', 'array'],
-            'last_steps' => ['nullable', 'integer'],
+            // 'detail' => ['required', 'array'],
+            // 'last_steps' => ['nullable', 'integer'],
         ];
     }
 

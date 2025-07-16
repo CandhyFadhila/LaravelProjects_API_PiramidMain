@@ -26,7 +26,7 @@ class UpdateOrderDetail extends FormRequest
     public function rules(): array
     {
         return [
-            'service_type_id' => ['required', 'exists:service_types,id'],
+            // 'service_type_id' => ['required', 'exists:service_types,id'],
             'detail' => ['required', 'array'],
             'last_steps' => ['nullable', 'integer'],
         ];
