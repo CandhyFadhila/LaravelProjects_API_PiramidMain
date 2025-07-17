@@ -27,7 +27,7 @@ class UpdateOrderDetail extends FormRequest
     {
         return [
             // 'service_type_id' => ['required', 'exists:service_types,id'],
-            'detail' => ['required', 'array'],
+            'detail' => ['nullable', 'array'],
             'last_steps' => ['nullable', 'integer'],
         ];
     }

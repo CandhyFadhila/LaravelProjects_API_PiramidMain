@@ -310,13 +310,6 @@ return [
             'replace_placeholders' => true,
         ],
 
-        'transaction_order' => [
-            'driver' => 'single',
-            'path' => storage_path('logs/Service/Transaction/transaction_order_detail.log'),
-            'level' => env('LOG_LEVEL', 'debug'),
-            'replace_placeholders' => true,
-        ],
-
         'snap_token' => [
             'driver' => 'single',
             'path' => storage_path('logs/Service/Payment/Midtrans/midtrans_snap_token.log'),
