@@ -37,6 +37,7 @@ class CheckMidtransPaymentStatus extends Command
 
         if ($pendingTransactions->isEmpty()) {
             $this->info('Tidak ada transaksi pending.');
+            Log::channel('cronjob_midtrans_status')->info('| Cronjob | Tidak ada transaksi yang masih pending.');
             return;
         }
 
@@ -51,6 +52,7 @@ class CheckMidtransPaymentStatus extends Command
                 // Panggil fungsi updateStatusMidtransPayment untuk memproses perubahan status
                 $controller = app(PaymentController::class);
                 $controller->handleUpdateStatusMidtransPayment($orderId, $statusResponse);
+                Log::channel('cronjob_midtrans_status')->info('| Cronjob | Success update status transaction ' . $transaction->id . ' at ' . now('Asia/Jakarta')->format('Y-m-d H:i:s'));
             } catch (\Exception $e) {
                 Log::channel('cronjob_midtrans_status')->error('| Cronjob | Error cek transaksi ' . $transaction->id . ' : ' . $e->getMessage());
             }
