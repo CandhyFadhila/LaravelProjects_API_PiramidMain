@@ -8,6 +8,8 @@ use App\Http\Requests\Service\Payment\StorePayment;
 use App\Http\Requests\Service\Payment\UpdatePayment;
 use App\Http\Resources\Templates\WithDataResource;
 use App\Http\Resources\Templates\WithoutDataResource;
+use App\Models\Address;
+use App\Models\OrderDetail;
 use App\Models\PaymentDetail;
 use App\Models\PaymentLog;
 use App\Models\PaymentMethod;
@@ -60,6 +62,42 @@ class PaymentController extends Controller
             DB::beginTransaction();
 
             $user = $request->user();
+
+            $orderDetail = OrderDetail::where('id', $data['order_detail_id'])
+                ->where('user_id', $user->id)
+                ->first();
+            if (!$orderDetail) {
+                return response()->json(
+                    new WithoutDataResource(
+                        Response::HTTP_OK,
+                        'DATA_NOT_FOUND',
+                        'Order Detail Tidak Ditemukan',
+                        'Order detail tidak ditemukan atau bukan milik Anda.'
+                    ),
+                    Response::HTTP_OK
+                );
+            }
+
+            // Validasi address_id milik user yang login
+            $address = Address::where('id', $data['address_id'])
+                ->where('user_id', $user->id)
+                ->first();
+            if (!$address) {
+                return response()->json(
+                    new WithoutDataResource(
+                        Response::HTTP_OK,
+                        'DATA_NOT_FOUND',
+                        'Alamat Tidak Ditemukan',
+                        'Alamat yang Anda pilih tidak ditemukan atau bukan milik Anda.'
+                    ),
+                    Response::HTTP_OK
+                );
+            }
+
+            $orderDetail->update([
+                'address_id' => $data['address_id'],
+                'mosque_id' => $data['mosque_id'] ?? null,
+            ]);
 
             $paymentStatusPendingId = PaymentStatus::where('label', 'Pending')->value('id');
             $transactionStatusPendingId = TransactionStatus::where('label', 'Pending')->value('id');
@@ -143,6 +181,7 @@ class PaymentController extends Controller
         }
     }
 
+    // Update address dan mosque disini aja
     public function updateStatusPayment(UpdatePayment $request)
     {
         try {
