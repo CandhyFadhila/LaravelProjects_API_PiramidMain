@@ -250,6 +250,17 @@ class OrderDetailController extends Controller
                 $validatedData['detail']
             );
 
+            // Fitur untuk mengembalikan null, gaboleh array kosong (belum kepakek)
+            // $formattedDetail = null;
+            // if (array_key_exists('detail', $validatedData)) {
+            //     if (!is_null($validatedData['detail'])) {
+            //         $formattedDetail = OrderDetailHelper::formatOrderDetailByServiceType(
+            //             $orderDetail->service_type_id,
+            //             $validatedData['detail']
+            //         );
+            //     }
+            // }
+
             // Ini step 2
             $orderDetail->update([
                 'detail' => $formattedDetail,
