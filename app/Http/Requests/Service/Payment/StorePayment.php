@@ -27,6 +27,8 @@ class StorePayment extends FormRequest
     {
         return [
             'order_detail_id'       => 'required|exists:order_details,id',
+            'address_id'            => 'required|exists:addresses,id',
+            'mosque_id'             => 'nullable|exists:mosques,id',
             'payment_gateway_id'    => 'required|string',
             'amount_paid'           => 'required|numeric|min:100',
             'currency'              => 'required|string',
@@ -39,6 +41,9 @@ class StorePayment extends FormRequest
         return [
             'order_detail_id.required'      => 'Order detail tidak boleh kosong.',
             'order_detail_id.exists'        => 'Order detail tersebut tidak valid.',
+            'address_id.required'           => 'Alamat tidak boleh kosong.',
+            'address_id.exists'             => 'Alamat tersebut tidak valid.',
+            'mosque_id.exists'              => 'Mosque tersebut tidak valid.',
             'payment_gateway_id.required'   => 'Metode pembayaran tidak boleh kosong.',
             'payment_gateway_id.string'     => 'Metode pembayaran harus berupa teks.',
             'amount_paid.required'          => 'Jumlah pembayaran tidak boleh kosong.',

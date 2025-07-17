@@ -114,6 +114,8 @@ class OrderDetailController extends Controller
                 // 'last_steps' => $validatedData['last_steps'] ?? 1,
             ]);
 
+            $orderDetail->refresh();
+
             DB::commit();
 
             return response()->json(
