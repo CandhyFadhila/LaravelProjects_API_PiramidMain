@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained('users')->onUpdate('cascade');
             $table->foreignId('service_type_id')->constrained('service_types')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreignId('mosque_id')->nullable()->constrained('mosques')->onUpdate('cascade')->onDelete('cascade');
             $table->json('detail')->nullable();
             $table->integer('last_steps')->default(1);
             $table->softDeletes();

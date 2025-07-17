@@ -16,6 +16,8 @@ class OrderDetail extends Model
     protected $casts = [
         'user_id' => 'integer',
         'service_type_id' => 'integer',
+        'mosque_id' => 'integer',
+        'address_id' => 'integer',
         'detail' => 'array',
         'last_steps' => 'integer',
     ];
@@ -38,6 +40,26 @@ class OrderDetail extends Model
     public function service_type(): BelongsTo
     {
         return $this->belongsTo(ServiceType::class, 'service_type_id', 'id');
+    }
+
+    /**
+     * Get the mosque that owns the OrderDetail
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function mosque(): BelongsTo
+    {
+        return $this->belongsTo(Mosque::class, 'mosque_id', 'id');
+    }
+
+    /**
+     * Get the address that owns the OrderDetail
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function address(): BelongsTo
+    {
+        return $this->belongsTo(Address::class, 'address_id', 'id');
     }
 
     /**
