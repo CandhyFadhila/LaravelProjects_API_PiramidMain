@@ -79,6 +79,18 @@ class PaymentController extends Controller
                 );
             }
 
+            if ($orderDetail->last_steps !== 2) {
+                return response()->json(
+                    new WithoutDataResource(
+                        Response::HTTP_BAD_REQUEST,
+                        'STEP_NOT_ALLOWED',
+                        'Langkah Tidak Diizinkan',
+                        'Data order hanya dapat diubah pada langkah kedua.'
+                    ),
+                    Response::HTTP_BAD_REQUEST
+                );
+            }
+
             $existingTransaction = Transaction::where('order_detail_id', $orderDetail->id)
                 ->whereHas('payment_details', function ($query) {
                     $query->whereHas('payment_statuses', function ($q) {
@@ -406,6 +418,15 @@ class PaymentController extends Controller
             'payment_status_id' => $paymentStatusId,
             'transaction_ref' => $midtransTransactionId,
         ]);
+
+        // Restore stock jika status pembayaran gagal, dibatalkan, atau refund
+        if (in_array($midtransStatus, ['deny', 'cancel', 'expire', 'failure', 'refund', 'partial_refund', 'chargeback', 'partial_chargeback'])) {
+            foreach ($transaction->order_details as $orderDetail) {
+                if (!$orderDetail->stock_restored) {
+                    OrderDetailHelper::restoreAnimalStock($orderDetail);
+                }
+            }
+        }
 
         PaymentLog::create([
             'payment_detail_id' => $transaction->payment_details->id,

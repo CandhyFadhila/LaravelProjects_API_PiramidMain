@@ -20,6 +20,7 @@ class OrderDetail extends Model
         'address_id' => 'integer',
         'detail' => 'array',
         'last_steps' => 'integer',
+        'stock_restored' => 'integer',
     ];
 
     /**

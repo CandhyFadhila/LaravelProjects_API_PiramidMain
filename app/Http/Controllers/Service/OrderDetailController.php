@@ -230,6 +230,18 @@ class OrderDetailController extends Controller
                 );
             }
 
+            if ($orderDetail->last_steps !== 1) {
+                return response()->json(
+                    new WithoutDataResource(
+                        Response::HTTP_BAD_REQUEST,
+                        'STEP_NOT_ALLOWED',
+                        'Langkah Tidak Diizinkan',
+                        'Data order hanya dapat diubah pada langkah pertama.'
+                    ),
+                    Response::HTTP_BAD_REQUEST
+                );
+            }
+
             $serviceType = ServiceType::find($orderDetail->service_type_id);
             if (!$serviceType) {
                 return response()->json(

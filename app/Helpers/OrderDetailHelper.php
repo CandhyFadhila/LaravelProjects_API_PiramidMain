@@ -126,7 +126,6 @@ class OrderDetailHelper
   public static function deductAnimalStock(OrderDetail $orderDetail): void
   {
     foreach ($orderDetail->detail as $item) {
-      // Cek jenis produk yang aktif
       foreach (['qurban_product', 'aqiqah_product', 'sadaqah_product'] as $productType) {
         if (!empty($item[$productType])) {
           $product = $item[$productType];
@@ -150,5 +149,38 @@ class OrderDetailHelper
         }
       }
     }
+  }
+
+  public static function restoreAnimalStock(OrderDetail $orderDetail): void
+  {
+    if ($orderDetail->stock_restored) {
+      return; // Skip kalau stok sudah direstore sebelumnya
+    }
+
+    foreach ($orderDetail->detail as $item) {
+      foreach (['qurban_product', 'aqiqah_product', 'sadaqah_product'] as $productType) {
+        if (!empty($item[$productType])) {
+          $product = $item[$productType];
+
+          $animal = $product['animal'] ?? null;
+          $quantity = $item['quantity'] ?? 0;
+
+          if ($animal && isset($animal['id']) && $quantity > 0) {
+            $animalModel = Animal::find($animal['id']);
+
+            if ($animalModel) {
+              $animalModel->update([
+                'stock' => $animalModel->stock + $quantity
+              ]);
+            }
+          }
+
+          break;
+        }
+      }
+    }
+
+    // Update agar tidak direstore lagi
+    $orderDetail->update(['stock_restored' => true]);
   }
 }
