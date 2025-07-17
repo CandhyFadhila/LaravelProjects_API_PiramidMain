@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Service;
 
 use App\Helpers\MidtransHelper;
+use App\Helpers\OrderDetailHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Service\Payment\StorePayment;
 use App\Http\Requests\Service\Payment\UpdatePayment;
@@ -17,7 +18,6 @@ use App\Models\PaymentStatus;
 use App\Models\ServiceType;
 use App\Models\Transaction;
 use App\Models\TransactionStatus;
-use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
@@ -41,6 +41,7 @@ class PaymentController extends Controller
             }
 
             $data = $request->validated();
+
 
             $gateway = strtolower($data['payment_gateway_id']);
 
@@ -78,6 +79,25 @@ class PaymentController extends Controller
                 );
             }
 
+            $existingTransaction = Transaction::where('order_detail_id', $orderDetail->id)
+                ->whereHas('payment_details', function ($query) {
+                    $query->whereHas('payment_statuses', function ($q) {
+                        $q->whereNotIn('label', ['Failed', 'Expired', 'Refunded']);
+                    });
+                })
+                ->exists();
+            if ($existingTransaction) {
+                return response()->json(
+                    new WithoutDataResource(
+                        Response::HTTP_BAD_REQUEST,
+                        'TRANSACTION_EXISTS',
+                        'Transaksi Sudah Ada',
+                        'Order detail ini sudah memiliki transaksi yang sedang atau sudah diproses. Tidak dapat membuat transaksi baru.'
+                    ),
+                    Response::HTTP_BAD_REQUEST
+                );
+            }
+
             // Validasi address_id milik user yang login
             $address = Address::where('id', $data['address_id'])
                 ->where('user_id', $user->id)
@@ -97,6 +117,7 @@ class PaymentController extends Controller
             $orderDetail->update([
                 'address_id' => $data['address_id'],
                 'mosque_id' => $data['mosque_id'] ?? null,
+                'last_steps' => $data['last_steps'],
             ]);
 
             $paymentStatusPendingId = PaymentStatus::where('label', 'Pending')->value('id');
@@ -104,6 +125,7 @@ class PaymentController extends Controller
             $paymentMethodId = $gateway === 'midtrans'
                 ? PaymentMethod::where('label', 'Fiat')->value('id')
                 : PaymentMethod::where('label', 'Crypto')->value('id');
+            $summaryOrderDetail = OrderDetailHelper::summarizeOrderDetail($orderDetail);
 
             // Create Payment Detail
             $paymentDetail = PaymentDetail::create([
@@ -112,7 +134,7 @@ class PaymentController extends Controller
                 'payment_method_id' => $paymentMethodId,
                 'payment_gateway_id' => $data['payment_gateway_id'],
                 'payment_date' => now(),
-                'amount_paid' => $data['amount_paid'],
+                'amount_paid' => $summaryOrderDetail['price'],
                 'transaction_ref' => null,
                 'currency' => $data['currency'],
             ]);
@@ -127,7 +149,7 @@ class PaymentController extends Controller
                 'transaction_status_id' => $transactionStatusPendingId,
                 'transaction_date' => now(),
                 'settlement_date' => now()->addDay(),
-                'grand_total' => $data['amount_paid'],
+                'grand_total' => $summaryOrderDetail['price'],
                 'note' => $data['note'] ?? null,
             ]);
 
@@ -140,7 +162,7 @@ class PaymentController extends Controller
             // Gateway handler
             switch ($gateway) {
                 case 'midtrans':
-                    $response = $this->handleCreateMidtransPayment($user, $data, $midtransOrderId, $transaction, $paymentDetail, $serviceType);
+                    $response = $this->handleCreateMidtransPayment($user, $midtransOrderId, $transaction, $paymentDetail, $serviceType);
                     break;
                 // TODO: Kalau coinpayment sudah ready
                 // case 'coinpayment':
@@ -164,6 +186,9 @@ class PaymentController extends Controller
                 'transaction_status_id' => $transactionStatusProcessId,
             ]);
 
+            // Kurangi stok hewan
+            OrderDetailHelper::deductAnimalStock($orderDetail);
+
             DB::commit();
             return $response;
         } catch (\Exception $e) {
@@ -181,7 +206,6 @@ class PaymentController extends Controller
         }
     }
 
-    // Update address dan mosque disini aja
     public function updateStatusPayment(UpdatePayment $request)
     {
         try {
@@ -234,27 +258,43 @@ class PaymentController extends Controller
         }
     }
 
-    private function handleCreateMidtransPayment($user, $data, $midtransOrderId, $transaction, $paymentDetail, $serviceType)
+    private function handleCreateMidtransPayment($user, $midtransOrderId, $transaction, $paymentDetail, $serviceType)
     {
+        // Ambil order detail & summary
+        $orderDetail = $transaction->order_details;
+        $summaryOrderDetail = OrderDetailHelper::summarizeOrderDetail($orderDetail);
+
+        $itemDetails = [];
+
+        foreach ($orderDetail->detail as $item) {
+            foreach (['qurban_product', 'aqiqah_product', 'sadaqah_product'] as $productType) {
+                if (!empty($item[$productType])) {
+                    $product = $item[$productType];
+
+                    $itemDetails[] = [
+                        'id' => strtoupper('ORDER-' . $productType . '-' . '#' . $product['id']),
+                        'name' => "Payment for order '{$serviceType->label}', #$productType}",
+                        'quantity' => $item['quantity'],
+                        'price' => $item['price'],
+                    ];
+
+                    break;
+                }
+            }
+        }
+
         // Midtrans
         $midtransParams = [
             'transaction_details' => [
                 'order_id' => $midtransOrderId,
-                'gross_amount' => $data['amount_paid'],
+                'gross_amount' => $summaryOrderDetail['price'],
             ],
             'customer_details' => [
                 'first_name' => $user->name,
                 'email' => $user->email,
                 'phone' => $user->phone_number ?? $user->wa_number,
             ],
-            'item_details' => [
-                [
-                    'id' => 'ORDER-' . $data['order_detail_id'],
-                    'name' => "Payment for order '{$serviceType->label}', #{$data['order_detail_id']}",
-                    'quantity' => 1,
-                    'price' => $data['amount_paid'],
-                ]
-            ],
+            'item_details' => $itemDetails,
         ];
 
         $snapResponse = MidtransHelper::sendSnapToken($midtransParams, $transaction->id, $paymentDetail->id);

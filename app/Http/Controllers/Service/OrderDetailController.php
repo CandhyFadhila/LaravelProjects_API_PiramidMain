@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Service;
 
+use App\Helpers\OrderDetailHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Service\Payment\StoreOrderDetail;
 use App\Http\Requests\Service\Payment\UpdateOrderDetail;
@@ -242,13 +243,16 @@ class OrderDetailController extends Controller
                 );
             }
 
-            // Kalau last_steps tidak diisi, maka ambil last_steps yang ada di database
-            $lastSteps = isset($validatedData['last_steps']) ? $validatedData['last_steps'] : $orderDetail->last_steps;
+            $lastSteps = $validatedData['last_steps'] ?? $orderDetail->last_steps;
+
+            $formattedDetail = OrderDetailHelper::formatOrderDetailByServiceType(
+                $orderDetail->service_type_id,
+                $validatedData['detail']
+            );
 
             // Ini step 2
             $orderDetail->update([
-                // 'service_type_id' => $validatedData['service_type_id'],
-                'detail' => $validatedData['detail'],
+                'detail' => $formattedDetail,
                 'last_steps' => $lastSteps,
             ]);
 

@@ -30,9 +30,9 @@ class StorePayment extends FormRequest
             'address_id'            => 'required|exists:addresses,id',
             'mosque_id'             => 'nullable|exists:mosques,id',
             'payment_gateway_id'    => 'required|string',
-            'amount_paid'           => 'required|numeric|min:100',
             'currency'              => 'required|string',
             'note'                  => 'nullable|string|max:1000',
+            'last_steps'            => 'nullable|integer',
         ];
     }
 
@@ -51,6 +51,7 @@ class StorePayment extends FormRequest
             'amount_paid.min'               => 'Jumlah pembayaran minimal Rp100.',
             'currency.required'             => 'Mata uang tidak boleh kosong.',
             'note.string'                   => 'Catatan harus berupa teks.',
+            'last_steps.integer' => 'Langkah terakhir harus berupa angka.',
         ];
     }
 
