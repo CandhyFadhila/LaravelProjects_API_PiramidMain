@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests\Auth;
+namespace App\Http\Requests\Management\Settings\Account;
 
 use App\Http\Resources\Templates\WithoutDataResource;
 use Illuminate\Contracts\Validation\Validator;
@@ -8,7 +8,7 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\Response;
 
-class ChangePasswordRequest extends FormRequest
+class UpdatePrimaryAddress extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -26,18 +26,15 @@ class ChangePasswordRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'current_password' => ['required', 'string', 'required_with:password'],
-            'password' => ['required', 'string', 'min:4', 'confirmed'],
+            'primary_address' => ['required', 'integer'],
         ];
     }
 
-    public function messages()
+    public function messages(): array
     {
         return [
-            'current_password.required' => 'Kata sandi lama tidak boleh kosong.',
-            'password.required' => 'Password tidak boleh kosong.',
-            'password.min' => 'Password minimal terdiri dari 4 karakter.',
-            'password.confirmed' => 'Konfirmasi password tidak sesuai dengan password yang anda masukkan.',
+            'primary_address.required' => 'Alamat utama tidak boleh kosong.',
+            'primary_address.integer' => 'Alamat utama harus berupa angka.',
         ];
     }
 
@@ -47,7 +44,7 @@ class ChangePasswordRequest extends FormRequest
         $response = new WithoutDataResource(
             Response::HTTP_BAD_REQUEST,
             'FAILED_VALIDATION',
-            'Reset Password Gagal',
+            'Format Data Tidak Sesuai Ketentuan',
             $messages
         );
 

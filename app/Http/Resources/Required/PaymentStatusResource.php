@@ -1,13 +1,11 @@
 <?php
 
-namespace App\Http\Resources\Service;
+namespace App\Http\Resources\Required;
 
-use App\Http\Resources\Required\ServiceType;
-use App\Http\Resources\Required\UserResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class OrderDetail extends JsonResource
+class PaymentStatusResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -18,10 +16,7 @@ class OrderDetail extends JsonResource
     {
         return [
             'id' => $this->id,
-            'user' => new UserResource($this->user),
-            'service_type' => new ServiceType($this->service_type),
-            'detail' => $this->detail,
-            'last_steps' => $this->last_steps,
+            'label' => $this->label,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'deleted_at' => $this->deleted_at,

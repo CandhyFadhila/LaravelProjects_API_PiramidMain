@@ -112,6 +112,7 @@ Route::middleware(['auth:sanctum', 'custom.throttle:60,1'])->group(function () {
                 Route::post('/change-profile', [ChangeProfileController::class, 'updateProfileUsers']);
                 Route::apiResource('/setup-address', AddressController::class);
                 Route::post('/setup-address/{id}/restore', [AddressController::class, 'restore']);
+                Route::post('/update-address-primary', [AddressController::class, 'updatePrimaryAddress']);
                 Route::apiResource('/my-order', MyOrderController::class);
             });
 

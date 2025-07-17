@@ -345,6 +345,13 @@ return [
             'replace_placeholders' => true,
         ],
 
+        'service_my_order' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/Service/Order/my_order.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+            'replace_placeholders' => true,
+        ],
+
         // Public
         'public_request' => [
             'driver' => 'single',

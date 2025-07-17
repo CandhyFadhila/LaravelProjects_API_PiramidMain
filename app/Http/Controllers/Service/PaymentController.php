@@ -167,7 +167,7 @@ class PaymentController extends Controller
                         Response::HTTP_BAD_REQUEST,
                         'FAILED_VALIDATION',
                         'Permintaan Tidak Valid',
-                        'Order ID tidak diperbolehkan kosong.'
+                        'Order ID tidak boleh kosong.'
                     ),
                     Response::HTTP_BAD_REQUEST
                 );

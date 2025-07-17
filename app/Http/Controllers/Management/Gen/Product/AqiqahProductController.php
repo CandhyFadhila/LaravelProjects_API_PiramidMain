@@ -161,21 +161,22 @@ class AqiqahProductController extends Controller
                 );
             }
 
-            $stockToDeduct = $request->boolean('gender') ? 2 : 1;
-            if ($animal->stock < $stockToDeduct) {
-                $categoryLabel = optional($animal->animal_categories)->label ?? '-';
-                $breedLabel = optional($animal->animal_breeds)->label ?? '-';
+            // 🔍 Cek stok hewan
+            // $stockToDeduct = $request->boolean('gender') ? 2 : 1;
+            // if ($animal->stock < $stockToDeduct) {
+            //     $categoryLabel = optional($animal->animal_categories)->label ?? '-';
+            //     $breedLabel = optional($animal->animal_breeds)->label ?? '-';
 
-                return response()->json(
-                    new WithoutDataResource(
-                        Response::HTTP_BAD_REQUEST,
-                        'INSUFFICIENT_STOCK',
-                        'Stok Tidak Mencukupi',
-                        "Stok hewan aqiqah untuk kategori '{$categoryLabel}' dan ras '{$breedLabel}' tidak mencukupi untuk kebutuhan anak " . ($request->boolean('gender') ? 'laki-laki (2 ekor)' : 'perempuan (1 ekor)') . "."
-                    ),
-                    Response::HTTP_BAD_REQUEST
-                );
-            }
+            //     return response()->json(
+            //         new WithoutDataResource(
+            //             Response::HTTP_BAD_REQUEST,
+            //             'INSUFFICIENT_STOCK',
+            //             'Stok Tidak Mencukupi',
+            //             "Stok hewan aqiqah untuk kategori '{$categoryLabel}' dan ras '{$breedLabel}' tidak mencukupi untuk kebutuhan anak " . ($request->boolean('gender') ? 'laki-laki (2 ekor)' : 'perempuan (1 ekor)') . "."
+            //         ),
+            //         Response::HTTP_BAD_REQUEST
+            //     );
+            // }
 
             $photoDocumentIds = [];
 
@@ -194,7 +195,7 @@ class AqiqahProductController extends Controller
             ]);
 
             // Kurangi stok hewan
-            $animal->decrement('stock', $stockToDeduct);
+            // $animal->decrement('stock', $stockToDeduct);
 
             DB::commit();
             return response()->json(
@@ -349,85 +350,86 @@ class AqiqahProductController extends Controller
 
             DB::beginTransaction();
 
-            // ✅ Jika animal baru berbeda dengan yg lama, jangan lupa update stock
-            $oldAnimalId = $aqiqahProduct->animal_id;
-            $newAnimalId = $request->animal_id;
+            // 🔍 Cek stok hewan
+            // // ✅ Jika animal baru berbeda dengan yg lama, jangan lupa update stock
+            // $oldAnimalId = $aqiqahProduct->animal_id;
+            // $newAnimalId = $request->animal_id;
 
-            $animalQuery = Animal::query()->with(['animal_categories', 'animal_breeds'])->lockForUpdate();
+            // $animalQuery = Animal::query()->with(['animal_categories', 'animal_breeds'])->lockForUpdate();
 
-            // Ambil hewan yang lama dan baru sekaligus
-            $animals = $animalQuery->whereIn('id', [$oldAnimalId, $newAnimalId])->get()->keyBy('id');
+            // // Ambil hewan yang lama dan baru sekaligus
+            // $animals = $animalQuery->whereIn('id', [$oldAnimalId, $newAnimalId])->get()->keyBy('id');
 
-            $oldAnimal = $animals[$oldAnimalId] ?? null;
-            $newAnimal = $animals[$newAnimalId] ?? null;
+            // $oldAnimal = $animals[$oldAnimalId] ?? null;
+            // $newAnimal = $animals[$newAnimalId] ?? null;
 
-            if (!$newAnimal) {
-                DB::rollBack();
-                return response()->json(
-                    new WithoutDataResource(
-                        Response::HTTP_BAD_REQUEST,
-                        'DATA_NOT_FOUND',
-                        'Hewan Baru Tidak Ditemukan',
-                        'Hewan baru tidak ditemukan di database.'
-                    ),
-                    Response::HTTP_BAD_REQUEST
-                );
-            }
+            // if (!$newAnimal) {
+            //     DB::rollBack();
+            //     return response()->json(
+            //         new WithoutDataResource(
+            //             Response::HTTP_BAD_REQUEST,
+            //             'DATA_NOT_FOUND',
+            //             'Hewan Baru Tidak Ditemukan',
+            //             'Hewan baru tidak ditemukan di database.'
+            //         ),
+            //         Response::HTTP_BAD_REQUEST
+            //     );
+            // }
 
-            $oldGender = $aqiqahProduct->gender;
-            $newGender = $request->boolean('gender');
+            // $oldGender = $aqiqahProduct->gender;
+            // $newGender = $request->boolean('gender');
 
-            $oldNeed = $oldGender ? 2 : 1;
-            $newNeed = $newGender ? 2 : 1;
+            // $oldNeed = $oldGender ? 2 : 1;
+            // $newNeed = $newGender ? 2 : 1;
 
-            // Jika ganti animal_id
-            if ($oldAnimalId !== $newAnimalId) {
-                if ($newAnimal->stock < $newNeed) {
-                    $categoryLabel = optional($newAnimal->animal_categories)->label ?? '-';
-                    $breedLabel = optional($newAnimal->animal_breeds)->label ?? '-';
+            // // Jika ganti animal_id
+            // if ($oldAnimalId !== $newAnimalId) {
+            //     if ($newAnimal->stock < $newNeed) {
+            //         $categoryLabel = optional($newAnimal->animal_categories)->label ?? '-';
+            //         $breedLabel = optional($newAnimal->animal_breeds)->label ?? '-';
 
-                    DB::rollBack();
-                    return response()->json(
-                        new WithoutDataResource(
-                            Response::HTTP_BAD_REQUEST,
-                            'OUT_OF_STOCK',
-                            'Stok Hewan Baru Habis',
-                            "Stok hewan aqiqah untuk kategori '{$categoryLabel}' dan ras '{$breedLabel}' tidak mencukupi kebutuhan anak " . ($newGender ? 'laki-laki (2 ekor)' : 'perempuan (1 ekor)') . "."
-                        ),
-                        Response::HTTP_BAD_REQUEST
-                    );
-                }
+            //         DB::rollBack();
+            //         return response()->json(
+            //             new WithoutDataResource(
+            //                 Response::HTTP_BAD_REQUEST,
+            //                 'OUT_OF_STOCK',
+            //                 'Stok Hewan Baru Habis',
+            //                 "Stok hewan aqiqah untuk kategori '{$categoryLabel}' dan ras '{$breedLabel}' tidak mencukupi kebutuhan anak " . ($newGender ? 'laki-laki (2 ekor)' : 'perempuan (1 ekor)') . "."
+            //             ),
+            //             Response::HTTP_BAD_REQUEST
+            //         );
+            //     }
 
-                // Kembalikan stok lama, kurangi stok baru
-                $oldAnimal?->increment('stock', $oldNeed);
-                $newAnimal->decrement('stock', $newNeed);
-            }
-            // Jika hanya gender yang berubah
-            elseif ($oldGender !== $newGender) {
-                $selisih = $newNeed - $oldNeed;
+            //     // Kembalikan stok lama, kurangi stok baru
+            //     $oldAnimal?->increment('stock', $oldNeed);
+            //     $newAnimal->decrement('stock', $newNeed);
+            // }
+            // // Jika hanya gender yang berubah
+            // elseif ($oldGender !== $newGender) {
+            //     $selisih = $newNeed - $oldNeed;
 
-                if ($selisih > 0) {
-                    if (!$oldAnimal || $oldAnimal->stock < $selisih) {
-                        $categoryLabel = optional($oldAnimal?->animal_categories)->label ?? '-';
-                        $breedLabel = optional($oldAnimal?->animal_breeds)->label ?? '-';
+            //     if ($selisih > 0) {
+            //         if (!$oldAnimal || $oldAnimal->stock < $selisih) {
+            //             $categoryLabel = optional($oldAnimal?->animal_categories)->label ?? '-';
+            //             $breedLabel = optional($oldAnimal?->animal_breeds)->label ?? '-';
 
-                        DB::rollBack();
-                        return response()->json(
-                            new WithoutDataResource(
-                                Response::HTTP_BAD_REQUEST,
-                                'INSUFFICIENT_STOCK',
-                                'Stok Tidak Mencukupi',
-                                "Stok hewan aqiqah untuk kategori '{$categoryLabel}' dan ras '{$breedLabel}' tidak mencukupi untuk perubahan jumlah hewan dari {$oldNeed} menjadi {$newNeed}."
-                            ),
-                            Response::HTTP_BAD_REQUEST
-                        );
-                    }
+            //             DB::rollBack();
+            //             return response()->json(
+            //                 new WithoutDataResource(
+            //                     Response::HTTP_BAD_REQUEST,
+            //                     'INSUFFICIENT_STOCK',
+            //                     'Stok Tidak Mencukupi',
+            //                     "Stok hewan aqiqah untuk kategori '{$categoryLabel}' dan ras '{$breedLabel}' tidak mencukupi untuk perubahan jumlah hewan dari {$oldNeed} menjadi {$newNeed}."
+            //                 ),
+            //                 Response::HTTP_BAD_REQUEST
+            //             );
+            //         }
 
-                    $oldAnimal->decrement('stock', $selisih);
-                } elseif ($selisih < 0) {
-                    $oldAnimal->increment('stock', abs($selisih));
-                }
-            }
+            //         $oldAnimal->decrement('stock', $selisih);
+            //     } elseif ($selisih < 0) {
+            //         $oldAnimal->increment('stock', abs($selisih));
+            //     }
+            // }
 
             // ✅ Hapus dokumen lama jika ada
             if (!empty($deleteIds)) {
@@ -450,7 +452,8 @@ class AqiqahProductController extends Controller
                 'price'             => $request->price,
                 'portion_count'     => $request->portion_count,
                 'photo_product_id'  => $photoDocumentIds ?: null,
-                'gender'            => $newGender,
+                'gender'            => $request->boolean('gender'),
+                // 'gender'            => $newGender,
             ]);
 
             DB::commit();

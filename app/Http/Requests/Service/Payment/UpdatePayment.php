@@ -33,7 +33,7 @@ class UpdatePayment extends FormRequest
     public function messages(): array
     {
         return [
-            'order_id.required' => 'ID pesanan tidak diperbolehkan kosong.',
+            'order_id.required' => 'ID pesanan tidak boleh kosong.',
             'order_id.exists' => 'ID pesanan tersebut tidak valid.',
         ];
     }

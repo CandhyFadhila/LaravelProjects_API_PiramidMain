@@ -3,10 +3,10 @@
 namespace App\Http\Controllers\Service;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\Service\OrderDetail as ServiceOrderDetail;
+use App\Http\Resources\Service\TransactionResource;
 use App\Http\Resources\Templates\WithDataResource;
 use App\Http\Resources\Templates\WithoutDataResource;
-use App\Models\OrderDetail;
+use App\Models\Transaction;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Log;
 
 class MyOrderController extends Controller
 {
-        public function index()
+    public function index()
     {
         try {
             if (!Gate::allows('transaction.view')) {
@@ -29,15 +29,11 @@ class MyOrderController extends Controller
                 );
             }
 
-            $orderDetail = OrderDetail::with(['user', 'service_type', 'transaction'])
+            $transaction = Transaction::with(['order_details', 'payment_details', 'transaction_statuses'])
                 ->where('user_id', Auth::id())
-                ->where(function ($query) {
-                    $query->WhereHas('transaction', function ($q) {
-                            $q->whereNot('transaction_status_id', 1);
-                        });
-                })
+                ->whereNotIn('transaction_status_id', [1, 2])
                 ->get();
-            if ($orderDetail->isEmpty()) {
+            if ($transaction->isEmpty()) {
                 return response()->json(
                     new WithoutDataResource(
                         Response::HTTP_OK,
@@ -54,13 +50,13 @@ class MyOrderController extends Controller
                     Response::HTTP_OK,
                     'SUCCESS_GET_DATA',
                     'Berhasil Mengambil Data',
-                    'Data list pesanan saya berhasil didapatkan.',
-                    ServiceOrderDetail::collection($orderDetail)
+                    'Data riwayat pesanan saya berhasil didapatkan.',
+                    TransactionResource::collection($transaction)
                 ),
                 Response::HTTP_OK
             );
         } catch (\Exception $e) {
-            Log::channel('service_cart')->error('| Index | - Error function index : ' . $e->getMessage() . ' - Line : ' . $e->getLine());
+            Log::channel('service_my_order')->error('| Index | - Error function index : ' . $e->getMessage() . ' - Line : ' . $e->getLine());
             return response()->json(
                 new WithoutDataResource(
                     Response::HTTP_INTERNAL_SERVER_ERROR,

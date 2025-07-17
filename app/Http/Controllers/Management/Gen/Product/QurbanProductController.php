@@ -161,20 +161,21 @@ class QurbanProductController extends Controller
                 );
             }
 
-            if ($animal->stock < 1) {
-                $categoryLabel = optional($animal->animal_categories)->label ?? '-';
-                $breedLabel = optional($animal->animal_breeds)->label ?? '-';
+            // 🔍 Cek stok hewan
+            // if ($animal->stock < 1) {
+            //     $categoryLabel = optional($animal->animal_categories)->label ?? '-';
+            //     $breedLabel = optional($animal->animal_breeds)->label ?? '-';
 
-                return response()->json(
-                    new WithoutDataResource(
-                        Response::HTTP_BAD_REQUEST,
-                        'EMPTY_STOCK',
-                        'Stok Hewan Tidak Tersedia',
-                        "Stok hewan qurban untuk kategori '{$categoryLabel}' dan ras '{$breedLabel}' sudah habis. Silakan pilih hewan lain yang masih tersedia."
-                    ),
-                    Response::HTTP_BAD_REQUEST
-                );
-            }
+            //     return response()->json(
+            //         new WithoutDataResource(
+            //             Response::HTTP_BAD_REQUEST,
+            //             'EMPTY_STOCK',
+            //             'Stok Hewan Tidak Tersedia',
+            //             "Stok hewan qurban untuk kategori '{$categoryLabel}' dan ras '{$breedLabel}' sudah habis. Silakan pilih hewan lain yang masih tersedia."
+            //         ),
+            //         Response::HTTP_BAD_REQUEST
+            //     );
+            // }
 
             $photoDocumentIds = [];
 
@@ -191,7 +192,7 @@ class QurbanProductController extends Controller
             ]);
 
             // Kurangi stok hewan
-            $animal->decrement('stock');
+            // $animal->decrement('stock');
 
             DB::commit();
             return response()->json(
@@ -346,52 +347,53 @@ class QurbanProductController extends Controller
 
             DB::beginTransaction();
 
-            // ✅ Jika animal baru berbeda dengan yg lama, jangan lupa update stock
-            $oldAnimalId = $qurbanProduct->animal_id;
-            $newAnimalId = $request->animal_id;
+            // 🔍 Cek stok hewan
+            // // ✅ Jika animal baru berbeda dengan yg lama, jangan lupa update stock
+            // $oldAnimalId = $qurbanProduct->animal_id;
+            // $newAnimalId = $request->animal_id;
 
-            $animalQuery = Animal::query()->with(['animal_categories', 'animal_breeds'])->lockForUpdate();
+            // $animalQuery = Animal::query()->with(['animal_categories', 'animal_breeds'])->lockForUpdate();
 
-            // Ambil hewan yang lama dan baru sekaligus
-            $animals = $animalQuery->whereIn('id', [$oldAnimalId, $newAnimalId])->get()->keyBy('id');
+            // // Ambil hewan yang lama dan baru sekaligus
+            // $animals = $animalQuery->whereIn('id', [$oldAnimalId, $newAnimalId])->get()->keyBy('id');
 
-            $oldAnimal = $animals[$oldAnimalId] ?? null;
-            $newAnimal = $animals[$newAnimalId] ?? null;
+            // $oldAnimal = $animals[$oldAnimalId] ?? null;
+            // $newAnimal = $animals[$newAnimalId] ?? null;
 
-            if (!$newAnimal) {
-                DB::rollBack();
-                return response()->json(
-                    new WithoutDataResource(
-                        Response::HTTP_BAD_REQUEST,
-                        'DATA_NOT_FOUND',
-                        'Hewan Baru Tidak Ditemukan',
-                        'Hewan baru tidak ditemukan di database.'
-                    ),
-                    Response::HTTP_BAD_REQUEST
-                );
-            }
+            // if (!$newAnimal) {
+            //     DB::rollBack();
+            //     return response()->json(
+            //         new WithoutDataResource(
+            //             Response::HTTP_BAD_REQUEST,
+            //             'DATA_NOT_FOUND',
+            //             'Hewan Baru Tidak Ditemukan',
+            //             'Hewan baru tidak ditemukan di database.'
+            //         ),
+            //         Response::HTTP_BAD_REQUEST
+            //     );
+            // }
 
-            // ✅ Jika ganti animal_id, kurangi stok baru, tambahkan stok lama
-            if ($oldAnimalId !== $newAnimalId) {
-                if ($newAnimal->stock < 1) {
-                    $categoryLabel = optional($newAnimal->animal_categories)->label ?? '-';
-                    $breedLabel = optional($newAnimal->animal_breeds)->label ?? '-';
+            // // ✅ Jika ganti animal_id, kurangi stok baru, tambahkan stok lama
+            // if ($oldAnimalId !== $newAnimalId) {
+            //     if ($newAnimal->stock < 1) {
+            //         $categoryLabel = optional($newAnimal->animal_categories)->label ?? '-';
+            //         $breedLabel = optional($newAnimal->animal_breeds)->label ?? '-';
 
-                    DB::rollBack();
-                    return response()->json(
-                        new WithoutDataResource(
-                            Response::HTTP_BAD_REQUEST,
-                            'OUT_OF_STOCK',
-                            'Stok Hewan Baru Habis',
-                            "Stok hewan qurban untuk kategori '{$categoryLabel}' dan ras '{$breedLabel}' sudah habis. Silakan pilih hewan lain yang masih tersedia."
-                        ),
-                        Response::HTTP_BAD_REQUEST
-                    );
-                }
+            //         DB::rollBack();
+            //         return response()->json(
+            //             new WithoutDataResource(
+            //                 Response::HTTP_BAD_REQUEST,
+            //                 'OUT_OF_STOCK',
+            //                 'Stok Hewan Baru Habis',
+            //                 "Stok hewan qurban untuk kategori '{$categoryLabel}' dan ras '{$breedLabel}' sudah habis. Silakan pilih hewan lain yang masih tersedia."
+            //             ),
+            //             Response::HTTP_BAD_REQUEST
+            //         );
+            //     }
 
-                $newAnimal->decrement('stock');
-                $oldAnimal?->increment('stock'); // aman kalau null
-            }
+            //     $newAnimal->decrement('stock');
+            //     $oldAnimal?->increment('stock'); // aman kalau null
+            // }
 
             // ✅ Hapus dokumen lama jika ada
             if (!empty($deleteIds)) {

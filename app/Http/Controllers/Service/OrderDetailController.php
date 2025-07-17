@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Service;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Service\Payment\StoreOrderDetail;
 use App\Http\Requests\Service\Payment\UpdateOrderDetail;
-use App\Http\Resources\Service\OrderDetail as ServiceOrderDetail;
+use App\Http\Resources\Service\OrderDetailResource;
 use App\Http\Resources\Templates\WithDataResource;
 use App\Http\Resources\Templates\WithoutDataResource;
 use App\Models\OrderDetail;
@@ -54,7 +54,7 @@ class OrderDetailController extends Controller
                     'SUCCESS_GET_DATA',
                     'Berhasil Mengambil Data',
                     'Data order detail berhasil didapatkan.',
-                    ServiceOrderDetail::collection($orderDetail)
+                    OrderDetailResource::collection($orderDetail)
                 ),
                 Response::HTTP_OK
             );
@@ -122,7 +122,7 @@ class OrderDetailController extends Controller
                     'SUCCESS_CREATE_DATA',
                     'Berhasil Menyimpan Data',
                     "Detail order untuk layanan '{$serviceType->label}' berhasil ditambahkan.",
-                    new ServiceOrderDetail($orderDetail)
+                    new OrderDetailResource($orderDetail)
                 ),
                 Response::HTTP_CREATED
             );
@@ -177,7 +177,7 @@ class OrderDetailController extends Controller
                     'SUCCESS_GET_DATA',
                     'Berhasil Mengambil Data',
                     "Detail order dengan layanan '{$serviceType->label}' berhasil didapatkan.",
-                    new ServiceOrderDetail($orderDetail)
+                    new OrderDetailResource($orderDetail)
                 ),
                 Response::HTTP_OK
             );
@@ -258,7 +258,7 @@ class OrderDetailController extends Controller
                     'SUCCESS_UPDATE_DATA',
                     'Berhasil Memperbarui Data',
                     "Detail order untuk layanan '{$serviceType->label}' berhasil diperbarui.",
-                    new ServiceOrderDetail($orderDetail)
+                    new OrderDetailResource($orderDetail)
                 ),
                 Response::HTTP_OK
             );

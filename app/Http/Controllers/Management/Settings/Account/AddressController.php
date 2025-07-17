@@ -6,6 +6,7 @@ use App\Helpers\QueryFilterSearch;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Management\Settings\Account\StoreAddress;
 use App\Http\Requests\Management\Settings\Account\UpdateAddress;
+use App\Http\Requests\Management\Settings\Account\UpdatePrimaryAddress;
 use App\Http\Resources\Management\Settings\Account\AddressResource;
 use App\Http\Resources\Templates\WithDataResource;
 use App\Http\Resources\Templates\WithoutDataResource;
@@ -356,6 +357,71 @@ class AddressController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             Log::channel('setting_address')->error('| Restore | - Error function restore : ' . $e->getMessage() . ' - Line : ' . $e->getLine());
+            return response()->json(
+                new WithoutDataResource(
+                    Response::HTTP_INTERNAL_SERVER_ERROR,
+                    'ERROR_GET_DATA',
+                    'Gagal Mengambil Data',
+                    'Terjadi kesalahan pada sistem, silahkan coba lagi nanti atau hubungi admin.',
+                ),
+                Response::HTTP_INTERNAL_SERVER_ERROR
+            );
+        }
+    }
+
+    public function updatePrimaryAddress(UpdatePrimaryAddress $request)
+    {
+        try {
+            DB::beginTransaction();
+
+            $addressId = $request->validated();
+            $user = Auth::user();
+
+            // Validasi bahwa addressId milik user yang sedang login
+            $newPrimary = Address::where('id', $addressId['primary_address'])
+                ->where('user_id', $user->id)
+                ->first();
+            if (!$newPrimary) {
+                return response()->json(
+                    new WithoutDataResource(
+                        Response::HTTP_NOT_FOUND,
+                        'ADDRESS_NOT_FOUND',
+                        'Alamat Tidak Ditemukan',
+                        'Alamat yang ingin dijadikan primary tidak ditemukan atau bukan milik Anda.'
+                    ),
+                    Response::HTTP_NOT_FOUND
+                );
+            }
+
+            // Jika alamat yang akan di-set primary bukan yang sudah primary
+            if (!$newPrimary->is_primary) {
+                // Unset yang lainnya
+                Address::where('user_id', $user->id)
+                    ->where('is_primary', true)
+                    ->update(['is_primary' => false]);
+
+                // Set alamat baru sebagai primary
+                $newPrimary->update(['is_primary' => true]);
+            }
+
+            // Update kolom primary_address di tabel users (meskipun sama, tetap di-set agar sinkron)
+            $user->update([
+                'primary_address' => $addressId['primary_address']
+            ]);
+
+            DB::commit();
+            return response()->json(
+                new WithoutDataResource(
+                    Response::HTTP_OK,
+                    'SUCCESS_UPDATE_DATA',
+                    'Berhasil Memperbarui Data',
+                    "Alamat utama berhasil diperbarui."
+                ),
+                Response::HTTP_OK
+            );
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::channel('setting_address')->error('| updatePrimaryAddress | - Error function update : ' . $e->getMessage() . ' - Line : ' . $e->getLine());
             return response()->json(
                 new WithoutDataResource(
                     Response::HTTP_INTERNAL_SERVER_ERROR,

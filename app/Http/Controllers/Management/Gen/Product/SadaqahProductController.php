@@ -125,55 +125,56 @@ class SadaqahProductController extends Controller
                 );
             }
 
-            $animalIds = $request->animal_id ?? [];
-            $animals = [];
+            // 🔍 Cek stok hewan
+            // $animalIds = $request->animal_id ?? [];
+            // $animals = [];
 
-            if (!empty($animalIds)) {
-                // 🔒 Lock semua hewan dalam array untuk mencegah race condition
-                $animals = Animal::whereIn('id', $animalIds)
-                    ->with(['animal_categories', 'animal_breeds'])
-                    ->lockForUpdate()
-                    ->get()
-                    ->keyBy('id');
+            // if (!empty($animalIds)) {
+            //     // 🔒 Lock semua hewan dalam array untuk mencegah race condition
+            //     $animals = Animal::whereIn('id', $animalIds)
+            //         ->with(['animal_categories', 'animal_breeds'])
+            //         ->lockForUpdate()
+            //         ->get()
+            //         ->keyBy('id');
 
-                // ✅ Cek semua stok harus ≥ 1
-                foreach ($animalIds as $id) {
-                    $animal = $animals[$id] ?? null;
-                    if (!$animal) {
-                        DB::rollBack();
-                        return response()->json(
-                            new WithoutDataResource(
-                                Response::HTTP_BAD_REQUEST,
-                                'DATA_NOT_FOUND',
-                                'Hewan Tidak Ditemukan',
-                                'Hewan yang dipilih tidak tersedia.'
-                            ),
-                            Response::HTTP_BAD_REQUEST
-                        );
-                    }
+            //     // ✅ Cek semua stok harus ≥ 1
+            //     foreach ($animalIds as $id) {
+            //         $animal = $animals[$id] ?? null;
+            //         if (!$animal) {
+            //             DB::rollBack();
+            //             return response()->json(
+            //                 new WithoutDataResource(
+            //                     Response::HTTP_BAD_REQUEST,
+            //                     'DATA_NOT_FOUND',
+            //                     'Hewan Tidak Ditemukan',
+            //                     'Hewan yang dipilih tidak tersedia.'
+            //                 ),
+            //                 Response::HTTP_BAD_REQUEST
+            //             );
+            //         }
 
-                    if ($animal->stock < 1) {
-                        $categoryLabel = optional($animal->animal_categories)->label ?? '-';
-                        $breedLabel = optional($animal->animal_breeds)->label ?? '-';
+            //         if ($animal->stock < 1) {
+            //             $categoryLabel = optional($animal->animal_categories)->label ?? '-';
+            //             $breedLabel = optional($animal->animal_breeds)->label ?? '-';
 
-                        DB::rollBack();
-                        return response()->json(
-                            new WithoutDataResource(
-                                Response::HTTP_BAD_REQUEST,
-                                'EMPTY_STOCK',
-                                'Stok Hewan Tidak Tersedia',
-                                "Stok hewan kategori '{$categoryLabel}' dan ras '{$breedLabel}' untuk di sadaqah kan sudah habis. Silakan pilih hewan lain yang masih tersedia."
-                            ),
-                            Response::HTTP_BAD_REQUEST
-                        );
-                    }
-                }
+            //             DB::rollBack();
+            //             return response()->json(
+            //                 new WithoutDataResource(
+            //                     Response::HTTP_BAD_REQUEST,
+            //                     'EMPTY_STOCK',
+            //                     'Stok Hewan Tidak Tersedia',
+            //                     "Stok hewan kategori '{$categoryLabel}' dan ras '{$breedLabel}' untuk di sadaqah kan sudah habis. Silakan pilih hewan lain yang masih tersedia."
+            //                 ),
+            //                 Response::HTTP_BAD_REQUEST
+            //             );
+            //         }
+            //     }
 
-                // 🟢 Jika semua stok valid, lakukan pengurangan
-                foreach ($animals as $animal) {
-                    $animal->decrement('stock');
-                }
-            }
+            //     // 🟢 Jika semua stok valid, lakukan pengurangan
+            //     foreach ($animals as $animal) {
+            //         $animal->decrement('stock');
+            //     }
+            // }
 
             $photoDocumentIds = [];
 
@@ -312,62 +313,63 @@ class SadaqahProductController extends Controller
                 );
             }
 
-            $existingAnimalIds = $sadaqahProduct->animal_id ?? [];
-            $newAnimalIds = $data['animal_id'] ?? [];
+            // 🔍 Cek stok hewan
+            // $existingAnimalIds = $sadaqahProduct->animal_id ?? [];
+            // $newAnimalIds = $data['animal_id'] ?? [];
 
-            // 🔄 Bandingkan animal_id lama vs baru
-            $toBeReleased = array_diff($existingAnimalIds, $newAnimalIds); // dikembalikan
-            $toBeTaken = array_diff($newAnimalIds, $existingAnimalIds);    // dipakai
+            // // 🔄 Bandingkan animal_id lama vs baru
+            // $toBeReleased = array_diff($existingAnimalIds, $newAnimalIds); // dikembalikan
+            // $toBeTaken = array_diff($newAnimalIds, $existingAnimalIds);    // dipakai
 
-            // 🔒 Lock semua ID yang perlu update stok
-            $affectedIds = array_unique(array_merge($toBeReleased, $toBeTaken));
-            $animalMap = Animal::whereIn('id', $affectedIds)
-                ->with(['animal_categories', 'animal_breeds'])
-                ->lockForUpdate()
-                ->get()
-                ->keyBy('id');
+            // // 🔒 Lock semua ID yang perlu update stok
+            // $affectedIds = array_unique(array_merge($toBeReleased, $toBeTaken));
+            // $animalMap = Animal::whereIn('id', $affectedIds)
+            //     ->with(['animal_categories', 'animal_breeds'])
+            //     ->lockForUpdate()
+            //     ->get()
+            //     ->keyBy('id');
 
-            // ✅ Validasi stok untuk yang mau dipakai
-            foreach ($toBeTaken as $id) {
-                $animal = $animalMap[$id] ?? null;
-                if (!$animal) {
-                    DB::rollBack();
-                    return response()->json(
-                        new WithoutDataResource(
-                            Response::HTTP_BAD_REQUEST,
-                            'DATA_NOT_FOUND',
-                            'Hewan Tidak Ditemukan',
-                            'Hewan sadaqah yang dipilih tidak tersedia.'
-                        ),
-                        Response::HTTP_BAD_REQUEST
-                    );
-                }
+            // // ✅ Validasi stok untuk yang mau dipakai
+            // foreach ($toBeTaken as $id) {
+            //     $animal = $animalMap[$id] ?? null;
+            //     if (!$animal) {
+            //         DB::rollBack();
+            //         return response()->json(
+            //             new WithoutDataResource(
+            //                 Response::HTTP_BAD_REQUEST,
+            //                 'DATA_NOT_FOUND',
+            //                 'Hewan Tidak Ditemukan',
+            //                 'Hewan sadaqah yang dipilih tidak tersedia.'
+            //             ),
+            //             Response::HTTP_BAD_REQUEST
+            //         );
+            //     }
 
-                if ($animal->stock < 1) {
-                    $categoryLabel = optional($animal->animal_categories)->label ?? '-';
-                    $breedLabel = optional($animal->animal_breeds)->label ?? '-';
+            //     if ($animal->stock < 1) {
+            //         $categoryLabel = optional($animal->animal_categories)->label ?? '-';
+            //         $breedLabel = optional($animal->animal_breeds)->label ?? '-';
 
-                    DB::rollBack();
-                    return response()->json(
-                        new WithoutDataResource(
-                            Response::HTTP_BAD_REQUEST,
-                            'EMPTY_STOCK',
-                            'Stok Hewan Tidak Tersedia',
-                            "Stok hewan sadaqah untuk kategori '{$categoryLabel}' dan ras '{$breedLabel}' sudah habis. Silakan pilih hewan lain yang masih tersedia."
-                        ),
-                        Response::HTTP_BAD_REQUEST
-                    );
-                }
-            }
+            //         DB::rollBack();
+            //         return response()->json(
+            //             new WithoutDataResource(
+            //                 Response::HTTP_BAD_REQUEST,
+            //                 'EMPTY_STOCK',
+            //                 'Stok Hewan Tidak Tersedia',
+            //                 "Stok hewan sadaqah untuk kategori '{$categoryLabel}' dan ras '{$breedLabel}' sudah habis. Silakan pilih hewan lain yang masih tersedia."
+            //             ),
+            //             Response::HTTP_BAD_REQUEST
+            //         );
+            //     }
+            // }
 
-            // 🔄 Lakukan pengembalian stok & pengurangan stok
-            foreach ($toBeReleased as $id) {
-                $animalMap[$id]->increment('stock');
-            }
+            // // 🔄 Lakukan pengembalian stok & pengurangan stok
+            // foreach ($toBeReleased as $id) {
+            //     $animalMap[$id]->increment('stock');
+            // }
 
-            foreach ($toBeTaken as $id) {
-                $animalMap[$id]->decrement('stock');
-            }
+            // foreach ($toBeTaken as $id) {
+            //     $animalMap[$id]->decrement('stock');
+            // }
 
             $existingDocumentIds = $sadaqahProduct->photo_product_id ?? [];
             $deleteIds = $data['delete_document_ids'] ?? [];

@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Service;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\Service\OrderDetail as ServiceOrderDetail;
+use App\Http\Resources\Service\OrderDetailResource;
 use App\Http\Resources\Templates\WithDataResource;
 use App\Http\Resources\Templates\WithoutDataResource;
 use App\Models\OrderDetail;
@@ -34,6 +34,9 @@ class CartController extends Controller
                 ->where(function ($query) {
                     $query->whereDoesntHave('transaction');
                 })
+                ->orWhereHas('transaction', function ($query) {
+                    $query->whereIn('transaction_status_id', [1, 2]);
+                })
                 ->get();
             if ($orderDetail->isEmpty()) {
                 return response()->json(
@@ -53,7 +56,7 @@ class CartController extends Controller
                     'SUCCESS_GET_DATA',
                     'Berhasil Mengambil Data',
                     'Data list keranjang saya berhasil didapatkan.',
-                    ServiceOrderDetail::collection($orderDetail)
+                    OrderDetailResource::collection($orderDetail)
                 ),
                 Response::HTTP_OK
             );
