@@ -22,6 +22,8 @@ return new class extends Migration
             $table->bigInteger('grand_total')->default(0);
             $table->string('note')->nullable();
             $table->string('snap_token')->nullable();
+            $table->string('midtrans_order_id')->nullable();
+            $table->string('codepayment_order_id')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

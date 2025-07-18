@@ -489,8 +489,8 @@ class PaymentController extends Controller
 
             $gateway = $paymentDetail->payment_gateway_id;
 
-            $midtransOrderId = 'TRX-' . now('Asia/Jakarta')->format('Ymd-Hisv') . '-' . $transaction->id;
             $serviceType = ServiceType::findOrFail($transaction->order_details->service_type_id);
+            $midtransOrderId = 'TRX-' . now('Asia/Jakarta')->format('Ymd-Hisv') . '-' . $transaction->id;
 
             $paymentDetail->update([
                 'payment_date' => now(),
@@ -650,6 +650,7 @@ class PaymentController extends Controller
 
         $transaction->update([
             'snap_token' => $snapResponse->token,
+            'midtrans_order_id' => $midtransOrderId
         ]);
 
         return response()->json(
