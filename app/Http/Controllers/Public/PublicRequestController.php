@@ -13,14 +13,18 @@ use App\Http\Resources\Management\Gen\Mosque\MosqueResource;
 use App\Http\Resources\Management\Gen\Product\QurbanProductResource;
 use App\Http\Resources\Management\Gen\Product\AqiqahProductResource;
 use App\Http\Resources\Management\Gen\Product\SadaqahProductResource;
+use App\Http\Resources\Management\Settings\Account\AddressResource;
+use App\Http\Resources\Service\OrderDetailResource;
 use App\Http\Resources\Templates\WithDataResource;
 use App\Http\Resources\Templates\WithoutDataResource;
+use App\Models\Address;
 use App\Models\Animal;
 use App\Models\AnimalBreed;
 use App\Models\AnimalCategory;
 use App\Models\AqiqahProduct;
 use App\Models\Cities;
 use App\Models\Mosque;
+use App\Models\OrderDetail;
 use App\Models\PaymentMethod;
 use App\Models\PaymentStatus;
 use App\Models\Province;
@@ -30,6 +34,7 @@ use App\Models\ServiceType;
 use App\Models\TransactionStatus;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
 class PublicRequestController extends Controller
@@ -777,6 +782,94 @@ class PublicRequestController extends Controller
             );
         } catch (\Exception $e) {
             Log::channel('public_request')->error('| Public Request | - Error function getSadaqahProduct : ' . $e->getMessage() . ' - Line : ' . $e->getLine());
+            return response()->json(
+                new WithoutDataResource(
+                    Response::HTTP_INTERNAL_SERVER_ERROR,
+                    'ERROR_GET_DATA',
+                    'Gagal Mengambil Data',
+                    'Terjadi kesalahan pada sistem, silahkan coba lagi nanti atau hubungi admin.',
+                ),
+                Response::HTTP_INTERNAL_SERVER_ERROR
+            );
+        }
+    }
+
+    // Service
+    public function getAddressUser()
+    {
+        try {
+            $address = Address::with(['users'])
+                ->where('user_id', Auth::id())
+                ->get();
+            if ($address->isEmpty()) {
+                return response()->json(
+                    new WithoutDataResource(
+                        Response::HTTP_NOT_FOUND,
+                        'DATA_NOT_FOUND',
+                        'Tidak Ada Data',
+                        'Data alamat pengguna tidak ditemukan.',
+                    ),
+                    Response::HTTP_NOT_FOUND
+                );
+            }
+
+            return response()->json(
+                new WithDataResource(
+                    Response::HTTP_OK,
+                    'SUCCESS_GET_DATA',
+                    'Berhasil Mengambil Data',
+                    'Berhasil mengambil data alamat pengguna.',
+                    AddressResource::collection($address)
+                ),
+                Response::HTTP_OK
+            );
+        } catch (\Exception $e) {
+            Log::channel('public_request')->error('| Public Request | - Error function getAddressUser : ' . $e->getMessage() . ' - Line : ' . $e->getLine());
+            return response()->json(
+                new WithoutDataResource(
+                    Response::HTTP_INTERNAL_SERVER_ERROR,
+                    'ERROR_GET_DATA',
+                    'Gagal Mengambil Data',
+                    'Terjadi kesalahan pada sistem, silahkan coba lagi nanti atau hubungi admin.',
+                ),
+                Response::HTTP_INTERNAL_SERVER_ERROR
+            );
+        }
+    }
+
+    // get order detail user login yg last step nya 2
+    public function getOrderDetailUser($id)
+    {
+        try {
+            $orderDetail = OrderDetail::with(['user', 'service_type', 'mosque', 'address'])
+                ->where('id', $id)
+                ->where('user_id', Auth::id())
+                ->where('last_steps', 2)
+                ->first();
+            if (!$orderDetail) {
+                return response()->json(
+                    new WithoutDataResource(
+                        Response::HTTP_NOT_FOUND,
+                        'DATA_NOT_FOUND',
+                        'Tidak Ada Data',
+                        'Data detail pesanan tidak ditemukan.',
+                    ),
+                    Response::HTTP_NOT_FOUND
+                );
+            }
+
+            return response()->json(
+                new WithDataResource(
+                    Response::HTTP_OK,
+                    'SUCCESS_GET_DATA',
+                    'Berhasil Mengambil Data',
+                    'Berhasil mengambil data alamat pengguna.',
+                    new OrderDetailResource($orderDetail)
+                ),
+                Response::HTTP_OK
+            );
+        } catch (\Exception $e) {
+            Log::channel('public_request')->error('| Public Request | - Error function getAddressUser : ' . $e->getMessage() . ' - Line : ' . $e->getLine());
             return response()->json(
                 new WithoutDataResource(
                     Response::HTTP_INTERNAL_SERVER_ERROR,

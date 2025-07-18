@@ -15,12 +15,12 @@ return new class extends Migration
             $table->id();
             $table->foreignId('payment_status_id')->constrained('payment_statuses')->onUpdate('cascade')->onDelete('cascade');
             $table->foreignId('payment_method_id')->constrained('payment_methods')->onUpdate('cascade')->onDelete('cascade');
-            $table->string('payment_gateway_id');
+            $table->string('payment_gateway_id')->nullable();
             $table->string('payment_order_id')->nullable();
-            $table->timestamp('payment_date');
-            $table->bigInteger('amount_paid');
+            $table->timestamp('payment_date')->nullable();
+            $table->bigInteger('amount_paid')->default(0);
             $table->string('transaction_ref')->nullable();
-            $table->string('currency');
+            $table->string('currency')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

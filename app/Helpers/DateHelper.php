@@ -20,8 +20,8 @@ class DateHelper
 			return '-';
 		}
 
-		$carbonDate = Carbon::parse($dateTime);
-		// $carbonDate = Carbon::parse($dateTime)->locale('id');
+		$carbonDate = Carbon::parse($dateTime)->setTimezone('Asia/Jakarta');
+		// $carbonDate = Carbon::parse($dateTime)->setTimezone('Asia/Jakarta')->locale('id');
 
 		// Mapping nama hari dan bulan dalam bahasa Indonesia
 		$hari = $carbonDate->translatedFormat('l');

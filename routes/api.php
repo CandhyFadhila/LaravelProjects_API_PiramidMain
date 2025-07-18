@@ -123,7 +123,10 @@ Route::middleware(['auth:sanctum', 'custom.throttle:60,1'])->group(function () {
                 Route::post('/order-detail/{id}/restore', [OrderDetailController::class, 'restore']);
 
                 Route::group(['prefix' => 'transaction'], function () {
-                    Route::post('/payment', [PaymentController::class, 'createPayment']);
+                    Route::get('/get-address', [PublicRequestController::class, 'getAddressUser']);
+                    Route::get('/get-order-detail/{id}', [PublicRequestController::class, 'getOrderDetailUser']);
+                    Route::post('/payment', [PaymentController::class, 'updatePayment']);
+                    Route::post('/order', [PaymentController::class, 'createSnapToken']);
                     Route::post('/update-payment', [PaymentController::class, 'updateStatusPayment']);
                 });
             });

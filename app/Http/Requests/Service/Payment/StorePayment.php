@@ -31,7 +31,8 @@ class StorePayment extends FormRequest
             'mosque_id'             => 'nullable|exists:mosques,id',
             'payment_gateway_id'    => 'required|string',
             'currency'              => 'required|string',
-            'note'                  => 'nullable|string|max:1000',
+            'amount_paid'           => 'required|numeric|min:100',
+            'note'                  => 'nullable|string',
             'last_steps'            => 'nullable|integer',
         ];
     }
@@ -46,9 +47,9 @@ class StorePayment extends FormRequest
             'mosque_id.exists'              => 'Mosque tersebut tidak valid.',
             'payment_gateway_id.required'   => 'Metode pembayaran tidak boleh kosong.',
             'payment_gateway_id.string'     => 'Metode pembayaran harus berupa teks.',
-            'amount_paid.required'          => 'Jumlah pembayaran tidak boleh kosong.',
-            'amount_paid.numeric'           => 'Jumlah pembayaran harus berupa angka.',
-            'amount_paid.min'               => 'Jumlah pembayaran minimal Rp100.',
+            'amount_paid.required'          => 'Grand total tidak boleh kosong.',
+            'amount_paid.numeric'           => 'Grand total harus berupa angka.',
+            'amount_paid.min'               => 'Grand total minimal Rp100.',
             'currency.required'             => 'Mata uang tidak boleh kosong.',
             'note.string'                   => 'Catatan harus berupa teks.',
             'last_steps.integer' => 'Langkah terakhir harus berupa angka.',

@@ -19,7 +19,8 @@ class PaymentStatusSeeder extends Seeder
             'Failed',
             'Expired',
             'Refunded',
-            'Processing'
+            'Processing',
+            'First Payment',
         ];
 
         foreach ($statuses as $status) {

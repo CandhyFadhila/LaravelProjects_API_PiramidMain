@@ -17,10 +17,11 @@ return new class extends Migration
             $table->foreignId('order_detail_id')->constrained('order_details')->onUpdate('cascade')->onDelete('cascade');
             $table->foreignId('payment_detail_id')->constrained('payment_details')->onUpdate('cascade')->onDelete('cascade');
             $table->foreignId('transaction_status_id')->constrained('transaction_statuses')->onUpdate('cascade')->onDelete('cascade');
-            $table->timestamp('transaction_date');
-            $table->timestamp('settlement_date');
-            $table->bigInteger('grand_total');
+            $table->timestamp('transaction_date')->nullable();
+            $table->timestamp('settlement_date')->nullable();
+            $table->bigInteger('grand_total')->default(0);
             $table->string('note')->nullable();
+            $table->string('snap_token')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

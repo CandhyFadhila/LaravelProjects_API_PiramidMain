@@ -19,7 +19,8 @@ class TransactionStatusSeeder extends Seeder
             'Completed',
             'Cancelled',
             'Failed',
-            'Refunded'
+            'Refunded',
+            'First Transaction',
         ];
 
         foreach ($statuses as $status) {

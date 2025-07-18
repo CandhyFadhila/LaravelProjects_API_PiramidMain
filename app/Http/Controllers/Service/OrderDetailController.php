@@ -10,7 +10,12 @@ use App\Http\Resources\Service\OrderDetailResource;
 use App\Http\Resources\Templates\WithDataResource;
 use App\Http\Resources\Templates\WithoutDataResource;
 use App\Models\OrderDetail;
+use App\Models\PaymentDetail;
+use App\Models\PaymentMethod;
+use App\Models\PaymentStatus;
 use App\Models\ServiceType;
+use App\Models\Transaction;
+use App\Models\TransactionStatus;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -262,22 +267,39 @@ class OrderDetailController extends Controller
                 $validatedData['detail']
             );
 
-            // Fitur untuk mengembalikan null, gaboleh array kosong (belum kepakek)
-            // $formattedDetail = null;
-            // if (array_key_exists('detail', $validatedData)) {
-            //     if (!is_null($validatedData['detail'])) {
-            //         $formattedDetail = OrderDetailHelper::formatOrderDetailByServiceType(
-            //             $orderDetail->service_type_id,
-            //             $validatedData['detail']
-            //         );
-            //     }
-            // }
-
             // Ini step 2
             $orderDetail->update([
                 'detail' => $formattedDetail,
                 'last_steps' => $lastSteps,
             ]);
+
+            if ($lastSteps == 2) {
+                $paymentStatusPendingId = PaymentStatus::where('label', 'First Payment')->value('id');
+                $paymentMethodId = PaymentMethod::where('label', 'Fiat')->value('id');
+                $transactionStatusPendingId = TransactionStatus::where('label', 'First Transaction')->value('id');
+
+                $paymentDetail = PaymentDetail::create([
+                    'transaction_id' => null,
+                    'payment_status_id' => $paymentStatusPendingId,
+                    'payment_method_id' => $paymentMethodId,
+                    'payment_gateway_id' => null,
+                    'payment_date' => now(),
+                    'amount_paid' => 0,
+                    'transaction_ref' => null,
+                    'currency' => null,
+                ]);
+
+                Transaction::create([
+                    'user_id' => $orderDetail->user_id,
+                    'order_detail_id' => $orderDetail->id,
+                    'payment_detail_id' => $paymentDetail->id,
+                    'transaction_status_id' => $transactionStatusPendingId,
+                    'transaction_date' => null,
+                    'settlement_date' => null,
+                    'grand_total' => 0,
+                    'note' => null,
+                ]);
+            }
 
             DB::commit();
 
