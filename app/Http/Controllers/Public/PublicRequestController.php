@@ -15,6 +15,7 @@ use App\Http\Resources\Management\Gen\Product\AqiqahProductResource;
 use App\Http\Resources\Management\Gen\Product\SadaqahProductResource;
 use App\Http\Resources\Management\Settings\Account\AddressResource;
 use App\Http\Resources\Service\OrderDetailResource;
+use App\Http\Resources\Service\TransactionResource;
 use App\Http\Resources\Templates\WithDataResource;
 use App\Http\Resources\Templates\WithoutDataResource;
 use App\Models\Address;
@@ -31,6 +32,7 @@ use App\Models\Province;
 use App\Models\QurbanProduct;
 use App\Models\SadaqahProduct;
 use App\Models\ServiceType;
+use App\Models\Transaction;
 use App\Models\TransactionStatus;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -841,18 +843,22 @@ class PublicRequestController extends Controller
     public function getOrderDetailUser($id)
     {
         try {
-            $orderDetail = OrderDetail::with(['user', 'service_type', 'mosque', 'address'])
-                ->where('id', $id)
+            $transaction = Transaction::with([
+                'order_details' => fn($query) => $query->with(['user', 'service_type', 'mosque', 'address']),
+                'payment_details.payment_statuses',
+                'transaction_statuses'
+            ])
+                ->where('order_detail_id', $id)
                 ->where('user_id', Auth::id())
-                ->where('last_steps', 2)
+                ->latest() // optional, agar dapat transaksi terbaru jika ada lebih dari satu
                 ->first();
-            if (!$orderDetail) {
+            if (!$transaction) {
                 return response()->json(
                     new WithoutDataResource(
                         Response::HTTP_NOT_FOUND,
                         'DATA_NOT_FOUND',
                         'Tidak Ada Data',
-                        'Data detail pesanan tidak ditemukan.',
+                        'Data transaksi untuk order ini tidak ditemukan atau belum dibuat.',
                     ),
                     Response::HTTP_NOT_FOUND
                 );
@@ -863,13 +869,13 @@ class PublicRequestController extends Controller
                     Response::HTTP_OK,
                     'SUCCESS_GET_DATA',
                     'Berhasil Mengambil Data',
-                    'Berhasil mengambil data alamat pengguna.',
-                    new OrderDetailResource($orderDetail)
+                    'Detail transaksi berhasil diambil.',
+                    new TransactionResource($transaction)
                 ),
                 Response::HTTP_OK
             );
         } catch (\Exception $e) {
-            Log::channel('public_request')->error('| Public Request | - Error function getAddressUser : ' . $e->getMessage() . ' - Line : ' . $e->getLine());
+            Log::channel('public_request')->error('| Public Request | - Error function getOrderDetailUser : ' . $e->getMessage() . ' - Line : ' . $e->getLine());
             return response()->json(
                 new WithoutDataResource(
                     Response::HTTP_INTERNAL_SERVER_ERROR,
