@@ -107,12 +107,12 @@ class ForgotPasswordController extends Controller
             Log::channel('auth_otp')->info('| Verify OTP | - Incorrect OTP for email: ' . $user->email);
             return response()->json(
                 new WithoutDataResource(
-                    Response::HTTP_UNAUTHORIZED,
+                    Response::HTTP_BAD_REQUEST,
                     'INVALID_OTP',
                     'OTP Tidak Valid',
                     'Kode OTP yang anda masukkan tidak sesuai. Silakan coba lagi atau kirim ulang OTP.',
                 ),
-                Response::HTTP_UNAUTHORIZED
+                Response::HTTP_BAD_REQUEST
             );
         }
 
@@ -120,12 +120,12 @@ class ForgotPasswordController extends Controller
             Log::channel('auth_otp')->info('| Verify OTP | - OTP expired for email: ' . $user->email);
             return response()->json(
                 new WithoutDataResource(
-                    Response::HTTP_UNAUTHORIZED,
+                    Response::HTTP_BAD_REQUEST,
                     'EXPIRED_OTP',
                     'OTP Kadaluarsa',
                     'Kode OTP yang anda masukkan sudah kadaluarsa. Silakan kirim ulang kode OTP.',
                 ),
-                Response::HTTP_UNAUTHORIZED
+                Response::HTTP_BAD_REQUEST
             );
         }
 
