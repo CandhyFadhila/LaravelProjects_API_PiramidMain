@@ -28,7 +28,7 @@ class TransactionResource extends JsonResource
             'note' => $this->note,
             'snap_token' => $this->snap_token,
             'midtrans_order_id' => $this->midtrans_order_id,
-            'codepayment_order_id' => $this->codepayment_order_id,
+            'coinpayment_order_id' => $this->coinpayment_order_id,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'deleted_at' => $this->deleted_at,

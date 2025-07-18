@@ -23,7 +23,7 @@ return new class extends Migration
             $table->string('note')->nullable();
             $table->string('snap_token')->nullable();
             $table->string('midtrans_order_id')->nullable();
-            $table->string('codepayment_order_id')->nullable();
+            $table->string('coinpayment_order_id')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });
