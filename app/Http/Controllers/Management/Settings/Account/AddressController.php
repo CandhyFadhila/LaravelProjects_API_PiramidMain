@@ -31,16 +31,15 @@ class AddressController extends Controller
                 ->orderByDesc('is_primary')
                 ->orderByDesc('updated_at')
                 ->get();
-
             if ($addresses->isEmpty()) {
                 return response()->json(
                     new WithoutDataResource(
-                        Response::HTTP_NOT_FOUND,
+                        Response::HTTP_OK,
                         'DATA_NOT_FOUND',
                         'Data Tidak Ditemukan',
                         'Anda belum memiliki alamat yang tersimpan.'
                     ),
-                    Response::HTTP_NOT_FOUND
+                    Response::HTTP_OK
                 );
             }
 
