@@ -31,7 +31,7 @@ class MyOrderController extends Controller
 
             $transaction = Transaction::with(['order_details', 'payment_details', 'transaction_statuses'])
                 ->where('user_id', Auth::id())
-                ->whereNotIn('transaction_status_id', [1, 2])
+                ->whereNotIn('transaction_status_id', [1, 2, 7])
                 ->get();
             if ($transaction->isEmpty()) {
                 return response()->json(

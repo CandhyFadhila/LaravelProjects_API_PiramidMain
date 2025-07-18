@@ -35,7 +35,7 @@ class CartController extends Controller
                     $query->whereDoesntHave('transaction');
                 })
                 ->orWhereHas('transaction', function ($query) {
-                    $query->whereIn('transaction_status_id', [1, 2]);
+                    $query->whereIn('transaction_status_id', [1, 2, 7]);
                 })
                 ->get();
             if ($orderDetail->isEmpty()) {
