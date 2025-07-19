@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Service\Payment\StorePayment;
 use App\Http\Requests\Service\Payment\UpdateAddressPayment;
 use App\Http\Requests\Service\Payment\UpdateMosquePayment;
+use App\Http\Requests\Service\Payment\UpdateNotesPayment;
 use App\Http\Requests\Service\Payment\UpdatePayment;
 use App\Http\Requests\Service\Payment\UpdatePaymentMethod;
 use App\Http\Resources\Templates\WithDataResource;
@@ -262,7 +263,7 @@ class PaymentController extends Controller
     //     }
     // }
 
-    public function updateAddressOrder(UpdateAddressPayment $request, $id)
+    public function updateAddressPayment(UpdateAddressPayment $request, $id)
     {
         try {
             if (!Gate::allows('transaction.edit')) {
@@ -313,6 +314,84 @@ class PaymentController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             Log::channel('midtrans_payment')->error('| updateAddress | Error function updateAddress : ' . $e->getMessage() . ' - Line: ' . $e->getLine());
+            return response()->json(
+                new WithoutDataResource(
+                    Response::HTTP_INTERNAL_SERVER_ERROR,
+                    'ERROR_GET_DATA',
+                    'Gagal Mengambil Data',
+                    'Terjadi kesalahan pada sistem, silahkan coba lagi nanti atau hubungi admin.',
+                ),
+                Response::HTTP_INTERNAL_SERVER_ERROR
+            );
+        }
+    }
+
+    public function updateNotesPayment(UpdateNotesPayment $request, $id)
+    {
+        try {
+            if (!Gate::allows('transaction.edit')) {
+                return response()->json(
+                    new WithoutDataResource(
+                        Response::HTTP_FORBIDDEN,
+                        'NO_ACCESS',
+                        'Tidak Memiliki Akses',
+                        'Anda tidak memiliki akses untuk mengakses halaman ini.',
+                    ),
+                    Response::HTTP_FORBIDDEN
+                );
+            }
+
+            DB::beginTransaction();
+
+            $user = $request->user();
+
+            $data = $request->validated();
+
+            // Ambil order detail yang sesuai dengan user
+            $orderDetail = OrderDetail::where('id', $id)
+                ->where('user_id', $user->id)
+                ->first();
+            if (!$orderDetail) {
+                return response()->json(
+                    new WithoutDataResource(
+                        Response::HTTP_OK,
+                        'DATA_NOT_FOUND',
+                        'Order Detail Tidak Ditemukan',
+                        'Order detail tidak ditemukan atau bukan milik Anda.'
+                    ),
+                    Response::HTTP_OK
+                );
+            }
+
+            // Ambil transaksi berdasarkan order_detail_id
+            $transaction = Transaction::where('order_detail_id', $id)->first();
+            if (!$transaction) {
+                return response()->json(
+                    new WithoutDataResource(
+                        Response::HTTP_OK,
+                        'DATA_NOT_FOUND',
+                        'Transaksi Tidak Ditemukan',
+                        'Transaksi belum dibuat untuk pesanan ini.'
+                    ),
+                    Response::HTTP_OK
+                );
+            }
+
+            $transaction->update($data);
+
+            DB::commit();
+            return response()->json(
+                new WithoutDataResource(
+                    Response::HTTP_OK,
+                    'SUCCESS_UPDATE_DATA',
+                    'Berhasil Memperbarui Data',
+                    "Notes pesanan berhasil diperbarui."
+                ),
+                Response::HTTP_OK
+            );
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::channel('midtrans_payment')->error('| updateNotes | Error function updateNotesOrder : ' . $e->getMessage() . ' - Line: ' . $e->getLine());
             return response()->json(
                 new WithoutDataResource(
                     Response::HTTP_INTERNAL_SERVER_ERROR,
@@ -424,7 +503,7 @@ class PaymentController extends Controller
             );
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::channel('midtrans_payment')->error('| updateAddress | Error function updateAddress : ' . $e->getMessage() . ' - Line: ' . $e->getLine());
+            Log::channel('midtrans_payment')->error('| updatePaymentMethod | Error function updatePaymentMethod : ' . $e->getMessage() . ' - Line: ' . $e->getLine());
             return response()->json(
                 new WithoutDataResource(
                     Response::HTTP_INTERNAL_SERVER_ERROR,
@@ -437,7 +516,7 @@ class PaymentController extends Controller
         }
     }
 
-    public function updateMosqueOrder(UpdateMosquePayment $request, $id)
+    public function updateMosquePayment(UpdateMosquePayment $request, $id)
     {
         try {
             if (!Gate::allows('transaction.edit')) {
@@ -487,7 +566,7 @@ class PaymentController extends Controller
             );
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::channel('midtrans_payment')->error('| updateAddress | Error function updateAddress : ' . $e->getMessage() . ' - Line: ' . $e->getLine());
+            Log::channel('midtrans_payment')->error('| updateMosque | Error function updateMosque : ' . $e->getMessage() . ' - Line: ' . $e->getLine());
             return response()->json(
                 new WithoutDataResource(
                     Response::HTTP_INTERNAL_SERVER_ERROR,
