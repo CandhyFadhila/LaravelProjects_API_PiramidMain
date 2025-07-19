@@ -359,15 +359,13 @@ class OrderDetailController extends Controller
                 );
             }
 
-            $transaction = Transaction::where('order_detail_id', $orderDetail->id)
-                ->first();
-            if ($transaction) {
+            if ($orderDetail->last_steps === 3) {
                 return response()->json(
                     new WithoutDataResource(
                         Response::HTTP_BAD_REQUEST,
-                        'ORDER_HAS_TRANSACTION',
-                        'Tidak Dapat Dihapus',
-                        'Order detail ini sudah memiliki transaksi dan tidak dapat dihapus.'
+                        'STEP_NOT_ALLOWED',
+                        'Langkah Tidak Diizinkan',
+                        'Order detail ini tidak dapat dihapus karena sedang berada di langkah ketiga.'
                     ),
                     Response::HTTP_BAD_REQUEST
                 );
