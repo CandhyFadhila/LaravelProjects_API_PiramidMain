@@ -129,7 +129,6 @@ Route::middleware(['auth:sanctum', 'custom.throttle:60,1'])->group(function () {
                     Route::patch('/update-payment-method/{id}', [PaymentController::class, 'updatePaymentMethod']);
                     Route::patch('/update-mosque/{id}', [PaymentController::class, 'updateMosquePayment']);
                     Route::patch('/update-note/{id}', [PaymentController::class, 'updateNotesPayment']);
-                    Route::patch('/payment', [PaymentController::class, 'updatePayment']);
                     Route::post('/order', [PaymentController::class, 'createSnapToken']);
                     Route::post('/update-payment', [PaymentController::class, 'updateStatusPayment']);
                 });
