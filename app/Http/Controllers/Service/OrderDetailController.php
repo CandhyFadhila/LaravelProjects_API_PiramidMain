@@ -274,6 +274,7 @@ class OrderDetailController extends Controller
             ]);
 
             if ($lastSteps == 2) {
+                $summaryOrderDetail = OrderDetailHelper::summarizeOrderDetail($orderDetail);
                 $paymentStatusPendingId = PaymentStatus::where('label', 'First Payment')->value('id');
                 $paymentMethodId = PaymentMethod::where('label', 'Fiat')->value('id');
                 $transactionStatusPendingId = TransactionStatus::where('label', 'First Transaction')->value('id');
@@ -296,7 +297,7 @@ class OrderDetailController extends Controller
                     'transaction_status_id' => $transactionStatusPendingId,
                     'transaction_date' => null,
                     'settlement_date' => null,
-                    'grand_total' => 0,
+                    'grand_total' => $summaryOrderDetail['price'],
                     'note' => null,
                 ]);
             }

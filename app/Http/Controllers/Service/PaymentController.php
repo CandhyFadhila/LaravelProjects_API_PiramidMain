@@ -613,31 +613,31 @@ class PaymentController extends Controller
                 ? PaymentMethod::where('label', 'Fiat')->value('id')
                 : PaymentMethod::where('label', 'Crypto')->value('id');
 
-            $summaryOrderDetail = OrderDetailHelper::summarizeOrderDetail($orderDetail);
+            // $summaryOrderDetail = OrderDetailHelper::summarizeOrderDetail($orderDetail);
             // dd(
             //     "ammount paid : {$data['amount_paid']}",
             //     "summary order detail : {$summaryOrderDetail['price']}"
             // );
-            if ((int) $data['amount_paid'] !== (int) $summaryOrderDetail['price']) {
-                Log::channel('transaction')->warning("| Store | - Price mismatch for user_id: {$user->id}, order_detail_id: {$orderDetail->id}.", [
-                    'expected_price' => $summaryOrderDetail['price'],
-                    'provided_amount' => $data['amount_paid'],
-                ]);
+            // if ((int) $data['amount_paid'] !== (int) $summaryOrderDetail['price']) {
+            //     Log::channel('transaction')->warning("| Store | - Price mismatch for user_id: {$user->id}, order_detail_id: {$orderDetail->id}.", [
+            //         'expected_price' => $summaryOrderDetail['price'],
+            //         'provided_amount' => $data['amount_paid'],
+            //     ]);
 
-                return response()->json(
-                    new WithDataResource(
-                        Response::HTTP_BAD_REQUEST,
-                        'PRICE_MISMATCH',
-                        'Total Pembayaran Tidak Sesuai',
-                        'Jumlah pembayaran yang dikirim tidak sesuai dengan total harga yang dihitung sistem.',
-                        [
-                            'amount_paid' => (int) $data['amount_paid'],
-                            'expected_price' => (int) $summaryOrderDetail['price']
-                        ]
-                    ),
-                    Response::HTTP_BAD_REQUEST
-                );
-            }
+            //     return response()->json(
+            //         new WithDataResource(
+            //             Response::HTTP_BAD_REQUEST,
+            //             'PRICE_MISMATCH',
+            //             'Total Pembayaran Tidak Sesuai',
+            //             'Jumlah pembayaran yang dikirim tidak sesuai dengan total harga yang dihitung sistem.',
+            //             [
+            //                 'amount_paid' => (int) $data['amount_paid'],
+            //                 'expected_price' => (int) $summaryOrderDetail['price']
+            //             ]
+            //         ),
+            //         Response::HTTP_BAD_REQUEST
+            //     );
+            // }
 
             $transaction = Transaction::where('order_detail_id', $orderDetail->id)->latest()->first();
             $paymentDetail = PaymentDetail::where('id', $transaction->payment_detail_id)->first();
@@ -659,7 +659,7 @@ class PaymentController extends Controller
                 'payment_status_id' => $paymentStatusPendingId,
                 'payment_method_id' => $paymentMethodId,
                 'payment_gateway_id' => $data['payment_gateway_id'],
-                'amount_paid' => $summaryOrderDetail['price'],
+                'amount_paid' => $data['amount_paid'],
                 'transaction_ref' => null,
                 'currency' => $data['currency'],
             ]);
@@ -672,7 +672,7 @@ class PaymentController extends Controller
                 'order_detail_id' => $data['order_detail_id'],
                 'payment_detail_id' => $paymentDetail->id,
                 'transaction_status_id' => $transactionStatusPendingId,
-                'grand_total' => $summaryOrderDetail['price'],
+                // 'grand_total' => $summaryOrderDetail['price'],
                 'note' => $data['note'] ?? null,
             ]);
 
@@ -915,6 +915,8 @@ class PaymentController extends Controller
         $midtransStatus = $statusResponse->transaction_status ?? null;
         $midtransTransactionId = $statusResponse->transaction_id ?? null;
         $midtransStatusMessage = $statusResponse->status_message ?? null;
+        $midtransGrossAmount = $statusResponse->gross_amount ?? null;
+        $formattedGrossAmount = number_format((float) $midtransGrossAmount, 0, '.', '');
 
         Log::channel('midtrans_payment')->info('| Update | - Midtrans response', [
             'midtrans_order_id' => $orderId,
@@ -993,6 +995,7 @@ class PaymentController extends Controller
         $transaction->payment_details->update([
             'payment_status_id' => $paymentStatusId,
             'transaction_ref' => $midtransTransactionId,
+            'amount_paid' => $formattedGrossAmount
         ]);
 
         // Restore stock jika status pembayaran gagal, dibatalkan, atau refund
