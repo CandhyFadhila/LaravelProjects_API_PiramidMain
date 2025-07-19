@@ -359,6 +359,7 @@ class OrderDetailController extends Controller
                 );
             }
 
+            $transaction = Transaction::where('order_detail_id', $orderDetail->id)->first();
             if ($orderDetail->last_steps === 3) {
                 return response()->json(
                     new WithoutDataResource(
@@ -371,6 +372,14 @@ class OrderDetailController extends Controller
                 );
             }
 
+            // Hapus payment detail dan transaction
+            if ($transaction) {
+                $paymentDetail = PaymentDetail::find($transaction->payment_detail_id);
+                if ($paymentDetail) {
+                    $paymentDetail->delete();
+                }
+                $transaction->delete();
+            }
             $orderDetail->delete();
 
             DB::commit();
