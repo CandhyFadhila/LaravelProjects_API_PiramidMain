@@ -6,7 +6,10 @@ use App\Helpers\MidtransHelper;
 use App\Helpers\OrderDetailHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Service\Payment\StorePayment;
+use App\Http\Requests\Service\Payment\UpdateAddressPayment;
+use App\Http\Requests\Service\Payment\UpdateMosquePayment;
 use App\Http\Requests\Service\Payment\UpdatePayment;
+use App\Http\Requests\Service\Payment\UpdatePaymentMethod;
 use App\Http\Resources\Templates\WithDataResource;
 use App\Http\Resources\Templates\WithoutDataResource;
 use App\Models\Address;
@@ -258,6 +261,244 @@ class PaymentController extends Controller
     //         );
     //     }
     // }
+
+    public function updateAddressOrder(UpdateAddressPayment $request, $id)
+    {
+        try {
+            if (!Gate::allows('transaction.edit')) {
+                return response()->json(
+                    new WithoutDataResource(
+                        Response::HTTP_FORBIDDEN,
+                        'NO_ACCESS',
+                        'Tidak Memiliki Akses',
+                        'Anda tidak memiliki akses untuk mengakses halaman ini.',
+                    ),
+                    Response::HTTP_FORBIDDEN
+                );
+            }
+
+            DB::beginTransaction();
+
+            $user = $request->user();
+
+            $data = $request->validated();
+
+            $orderDetail = OrderDetail::where('id', $id)
+                ->where('user_id', $user->id)
+                ->first();
+            if (!$orderDetail) {
+                return response()->json(
+                    new WithoutDataResource(
+                        Response::HTTP_OK,
+                        'DATA_NOT_FOUND',
+                        'Order Detail Tidak Ditemukan',
+                        'Order detail tidak ditemukan atau bukan milik Anda.'
+                    ),
+                    Response::HTTP_OK
+                );
+            }
+
+            $orderDetail->update($data);
+
+            DB::commit();
+            return response()->json(
+                new WithoutDataResource(
+                    Response::HTTP_OK,
+                    'SUCCESS_UPDATE_DATA',
+                    'Berhasil Memperbarui Data',
+                    "Alamat pesanan berhasil diperbarui."
+                ),
+                Response::HTTP_OK
+            );
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::channel('midtrans_payment')->error('| updateAddress | Error function updateAddress : ' . $e->getMessage() . ' - Line: ' . $e->getLine());
+            return response()->json(
+                new WithoutDataResource(
+                    Response::HTTP_INTERNAL_SERVER_ERROR,
+                    'ERROR_GET_DATA',
+                    'Gagal Mengambil Data',
+                    'Terjadi kesalahan pada sistem, silahkan coba lagi nanti atau hubungi admin.',
+                ),
+                Response::HTTP_INTERNAL_SERVER_ERROR
+            );
+        }
+    }
+
+    public function updatePaymentMethod(UpdatePaymentMethod $request, $id)
+    {
+        try {
+            if (!Gate::allows('transaction.edit')) {
+                return response()->json(
+                    new WithoutDataResource(
+                        Response::HTTP_FORBIDDEN,
+                        'NO_ACCESS',
+                        'Tidak Memiliki Akses',
+                        'Anda tidak memiliki akses untuk mengakses halaman ini.',
+                    ),
+                    Response::HTTP_FORBIDDEN
+                );
+            }
+
+            DB::beginTransaction();
+
+            $user = $request->user();
+
+            $data = $request->validated();
+
+            // Ambil order detail yang sesuai dengan user
+            $orderDetail = OrderDetail::where('id', $id)
+                ->where('user_id', $user->id)
+                ->first();
+            if (!$orderDetail) {
+                return response()->json(
+                    new WithoutDataResource(
+                        Response::HTTP_OK,
+                        'DATA_NOT_FOUND',
+                        'Order Detail Tidak Ditemukan',
+                        'Order detail tidak ditemukan atau bukan milik Anda.'
+                    ),
+                    Response::HTTP_OK
+                );
+            }
+
+            // Ambil transaksi berdasarkan order_detail_id
+            $transaction = Transaction::where('order_detail_id', $id)->first();
+            if (!$transaction) {
+                return response()->json(
+                    new WithoutDataResource(
+                        Response::HTTP_OK,
+                        'DATA_NOT_FOUND',
+                        'Transaksi Tidak Ditemukan',
+                        'Transaksi belum dibuat untuk pesanan ini.'
+                    ),
+                    Response::HTTP_OK
+                );
+            }
+
+            $paymentDetail = PaymentDetail::find($transaction->payment_detail_id);
+            if (!$paymentDetail) {
+                return response()->json(
+                    new WithoutDataResource(
+                        Response::HTTP_OK,
+                        'DATA_NOT_FOUND',
+                        'Detail Pembayaran Tidak Ditemukan',
+                        'Detail pembayaran tidak ditemukan.'
+                    ),
+                    Response::HTTP_OK
+                );
+            }
+
+            // Ambil payment method dari ID yang diinput
+            $paymentMethod = PaymentMethod::find($data['payment_method_id']);
+            if (!$paymentMethod) {
+                return response()->json(
+                    new WithoutDataResource(
+                        Response::HTTP_OK,
+                        'DATA_NOT_FOUND',
+                        'Metode Pembayaran Tidak Ditemukan',
+                        'Metode pembayaran tidak valid.'
+                    ),
+                    Response::HTTP_OK
+                );
+            }
+
+            // Tentukan payment_gateway_id berdasarkan tipe pembayaran
+            // $gatewayId = strtolower($paymentMethod->label) === 'fiat' ? 'midtrans' : 'coinpayment';
+
+            // Update ke tabel payment_details
+            $paymentDetail->update([
+                'payment_method_id' => $data['payment_method_id'],
+                // 'payment_gateway_id' => $gatewayId,
+            ]);
+
+            DB::commit();
+            return response()->json(
+                new WithoutDataResource(
+                    Response::HTTP_OK,
+                    'SUCCESS_UPDATE_DATA',
+                    'Berhasil Memperbarui Metode Pembayaran',
+                    "Metode pembayaran berhasil diperbarui."
+                ),
+                Response::HTTP_OK
+            );
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::channel('midtrans_payment')->error('| updateAddress | Error function updateAddress : ' . $e->getMessage() . ' - Line: ' . $e->getLine());
+            return response()->json(
+                new WithoutDataResource(
+                    Response::HTTP_INTERNAL_SERVER_ERROR,
+                    'ERROR_GET_DATA',
+                    'Gagal Mengambil Data',
+                    'Terjadi kesalahan pada sistem, silahkan coba lagi nanti atau hubungi admin.',
+                ),
+                Response::HTTP_INTERNAL_SERVER_ERROR
+            );
+        }
+    }
+
+    public function updateMosqueOrder(UpdateMosquePayment $request, $id)
+    {
+        try {
+            if (!Gate::allows('transaction.edit')) {
+                return response()->json(
+                    new WithoutDataResource(
+                        Response::HTTP_FORBIDDEN,
+                        'NO_ACCESS',
+                        'Tidak Memiliki Akses',
+                        'Anda tidak memiliki akses untuk mengakses halaman ini.',
+                    ),
+                    Response::HTTP_FORBIDDEN
+                );
+            }
+
+            DB::beginTransaction();
+
+            $user = $request->user();
+
+            $data = $request->validated();
+
+            $orderDetail = OrderDetail::where('id', $id)
+                ->where('user_id', $user->id)
+                ->first();
+            if (!$orderDetail) {
+                return response()->json(
+                    new WithoutDataResource(
+                        Response::HTTP_OK,
+                        'DATA_NOT_FOUND',
+                        'Order Detail Tidak Ditemukan',
+                        'Order detail tidak ditemukan atau bukan milik Anda.'
+                    ),
+                    Response::HTTP_OK
+                );
+            }
+
+            $orderDetail->update($data);
+
+            DB::commit();
+            return response()->json(
+                new WithoutDataResource(
+                    Response::HTTP_OK,
+                    'SUCCESS_UPDATE_DATA',
+                    'Berhasil Memperbarui Data',
+                    "Masjid tempat pengiriman produk pesanan berhasil diperbarui."
+                ),
+                Response::HTTP_OK
+            );
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::channel('midtrans_payment')->error('| updateAddress | Error function updateAddress : ' . $e->getMessage() . ' - Line: ' . $e->getLine());
+            return response()->json(
+                new WithoutDataResource(
+                    Response::HTTP_INTERNAL_SERVER_ERROR,
+                    'ERROR_GET_DATA',
+                    'Gagal Mengambil Data',
+                    'Terjadi kesalahan pada sistem, silahkan coba lagi nanti atau hubungi admin.',
+                ),
+                Response::HTTP_INTERNAL_SERVER_ERROR
+            );
+        }
+    }
 
     public function updatePayment(StorePayment $request)
     {
