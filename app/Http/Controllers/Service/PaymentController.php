@@ -263,6 +263,7 @@ class PaymentController extends Controller
     //     }
     // }
 
+    // Update pheriperal
     public function updateAddressPayment(UpdateAddressPayment $request, $id)
     {
         try {
@@ -482,13 +483,15 @@ class PaymentController extends Controller
                 );
             }
 
-            // Tentukan payment_gateway_id berdasarkan tipe pembayaran
-            // $gatewayId = strtolower($paymentMethod->label) === 'fiat' ? 'midtrans' : 'coinpayment';
+            // Tentukan payment_gateway_id dan currency berdasarkan tipe pembayaran
+            $gatewayId = strtolower($paymentMethod->label) === 'fiat' ? 'midtrans' : 'coinpayment';
+            $currency = $gatewayId === 'midtrans' ? 'IDR' : 'USD';
 
             // Update ke tabel payment_details
             $paymentDetail->update([
                 'payment_method_id' => $data['payment_method_id'],
-                // 'payment_gateway_id' => $gatewayId,
+                'payment_gateway_id' => $gatewayId,
+                'currency' => $currency,
             ]);
 
             DB::commit();
@@ -579,10 +582,11 @@ class PaymentController extends Controller
         }
     }
 
-    public function updatePayment(StorePayment $request)
+    // Langsung create midtrans
+    public function createSnapToken(Request $request)
     {
         try {
-            if (!Gate::allows('transaction.edit')) {
+            if (!Gate::allows('transaction.create')) {
                 return response()->json(
                     new WithoutDataResource(
                         Response::HTTP_FORBIDDEN,
@@ -594,31 +598,22 @@ class PaymentController extends Controller
                 );
             }
 
-            $data = $request->validated();
+            DB::beginTransaction();
 
-
-            $gateway = strtolower($data['payment_gateway_id']);
-
-            // Validasi gateway
-            // TODO: Kalau coinpayment sudah ready, pakek ini aja
-            // if (!in_array($gateway, ['midtrans', 'coinpayment'])) {
-            if (!in_array($gateway, ['midtrans'])) {
+            if (!$request->filled('order_detail_id')) {
                 return response()->json(
                     new WithoutDataResource(
-                        Response::HTTP_UNPROCESSABLE_ENTITY,
-                        'UNSUPPORTED_GATEWAY',
-                        'Gateway Tidak Didukung',
-                        "Payment gateway '{$data['payment_gateway_id']}' belum tersedia. Silakan pilih metode pembayaran lain."
+                        Response::HTTP_OK,
+                        'ORDER_DETAIL_ID_REQUIRED',
+                        'ID Order Detail Wajib Diisi',
+                        'Silakan kirimkan order_detail_id terlebih dahulu.'
                     ),
-                    Response::HTTP_UNPROCESSABLE_ENTITY
+                    Response::HTTP_OK
                 );
             }
 
-            DB::beginTransaction();
-
             $user = $request->user();
-
-            $orderDetail = OrderDetail::where('id', $data['order_detail_id'])
+            $orderDetail = OrderDetail::where('id', $request->input('order_detail_id'))
                 ->where('user_id', $user->id)
                 ->first();
             if (!$orderDetail) {
@@ -645,164 +640,9 @@ class PaymentController extends Controller
                 );
             }
 
-            $existingTransaction = Transaction::where('order_detail_id', $orderDetail->id)
-                ->whereHas('payment_details', function ($query) {
-                    $query->whereHas('payment_statuses', function ($q) {
-                        $q->whereNotIn('label', ['First Payment', 'Failed', 'Expired', 'Refunded']);
-                    });
-                })
-                ->exists();
-            if ($existingTransaction) {
-                return response()->json(
-                    new WithoutDataResource(
-                        Response::HTTP_BAD_REQUEST,
-                        'TRANSACTION_EXISTS',
-                        'Transaksi Sudah Ada',
-                        'Order detail ini sudah memiliki transaksi yang sedang atau sudah diproses. Tidak dapat membuat transaksi baru.'
-                    ),
-                    Response::HTTP_BAD_REQUEST
-                );
-            }
-
-            // Validasi address_id milik user yang login
-            $address = Address::where('id', $data['address_id'])
-                ->where('user_id', $user->id)
-                ->first();
-            if (!$address) {
-                return response()->json(
-                    new WithoutDataResource(
-                        Response::HTTP_OK,
-                        'DATA_NOT_FOUND',
-                        'Alamat Tidak Ditemukan',
-                        'Alamat yang Anda pilih tidak ditemukan atau bukan milik Anda.'
-                    ),
-                    Response::HTTP_OK
-                );
-            }
-
             $orderDetail->update([
-                'address_id' => $data['address_id'],
-                'mosque_id' => $data['mosque_id'] ?? null,
-                'last_steps' => $data['last_steps'],
+                'last_steps' => 3
             ]);
-
-            $paymentStatusPendingId = PaymentStatus::where('label', 'Pending')->value('id');
-            $transactionStatusPendingId = TransactionStatus::where('label', 'Pending')->value('id');
-            $paymentMethodId = $gateway === 'midtrans'
-                ? PaymentMethod::where('label', 'Fiat')->value('id')
-                : PaymentMethod::where('label', 'Crypto')->value('id');
-
-            // $summaryOrderDetail = OrderDetailHelper::summarizeOrderDetail($orderDetail);
-            // dd(
-            //     "ammount paid : {$data['amount_paid']}",
-            //     "summary order detail : {$summaryOrderDetail['price']}"
-            // );
-            // if ((int) $data['amount_paid'] !== (int) $summaryOrderDetail['price']) {
-            //     Log::channel('transaction')->warning("| Store | - Price mismatch for user_id: {$user->id}, order_detail_id: {$orderDetail->id}.", [
-            //         'expected_price' => $summaryOrderDetail['price'],
-            //         'provided_amount' => $data['amount_paid'],
-            //     ]);
-
-            //     return response()->json(
-            //         new WithDataResource(
-            //             Response::HTTP_BAD_REQUEST,
-            //             'PRICE_MISMATCH',
-            //             'Total Pembayaran Tidak Sesuai',
-            //             'Jumlah pembayaran yang dikirim tidak sesuai dengan total harga yang dihitung sistem.',
-            //             [
-            //                 'amount_paid' => (int) $data['amount_paid'],
-            //                 'expected_price' => (int) $summaryOrderDetail['price']
-            //             ]
-            //         ),
-            //         Response::HTTP_BAD_REQUEST
-            //     );
-            // }
-
-            $transaction = Transaction::where('order_detail_id', $orderDetail->id)->latest()->first();
-            $paymentDetail = PaymentDetail::where('id', $transaction->payment_detail_id)->first();
-            if (!$paymentDetail || !$transaction) {
-                return response()->json(
-                    new WithoutDataResource(
-                        Response::HTTP_OK,
-                        'DATA_NOT_FOUND',
-                        'Data Tidak Ditemukan',
-                        'Transaksi awal tidak ditemukan. Silakan hubungi admin.'
-                    ),
-                    Response::HTTP_OK
-                );
-            }
-
-            // Create Payment Detail
-            $paymentDetail->update([
-                'transaction_id' => null, // Diisi setelah transaksi dibuat
-                'payment_status_id' => $paymentStatusPendingId,
-                'payment_method_id' => $paymentMethodId,
-                'payment_gateway_id' => $data['payment_gateway_id'],
-                'amount_paid' => $data['amount_paid'],
-                'transaction_ref' => null,
-                'currency' => $data['currency'],
-            ]);
-
-            Log::channel('transaction_payment_detail')->info('| Store | - PaymentDetail successfully created.', $paymentDetail->toArray());
-
-            // Create Transaction
-            $transaction->update([
-                'user_id' => $user->id,
-                'order_detail_id' => $data['order_detail_id'],
-                'payment_detail_id' => $paymentDetail->id,
-                'transaction_status_id' => $transactionStatusPendingId,
-                // 'grand_total' => $summaryOrderDetail['price'],
-                'note' => $data['note'] ?? null,
-            ]);
-
-            Log::channel('transaction')->info('| Store | - Transaction successfully updated.', $transaction->toArray());
-
-            DB::commit();
-            return response()->json(
-                new WithoutDataResource(
-                    Response::HTTP_OK,
-                    'PAYMENT_UPDATED',
-                    'Data Pembayaran Diperbarui',
-                    'Data pembayaran berhasil diperbarui. Silakan lanjutkan ke proses pembayaran.'
-                ),
-                Response::HTTP_OK
-            );
-        } catch (\Exception $e) {
-            DB::rollBack();
-            Log::channel('transaction')->error('| Store | - Error function createPayment : ' . $e->getMessage() . ' - Line : ' . $e->getLine());
-            return response()->json(
-                new WithoutDataResource(
-                    Response::HTTP_INTERNAL_SERVER_ERROR,
-                    'ERROR_GET_DATA',
-                    'Gagal Mengambil Data',
-                    'Terjadi kesalahan pada sistem, silahkan coba lagi nanti atau hubungi admin.',
-                ),
-                Response::HTTP_INTERNAL_SERVER_ERROR
-            );
-        }
-    }
-
-    public function createSnapToken(Request $request)
-    {
-        try {
-            if (!Gate::allows('transaction.create')) {
-                return response()->json(
-                    new WithoutDataResource(
-                        Response::HTTP_FORBIDDEN,
-                        'NO_ACCESS',
-                        'Tidak Memiliki Akses',
-                        'Anda tidak memiliki akses untuk mengakses halaman ini.',
-                    ),
-                    Response::HTTP_FORBIDDEN
-                );
-            }
-
-            DB::beginTransaction();
-
-            $user = $request->user();
-            $orderDetail = OrderDetail::where('id', $request->input('order_detail_id'))
-                ->where('user_id', $user->id)
-                ->first();
 
             $transaction = Transaction::where('order_detail_id', $orderDetail->id)->latest()->firstOrFail();
             $paymentDetail = PaymentDetail::findOrFail($transaction->payment_detail_id);
@@ -835,8 +675,8 @@ class PaymentController extends Controller
             }
 
             // Update payment detail and transaction
-            $paymentStatusProcessId = PaymentStatus::where('label', 'Processing')->value('id');
-            $transactionStatusProcessId = TransactionStatus::where('label', 'Processing')->value('id');
+            $paymentStatusProcessId = PaymentStatus::where('label', 'Pending')->value('id');
+            $transactionStatusProcessId = TransactionStatus::where('label', 'Pending')->value('id');
 
             $paymentDetail->update([
                 'transaction_id' => $transaction->id,
