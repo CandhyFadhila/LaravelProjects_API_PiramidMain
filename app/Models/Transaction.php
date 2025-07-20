@@ -74,7 +74,9 @@ class Transaction extends Model
 
         foreach ($timestampColumns as $column) {
             if ($value && isset($this->attributes[$column])) {
-                $this->attributes[$column] = DateHelper::formatTanggalIndonesia($value, 5);
+                $this->attributes[$column] = $value
+                    ? DateHelper::formatTanggalIndonesia($value, 5)
+                    : null;
             }
         }
     }

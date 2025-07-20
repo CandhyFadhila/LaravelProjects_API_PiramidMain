@@ -52,6 +52,8 @@ class PaymentDetail extends Model
 
     public function setPaymentDateAttribute($value)
     {
-        $this->attributes['payment_date'] = DateHelper::formatTanggalIndonesia($value, 5);
+        $this->attributes['payment_date'] = $value
+            ? DateHelper::formatTanggalIndonesia($value, 5)
+            : null;
     }
 }

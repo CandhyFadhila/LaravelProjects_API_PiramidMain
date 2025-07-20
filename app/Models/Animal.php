@@ -42,6 +42,8 @@ class Animal extends Model
 
     public function setBirthDateAttribute($value)
     {
-        $this->attributes['birth_date'] = DateHelper::formatTanggalIndonesia($value, 5);
+        $this->attributes['birth_date'] = $value
+            ? DateHelper::formatTanggalIndonesia($value, 5)
+            : null;
     }
 }
