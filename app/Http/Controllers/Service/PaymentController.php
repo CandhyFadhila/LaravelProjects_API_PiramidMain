@@ -944,18 +944,27 @@ class PaymentController extends Controller
             'payment_status' => $mapStatus['payment'],
         ]);
 
-        $statusCode = ($midtransStatus === 'settlement')
-            ? 'STATUS_SETTLED'
-            : 'STATUS_UNSETTLED';
-
-        return response()->json(
-            new WithoutDataResource(
-                Response::HTTP_OK,
-                $statusCode,
-                'Status Pembayaran Diperbarui',
-                'Status transaksi saat ini: ' . ucfirst($midtransStatus ?? 'Unknown'),
-            ),
-            Response::HTTP_OK
-        );
+        $settledStatuses = ['settlement', 'capture', 'success'];
+        if (in_array($midtransStatus, $settledStatuses)) {
+            return response()->json(
+                new WithoutDataResource(
+                    Response::HTTP_OK,
+                    'STATUS_SETTLED',
+                    'Pembayaran Berhasil Diselesaikan',
+                    'Status transaksi saat ini: ' . ucfirst($midtransStatus),
+                ),
+                Response::HTTP_OK
+            );
+        } else {
+            return response()->json(
+                new WithoutDataResource(
+                    Response::HTTP_BAD_REQUEST,
+                    'STATUS_UNSETTLED',
+                    'Pembayaran Belum Diselesaikan',
+                    'Status transaksi belum settlement: ' . ucfirst($midtransStatus),
+                ),
+                Response::HTTP_BAD_REQUEST
+            );
+        }
     }
 }
