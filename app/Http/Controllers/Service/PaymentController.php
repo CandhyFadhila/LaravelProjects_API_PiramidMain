@@ -889,12 +889,12 @@ class PaymentController extends Controller
         if (!$mapStatus) {
             return response()->json(
                 new WithoutDataResource(
-                    Response::HTTP_OK,
+                    Response::HTTP_BAD_REQUEST,
                     'STATUS_NOT_HANDLED',
                     'Status Tidak Ditangani',
                     'Status Midtrans belum ditangani: ' . $midtransStatus,
                 ),
-                Response::HTTP_OK
+                Response::HTTP_BAD_REQUEST
             );
         }
 
