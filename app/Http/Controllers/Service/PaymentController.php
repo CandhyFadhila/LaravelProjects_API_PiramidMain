@@ -843,12 +843,12 @@ class PaymentController extends Controller
         if (empty($midtransStatus) || $midtransStatus === 'pending' || $midtransStatus === 'not_found') {
             return response()->json(
                 new WithoutDataResource(
-                    Response::HTTP_OK,
-                    'STATUS_NOT_SETTLED',
+                    Response::HTTP_BAD_REQUEST,
+                    'STATUS_UNSETTLED',
                     'Pembayaran Belum Diselesaikan',
-                    'Status transaksi saat ini: ' . ucfirst($midtransStatus ?? 'Unknown'),
+                    'Status transaksi belum settlement: ' . ucfirst($midtransStatus),
                 ),
-                Response::HTTP_OK
+                Response::HTTP_BAD_REQUEST
             );
         }
 
