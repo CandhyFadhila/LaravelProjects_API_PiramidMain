@@ -902,12 +902,12 @@ class PaymentController extends Controller
         $paymentStatusId = PaymentStatus::where('label', $mapStatus['payment'])->value('id');
 
         $transaction->update([
-            'payment_date' => now(),
             'transaction_status_id' => $transactionStatusId,
             'settlement_date' => in_array($midtransStatus, ['settlement', 'capture', 'success']) ? now() : null,
         ]);
 
         $transaction->payment_details->update([
+            'payment_date' => now(),
             'payment_status_id' => $paymentStatusId,
             'transaction_ref' => $midtransTransactionId,
             'amount_paid' => $formattedGrossAmount
