@@ -944,10 +944,14 @@ class PaymentController extends Controller
             'payment_status' => $mapStatus['payment'],
         ]);
 
+        $statusCode = ($midtransStatus === 'settlement')
+            ? 'STATUS_SETTLED'
+            : 'STATUS_UNSETTLED';
+
         return response()->json(
             new WithoutDataResource(
                 Response::HTTP_OK,
-                'STATUS_UPDATED',
+                $statusCode,
                 'Status Pembayaran Diperbarui',
                 'Status transaksi saat ini: ' . ucfirst($midtransStatus ?? 'Unknown'),
             ),
