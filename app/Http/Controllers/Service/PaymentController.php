@@ -652,10 +652,6 @@ class PaymentController extends Controller
             $serviceType = ServiceType::findOrFail($transaction->order_details->service_type_id);
             $midtransOrderId = 'TRX-' . now('Asia/Jakarta')->format('Ymd-Hisv') . '-' . $transaction->id;
 
-            $paymentDetail->update([
-                'payment_date' => now(),
-            ]);
-
             $transaction->update([
                 'transaction_date' => now(),
                 'settlement_date' => now()->addDay(),
@@ -890,7 +886,6 @@ class PaymentController extends Controller
         ];
 
         $mapStatus = $map[$midtransStatus] ?? null;
-
         if (!$mapStatus) {
             return response()->json(
                 new WithoutDataResource(
@@ -907,6 +902,7 @@ class PaymentController extends Controller
         $paymentStatusId = PaymentStatus::where('label', $mapStatus['payment'])->value('id');
 
         $transaction->update([
+            'payment_date' => now(),
             'transaction_status_id' => $transactionStatusId,
             'settlement_date' => in_array($midtransStatus, ['settlement', 'capture', 'success']) ? now() : null,
         ]);

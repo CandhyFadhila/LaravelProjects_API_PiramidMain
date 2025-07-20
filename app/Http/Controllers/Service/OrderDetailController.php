@@ -284,7 +284,7 @@ class OrderDetailController extends Controller
                     'payment_status_id' => $paymentStatusPendingId,
                     'payment_method_id' => $paymentMethodId,
                     'payment_gateway_id' => null,
-                    'payment_date' => now(),
+                    'payment_date' => null,
                     'amount_paid' => 0,
                     'transaction_ref' => null,
                     'currency' => null,
