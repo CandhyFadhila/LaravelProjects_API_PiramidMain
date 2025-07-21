@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Management\Settings\Account;
 
-use App\Helpers\QueryFilterSearch;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Management\Settings\Account\StoreAddress;
 use App\Http\Requests\Management\Settings\Account\UpdateAddress;
@@ -11,11 +10,9 @@ use App\Http\Resources\Management\Settings\Account\AddressResource;
 use App\Http\Resources\Templates\WithDataResource;
 use App\Http\Resources\Templates\WithoutDataResource;
 use App\Models\Address;
-use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
 
 class AddressController extends Controller
@@ -26,7 +23,6 @@ class AddressController extends Controller
             $user = Auth::user();
 
             $addresses = Address::with(['users'])
-                ->withTrashed()
                 ->where('user_id', $user->id)
                 ->orderByDesc('is_primary')
                 ->orderByDesc('updated_at')
@@ -75,7 +71,7 @@ class AddressController extends Controller
             $user = Auth::user();
 
             // ✅ Cek jumlah address aktif milik user, maksimal 3
-            $totalAddress = Address::where('user_id', $user->id)->withTrashed()->count();
+            $totalAddress = Address::where('user_id', $user->id)->count();
             if ($totalAddress >= 3) {
                 return response()->json(
                     new WithoutDataResource(
