@@ -54,7 +54,7 @@ class TransactionController extends Controller
             if ($request->has('search')) {
                 $query = QueryFilterSearch::applySearch($query, $request->input('search'), [
                     'grand_total',
-                    'trasaction_statuses.label'
+                    'transaction_statuses.label'
                 ]);
             }
 
