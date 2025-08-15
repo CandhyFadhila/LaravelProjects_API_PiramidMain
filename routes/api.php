@@ -16,6 +16,7 @@ use App\Http\Controllers\Management\Gen\Product\SadaqahProductController;
 use App\Http\Controllers\Management\Settings\Account\AddressController;
 use App\Http\Controllers\Management\Settings\Account\ChangePasswordController;
 use App\Http\Controllers\Management\Settings\Account\ChangeProfileController;
+use App\Http\Controllers\Management\Transaction\TransactionController;
 use App\Http\Controllers\Public\PublicRequestController;
 use App\Http\Controllers\Service\CartController;
 use App\Http\Controllers\Service\MyOrderController;
@@ -97,6 +98,11 @@ Route::middleware(['auth:sanctum', 'custom.throttle:60,1'])->group(function () {
 
                 Route::apiResource('/sadaqah-product', SadaqahProductController::class);
                 Route::post('/sadaqah-product/{id}/restore', [SadaqahProductController::class, 'restore']);
+            });
+
+            Route::group(['prefix' => 'transaction'], function () {
+                Route::get('/get-list', [TransactionController::class, 'index']);
+                Route::get('/get-transaction/{id}', [TransactionController::class, 'show']);
             });
 
             Route::group(['prefix' => 'settings'], function () {
