@@ -9,9 +9,9 @@ use App\Http\Resources\Templates\WithDataResource;
 use App\Http\Resources\Templates\WithoutDataResource;
 use App\Models\Transaction;
 use App\Models\TransactionStatus;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
 
@@ -44,8 +44,34 @@ class TransactionController extends Controller
             // filter
             $filterRules = [
                 'order_detail_id' => fn($q, $val) => $q->whereIn('order_detail_id', (array) $val),
-                'payment_detail_id'    => fn($q, $val) => $q->whereIn('payment_detail_id', (array) $val),
-                'transaction_status_id'    => fn($q, $val) => $q->whereIn('transaction_status_id', (array) $val),
+                'payment_detail_id' => fn($q, $val) => $q->whereIn('payment_detail_id', (array) $val),
+                'transaction_status_id' => fn($q, $val) => $q->whereIn('transaction_status_id', (array) $val),
+                'start_date' => function ($q, $val) {
+                    if ($val === null || $val === '') return;
+
+                    try {
+                        $start = Carbon::parse($val);
+                        if (!str_contains($val, 'T')) {
+                            $start = $start->startOfDay();
+                        }
+                        $q->where('transaction_date', '>', $start->toDateTimeString());
+                    } catch (\Throwable $e) {
+                        // format tidak valid: abaikan saja
+                    }
+                },
+                'end_date' => function ($q, $val) {
+                    if ($val === null || $val === '') return;
+
+                    try {
+                        $end = Carbon::parse($val);
+                        if (!str_contains($val, 'T')) {
+                            $end = $end->endOfDay();
+                        }
+                        $q->where('transaction_date', '<', $end->toDateTimeString());
+                    } catch (\Throwable $e) {
+                        // format tidak valid: abaikan saja
+                    }
+                },
             ];
 
             $filters = $request->except(['limit', 'search']);
