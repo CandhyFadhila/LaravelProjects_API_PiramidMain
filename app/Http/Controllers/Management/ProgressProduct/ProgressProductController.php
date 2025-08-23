@@ -35,8 +35,7 @@ class ProgressProductController extends Controller
                 );
             }
 
-            $query = ProgressProduct::withTrashed()
-                ->with(['transaction.order_details', 'transaction.transaction_statuses']);
+            $query = ProgressProduct::withTrashed();
 
             // filter
             $filterRules = [
