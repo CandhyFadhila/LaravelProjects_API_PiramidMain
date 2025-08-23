@@ -55,8 +55,7 @@ class ProgressProductController extends Controller
 
             if ($request->has('search')) {
                 $query = QueryFilterSearch::applySearch($query, $request->input('search'), [
-                    'status',
-                    'transaction.transaction_statuses.label'
+                    'status'
                 ]);
             }
 
