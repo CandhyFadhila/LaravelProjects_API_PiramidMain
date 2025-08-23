@@ -7,6 +7,7 @@ use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\Response;
+use Illuminate\Validation\Rule;
 
 class StoreProgressProductRequest extends FormRequest
 {
@@ -27,6 +28,19 @@ class StoreProgressProductRequest extends FormRequest
     {
         return [
             'transaction_id' => ['required', 'exists:transactions,id'],
+            'status' => [
+                'required',
+                'string',
+                'lowercase', // jaga konsistensi dengan nilai enum di DB
+                Rule::in([
+                    'in_queued',     // Dalam Antrian
+                    'in_scheduling', // Dalam Penjadwalan
+                    'in_progress',   // Dalam Proses
+                    'completed',     // Selesai
+                    'delivered',     // Terkirim
+                    'in_shipping',   // Dalam Pengiriman
+                ]),
+            ],
             'photo_progress_id' => ['required', 'array', 'min:1', 'max:5'],
             'photo_progress_id.*' => ['required', 'mimes:jpg,jpeg,png', 'max:10240'],
             'description' => ['required'],
@@ -37,14 +51,20 @@ class StoreProgressProductRequest extends FormRequest
     {
         return [
             'transaction_id.required' => 'Transaksi tidak boleh kosong.',
-            'transaction_id.exists' => 'Transaksi yang dipilih tidak valid.',
-            'description.required' => 'Deskripsi tahapan produk tidak boleh kosong.',
-            'description.string' => 'Deskripsi tahapan produk harus berupa string.',
+            'transaction_id.exists'   => 'Transaksi yang dipilih tidak valid.',
+
+            'status.required'         => 'Status tidak boleh kosong.',
+            'status.in'               => 'Status yang dipilih tidak valid.',
+            'status.lowercase'        => 'Status harus menggunakan huruf kecil.',
+
+            'description.required'    => 'Deskripsi tahapan produk tidak boleh kosong.',
+            'description.string'      => 'Deskripsi tahapan produk harus berupa string.',
+
             'photo_progress_id.required' => 'Foto tahapan produk tidak boleh kosong.',
-            'photo_progress_id.min' => 'Minimal foto yang diunggah adalah 1 foto.',
-            'photo_progress_id.max' => 'Maksimal foto yang diunggah adalah 5 foto.',
-            'photo_progress_id.*.mimes' => 'Foto hanya boleh berupa JPG, JPEG, dan PNG.',
-            'photo_progress_id.*.max' => 'Ukuran foto maksimal 10MB.',
+            'photo_progress_id.min'      => 'Minimal foto yang diunggah adalah 1 foto.',
+            'photo_progress_id.max'      => 'Maksimal foto yang diunggah adalah 5 foto.',
+            'photo_progress_id.*.mimes'  => 'Foto hanya boleh berupa JPG, JPEG, dan PNG.',
+            'photo_progress_id.*.max'    => 'Ukuran foto maksimal 10MB.',
         ];
     }
 

@@ -17,6 +17,7 @@ class ProgressProductResource extends JsonResource
         return [
             'id' => $this->id,
             'transaction' => new TransactionResource($this->transaction),
+            'status' => $this->status,
             'photo_progress_id' => $this->documents,
             'description' => $this->description,
             'created_at' => $this->created_at,

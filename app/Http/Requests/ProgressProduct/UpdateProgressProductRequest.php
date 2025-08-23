@@ -7,6 +7,7 @@ use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\Response;
+use Illuminate\Validation\Rule;
 
 class UpdateProgressProductRequest extends FormRequest
 {
@@ -27,6 +28,19 @@ class UpdateProgressProductRequest extends FormRequest
     {
         return [
             'transaction_id' => ['required', 'exists:transactions,id'],
+            'status' => [
+                'sometimes',
+                'string',
+                'lowercase', // jaga konsistensi dengan nilai enum di DB
+                Rule::in([
+                    'in_queued',     // Dalam Antrian
+                    'in_scheduling', // Dalam Penjadwalan
+                    'in_progress',   // Dalam Proses
+                    'completed',     // Selesai
+                    'delivered',     // Terkirim
+                    'in_shipping',   // Dalam Pengiriman
+                ]),
+            ],
             'photo_progress_id' => ['nullable', 'array', 'min:1', 'max:5'],
             'photo_progress_id.*' => ['nullable', 'mimes:jpg,jpeg,png', 'max:10240'],
             'description' => ['required'],
@@ -40,6 +54,8 @@ class UpdateProgressProductRequest extends FormRequest
         return [
             'transaction_id.required' => 'Transaksi tidak boleh kosong.',
             'transaction_id.exists' => 'Transaksi yang dipilih tidak valid.',
+            'status.in'               => 'Status yang dipilih tidak valid.',
+            'status.lowercase'        => 'Status harus menggunakan huruf kecil.',
             'description.required' => 'Deskripsi tahapan produk tidak boleh kosong.',
             'description.string' => 'Deskripsi tahapan produk harus berupa string.',
             'photo_progress_id.min' => 'Minimal foto yang diunggah adalah 1 foto.',

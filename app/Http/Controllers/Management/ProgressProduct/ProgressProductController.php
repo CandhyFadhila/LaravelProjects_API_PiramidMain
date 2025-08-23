@@ -122,6 +122,7 @@ class ProgressProductController extends Controller
 
             ProgressProduct::create([
                 'photo_progress_id' => $iconDocumentIds ?: null,
+                'status' => $request->status,
                 'transaction_id' => $request->transaction_id,
                 'description' => $request->description
             ]);
@@ -278,6 +279,7 @@ class ProgressProductController extends Controller
 
             $progressProduct->update([
                 'photo_progress_id' => $finalIconIds ?: null,
+                'status' => $request->status,
                 'transaction_id' => $request->transaction_id,
                 'description' => $request->description
             ]);
