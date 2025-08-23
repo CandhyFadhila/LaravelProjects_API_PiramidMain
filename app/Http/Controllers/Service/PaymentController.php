@@ -19,6 +19,7 @@ use App\Models\PaymentDetail;
 use App\Models\PaymentLog;
 use App\Models\PaymentMethod;
 use App\Models\PaymentStatus;
+use App\Models\ProgressProduct;
 use App\Models\ServiceType;
 use App\Models\Transaction;
 use App\Models\TransactionStatus;
@@ -942,6 +943,25 @@ class PaymentController extends Controller
 
         $settledStatuses = ['settlement', 'capture', 'success'];
         if (in_array($midtransStatus, $settledStatuses)) {
+            // Auto create progress product step 1
+            $existingProgress = ProgressProduct::where('transaction_id', $transaction->id)->first();
+            if (!$existingProgress) {
+                $progress = ProgressProduct::create([
+                    'transaction_id' => $transaction->id,
+                    'description'    => 'Transaksi telah selesai dan produk sedang diproses.',
+                ]);
+
+                Log::channel('progress_product')->info('| Store | - ProgressProduct auto created when transaction settled.', [
+                    'transaction_id'      => $transaction->id,
+                    'progress_product_id' => $progress->id,
+                ]);
+            } else {
+                Log::channel('progress_product')->info('| Store | - ProgressProduct auto created but already exists, when transaction settled.', [
+                    'transaction_id'      => $transaction->id,
+                    'progress_product_id' => $existingProgress->id,
+                ]);
+            }
+
             return response()->json(
                 new WithoutDataResource(
                     Response::HTTP_OK,

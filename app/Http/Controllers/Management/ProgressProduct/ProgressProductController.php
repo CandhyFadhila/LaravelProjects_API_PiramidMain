@@ -1,23 +1,24 @@
 <?php
 
-namespace App\Http\Controllers\Management\Gen\Animal;
+namespace App\Http\Controllers\Management\ProgressProduct;
 
 use App\Helpers\DocumentHelper;
 use App\Helpers\QueryFilterSearch;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Management\Gen\Animal\StoreAnimalCategory;
-use App\Http\Requests\Management\Gen\Animal\UpdateAnimalCategory;
-use App\Http\Resources\Management\Gen\Animal\AnimalCategoryResource;
+use App\Http\Requests\ProgressProduct\StoreProgressProductRequest;
+use App\Http\Requests\ProgressProduct\UpdateProgressProductRequest;
+use App\Http\Resources\Service\ProgressProductResource;
 use App\Http\Resources\Templates\WithDataResource;
 use App\Http\Resources\Templates\WithoutDataResource;
-use App\Models\AnimalCategory;
+use App\Models\ProgressProduct;
+use Google\Service\Transcoder\Progress;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
 
-class AnimalCategoryController extends Controller
+class ProgressProductController extends Controller
 {
     public function index(Request $request)
     {
@@ -34,19 +35,11 @@ class AnimalCategoryController extends Controller
                 );
             }
 
-            $query = AnimalCategory::withTrashed();
-
-            // filter
-            $filterRules = [
-                'for_aqiqah' => fn($q, $val) => $q->whereIn('for_aqiqah', (array) $val),
-            ];
-
-            $filters = $request->except(['limit', 'search']);
-            $query   = QueryFilterSearch::applyFilters($query, $filters, $filterRules);
+            $query = ProgressProduct::withTrashed();
 
             if ($request->has('search')) {
                 $query = QueryFilterSearch::applySearch($query, $request->input('search'), [
-                    'label'
+                    'transaction.transaction_statuses.label'
                 ]);
             }
 
@@ -69,13 +62,13 @@ class AnimalCategoryController extends Controller
                     Response::HTTP_OK,
                     'SUCCESS_GET_DATA',
                     'Berhasil Mengambil Data',
-                    'Data kategori hewan berhasil didapatkan.',
-                    QueryFilterSearch::formatPaginationCollection($result, AnimalCategoryResource::class)
+                    'Data tahapan produk berhasil didapatkan.',
+                    QueryFilterSearch::formatPaginationCollection($result, ProgressProductResource::class)
                 ),
                 Response::HTTP_OK
             );
         } catch (\Exception $e) {
-            Log::channel('gen_animal_category')->error('| Index | - Error function index : ' . $e->getMessage() . ' - Line : ' . $e->getLine());
+            Log::channel('progress_product')->error('| Index | - Error function index : ' . $e->getMessage() . ' - Line : ' . $e->getLine());
             return response()->json(
                 new WithoutDataResource(
                     Response::HTTP_INTERNAL_SERVER_ERROR,
@@ -88,7 +81,7 @@ class AnimalCategoryController extends Controller
         }
     }
 
-    public function store(StoreAnimalCategory $request)
+    public function store(StoreProgressProductRequest $request)
     {
         try {
             if (!Gate::allows('masterdata.create')) {
@@ -105,31 +98,16 @@ class AnimalCategoryController extends Controller
 
             DB::beginTransaction();
 
-            $duplicate = AnimalCategory::where('label', $request->label)
-                ->whereNull('deleted_at')
-                ->exists();
-            if ($duplicate) {
-                return response()->json(
-                    new WithoutDataResource(
-                        Response::HTTP_CONFLICT,
-                        'DUPLICATE_NAME',
-                        'Duplikat Data',
-                        "Nama kategori hewan '{$request->label}' sudah digunakan oleh data lain yang aktif. Silakan gunakan nama lain."
-                    ),
-                    Response::HTTP_CONFLICT
-                );
-            }
-
             $iconDocumentIds = [];
 
-            if ($request->hasFile('icon_id') && is_array($request->file('icon_id'))) {
-                $iconDocumentIds = DocumentHelper::uploadDocuments($request->file('icon_id'));
+            if ($request->hasFile('photo_progress_id') && is_array($request->file('photo_progress_id'))) {
+                $iconDocumentIds = DocumentHelper::uploadDocuments($request->file('photo_progress_id'));
             }
 
-            AnimalCategory::create([
-                'icon_id' => $iconDocumentIds ?: null,
-                'label' => $request->label,
-                'for_aqiqah' => $request->boolean('for_aqiqah')
+            ProgressProduct::create([
+                'photo_progress_id' => $iconDocumentIds ?: null,
+                'transaction_id' => $request->transaction_id,
+                'description' => $request->description
             ]);
 
             DB::commit();
@@ -138,18 +116,18 @@ class AnimalCategoryController extends Controller
                     Response::HTTP_CREATED,
                     'SUCCESS_CREATE_DATA',
                     'Berhasil Menyimpan Data',
-                    "Data kategori hewan '{$request->label}' berhasil ditambahkan."
+                    "Data tahapan produk berhasil ditambahkan."
                 ),
                 Response::HTTP_CREATED
             );
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::channel('gen_animal_category')->error('| Store | - Error function store : ' . $e->getMessage() . ' - Line : ' . $e->getLine());
+            Log::channel('progress_product')->error('| Store | - Error function store : ' . $e->getMessage() . ' - Line : ' . $e->getLine());
             return response()->json(
                 new WithoutDataResource(
                     Response::HTTP_INTERNAL_SERVER_ERROR,
-                    'ERROR_GET_DATA',
-                    'Gagal Mengambil Data',
+                    'ERROR_CREATE_DATA',
+                    'Gagal Menyimpan Data',
                     'Terjadi kesalahan pada sistem, silahkan coba lagi nanti atau hubungi admin.',
                 ),
                 Response::HTTP_INTERNAL_SERVER_ERROR
@@ -172,14 +150,14 @@ class AnimalCategoryController extends Controller
                 );
             }
 
-            $animalCategory = AnimalCategory::withTrashed()->find($id);
-            if (!$animalCategory) {
+            $progressProduct = ProgressProduct::withTrashed()->find($id);
+            if (!$progressProduct) {
                 return response()->json(
                     new WithoutDataResource(
                         Response::HTTP_NOT_FOUND,
                         'DATA_NOT_FOUND',
                         'Data Tidak Ditemukan',
-                        'Kategori hewan dengan ID tersebut tidak ditemukan.',
+                        'Tahapan produk dengan ID tersebut tidak ditemukan.',
                     ),
                     Response::HTTP_NOT_FOUND
                 );
@@ -190,13 +168,13 @@ class AnimalCategoryController extends Controller
                     Response::HTTP_OK,
                     'SUCCESS_GET_DATA',
                     'Berhasil Mengambil Data',
-                    "Detail data kategori hewan '{$animalCategory->label}' berhasil didapatkan.",
-                    new AnimalCategoryResource($animalCategory)
+                    "Detail data tahapan produk berhasil didapatkan.",
+                    new ProgressProductResource($progressProduct)
                 ),
                 Response::HTTP_OK
             );
         } catch (\Exception $e) {
-            Log::channel('gen_animal_category')->error('| Detail | - Error function show : ' . $e->getMessage() . ' - Line : ' . $e->getLine());
+            Log::channel('progress_product')->error('| Detail | - Error function show : ' . $e->getMessage() . ' - Line : ' . $e->getLine());
             return response()->json(
                 new WithoutDataResource(
                     Response::HTTP_INTERNAL_SERVER_ERROR,
@@ -209,7 +187,7 @@ class AnimalCategoryController extends Controller
         }
     }
 
-    public function update(UpdateAnimalCategory $request, $id)
+    public function update(UpdateProgressProductRequest $request, $id)
     {
         try {
             if (!Gate::allows('masterdata.edit')) {
@@ -226,14 +204,14 @@ class AnimalCategoryController extends Controller
 
             DB::beginTransaction();
 
-            $animalCategory = AnimalCategory::withTrashed()->find($id);
-            if (!$animalCategory) {
+            $progressProduct = ProgressProduct::withTrashed()->find($id);
+            if (!$progressProduct) {
                 return response()->json(
                     new WithoutDataResource(
                         Response::HTTP_NOT_FOUND,
                         'DATA_NOT_FOUND',
                         'Data Tidak Ditemukan',
-                        'Kategori hewan dengan ID tersebut tidak ditemukan.',
+                        'Tahapan produk dengan ID tersebut tidak ditemukan.',
                     ),
                     Response::HTTP_NOT_FOUND
                 );
@@ -241,25 +219,9 @@ class AnimalCategoryController extends Controller
 
             $data = $request->validated();
 
-            $duplicate = AnimalCategory::where('label', $request->label)
-                ->whereNull('deleted_at')
-                ->where('id', '!=', $id)
-                ->exists();
-            if ($duplicate) {
-                return response()->json(
-                    new WithoutDataResource(
-                        Response::HTTP_CONFLICT,
-                        'DUPLICATE_NAME',
-                        'Duplikat Data',
-                        "Nama kategori ras hewan '{$request->label}' sudah digunakan pada data yang sama."
-                    ),
-                    Response::HTTP_CONFLICT
-                );
-            }
-
-            $existingDocumentIds = $animalCategory->icon_id ?? [];
+            $existingDocumentIds = $progressProduct->photo_progress_id ?? [];
             $deleteIds = $data['delete_document_ids'] ?? [];
-            $newUploads = $request->file('icon_id') ?? [];
+            $newUploads = $request->file('photo_progress_id') ?? [];
 
             // ✅ Safety: jika delete kosong & dokumen baru full, asumsikan ingin overwrite semua
             if (empty($deleteIds) && count($newUploads) === 5 && !empty($existingDocumentIds)) {
@@ -298,10 +260,10 @@ class AnimalCategoryController extends Controller
 
             $finalIconIds = array_merge($existingDocumentIds, $newDocumentIds);
 
-            $animalCategory->update([
-                'icon_id' => $finalIconIds ?: null,
-                'label' => $request->label,
-                'for_aqiqah' => $request->boolean('for_aqiqah')
+            $progressProduct->update([
+                'photo_progress_id' => $finalIconIds ?: null,
+                'transaction_id' => $request->transaction_id,
+                'description' => $request->description
             ]);
 
             DB::commit();
@@ -310,18 +272,18 @@ class AnimalCategoryController extends Controller
                     Response::HTTP_OK,
                     'SUCCESS_UPDATE_DATA',
                     'Berhasil Memperbarui Data',
-                    "Data kategori hewan '{$animalCategory->label}' berhasil diperbarui."
+                    "Data tahapan produk berhasil diperbarui."
                 ),
                 Response::HTTP_OK
             );
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::channel('gen_animal_category')->error('| Update | - Error function update : ' . $e->getMessage() . ' - Line : ' . $e->getLine());
+            Log::channel('progress_product')->error('| Update | - Error function update : ' . $e->getMessage() . ' - Line : ' . $e->getLine());
             return response()->json(
                 new WithoutDataResource(
                     Response::HTTP_INTERNAL_SERVER_ERROR,
-                    'ERROR_GET_DATA',
-                    'Gagal Mengambil Data',
+                    'ERROR_UPDATE_DATA',
+                    'Gagal Memperbarui Data',
                     'Terjadi kesalahan pada sistem, silahkan coba lagi nanti atau hubungi admin.',
                 ),
                 Response::HTTP_INTERNAL_SERVER_ERROR
@@ -346,20 +308,20 @@ class AnimalCategoryController extends Controller
 
             DB::beginTransaction();
 
-            $animalCategory = AnimalCategory::find($id);
-            if (!$animalCategory) {
+            $progressProduct = ProgressProduct::find($id);
+            if (!$progressProduct) {
                 return response()->json(
                     new WithoutDataResource(
                         Response::HTTP_NOT_FOUND,
                         'DATA_NOT_FOUND',
                         'Data Tidak Ditemukan',
-                        'Kategori hewan dengan ID tersebut tidak ditemukan.',
+                        'Tahapan produk dengan ID tersebut tidak ditemukan.',
                     ),
                     Response::HTTP_NOT_FOUND
                 );
             }
 
-            $animalCategory->delete();
+            $progressProduct->delete();
 
             DB::commit();
             return response()->json(
@@ -367,13 +329,13 @@ class AnimalCategoryController extends Controller
                     Response::HTTP_OK,
                     'SUCCESS_DELETE_DATA',
                     'Berhasil Menghapus Data',
-                    "Data kategori hewan '{$animalCategory->label}' berhasil dihapus."
+                    "Data tahapan produk berhasil dihapus."
                 ),
                 Response::HTTP_OK
             );
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::channel('gen_animal_category')->error('| Destroy | - Error function destroy : ' . $e->getMessage() . ' - Line : ' . $e->getLine());
+            Log::channel('progress_product')->error('| Destroy | - Error function destroy : ' . $e->getMessage() . ' - Line : ' . $e->getLine());
             return response()->json(
                 new WithoutDataResource(
                     Response::HTTP_INTERNAL_SERVER_ERROR,
@@ -403,34 +365,20 @@ class AnimalCategoryController extends Controller
 
             DB::beginTransaction();
 
-            $animalCategory = AnimalCategory::onlyTrashed()->find($id);
-            if (!$animalCategory) {
+            $progressProduct = ProgressProduct::onlyTrashed()->find($id);
+            if (!$progressProduct) {
                 return response()->json(
                     new WithoutDataResource(
                         Response::HTTP_NOT_FOUND,
                         'DATA_NOT_FOUND',
                         'Data Tidak Ditemukan',
-                        'Kategori hewan dengan ID tersebut tidak ditemukan atau belum dihapus.',
+                        'Tahapan produk dengan ID tersebut tidak ditemukan atau belum dihapus.',
                     ),
                     Response::HTTP_NOT_FOUND
                 );
             }
 
-            // Validasi unik
-            $duplicate = AnimalCategory::where('label', $animalCategory->label)->whereNull('deleted_at')->exists();
-            if ($duplicate) {
-                return response()->json(
-                    new WithoutDataResource(
-                        Response::HTTP_CONFLICT,
-                        'DUPLICATE_NAME',
-                        'Duplikat Data',
-                        "Nama kategori hewan '{$animalCategory->label}' sudah digunakan oleh entri aktif lain. Silakan ubah nama terlebih dahulu sebelum merestore."
-                    ),
-                    Response::HTTP_CONFLICT
-                );
-            }
-
-            $animalCategory->restore();
+            $progressProduct->restore();
 
             DB::commit();
             return response()->json(
@@ -438,13 +386,13 @@ class AnimalCategoryController extends Controller
                     Response::HTTP_OK,
                     'SUCCESS_RESTORE_DATA',
                     'Berhasil Mengembalikan Data',
-                    "Data kategori hewan '{$animalCategory->label}' berhasil dikembalikan."
+                    "Data tahapan produk berhasil dikembalikan."
                 ),
                 Response::HTTP_OK
             );
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::channel('gen_animal_category')->error('| Restore | - Error function restore : ' . $e->getMessage() . ' - Line : ' . $e->getLine());
+            Log::channel('progress_product')->error('| Restore | - Error function restore : ' . $e->getMessage() . ' - Line : ' . $e->getLine());
             return response()->json(
                 new WithoutDataResource(
                     Response::HTTP_INTERNAL_SERVER_ERROR,

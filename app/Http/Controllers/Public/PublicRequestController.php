@@ -15,6 +15,7 @@ use App\Http\Resources\Management\Gen\Product\AqiqahProductResource;
 use App\Http\Resources\Management\Gen\Product\SadaqahProductResource;
 use App\Http\Resources\Management\Settings\Account\AddressResource;
 use App\Http\Resources\Service\OrderDetailResource;
+use App\Http\Resources\Service\ProgressProductResource;
 use App\Http\Resources\Service\TransactionResource;
 use App\Http\Resources\Templates\WithDataResource;
 use App\Http\Resources\Templates\WithoutDataResource;
@@ -28,6 +29,7 @@ use App\Models\Mosque;
 use App\Models\OrderDetail;
 use App\Models\PaymentMethod;
 use App\Models\PaymentStatus;
+use App\Models\ProgressProduct;
 use App\Models\Province;
 use App\Models\QurbanProduct;
 use App\Models\SadaqahProduct;
@@ -784,6 +786,47 @@ class PublicRequestController extends Controller
             );
         } catch (\Exception $e) {
             Log::channel('public_request')->error('| Public Request | - Error function getSadaqahProduct : ' . $e->getMessage() . ' - Line : ' . $e->getLine());
+            return response()->json(
+                new WithoutDataResource(
+                    Response::HTTP_INTERNAL_SERVER_ERROR,
+                    'ERROR_GET_DATA',
+                    'Gagal Mengambil Data',
+                    'Terjadi kesalahan pada sistem, silahkan coba lagi nanti atau hubungi admin.',
+                ),
+                Response::HTTP_INTERNAL_SERVER_ERROR
+            );
+        }
+    }
+
+    public function getProgressProduct($transactionId)
+    {
+        try {
+            $progressProduct = ProgressProduct::where('transaction_id', $transactionId)
+                ->get();
+            if ($progressProduct->isEmpty()) {
+                return response()->json(
+                    new WithoutDataResource(
+                        Response::HTTP_OK,
+                        'DATA_NOT_FOUND',
+                        'Tidak Ada Data',
+                        'Tidak ditemukan tahapan produk dengan transaksi ID tersebut.',
+                    ),
+                    Response::HTTP_OK
+                );
+            }
+
+            return response()->json(
+                new WithDataResource(
+                    Response::HTTP_OK,
+                    'SUCCESS_GET_DATA',
+                    'Berhasil Mengambil Data',
+                    "Data tahapan produk berhasil didapatkan.",
+                    ProgressProductResource::collection($progressProduct)
+                ),
+                Response::HTTP_OK
+            );
+        } catch (\Exception $e) {
+            Log::channel('public_request')->error('| Public Request | - Error function getProgressProduct : ' . $e->getMessage() . ' - Line : ' . $e->getLine());
             return response()->json(
                 new WithoutDataResource(
                     Response::HTTP_INTERNAL_SERVER_ERROR,

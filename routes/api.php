@@ -13,6 +13,7 @@ use App\Http\Controllers\Management\Gen\Mosque\MosqueController;
 use App\Http\Controllers\Management\Gen\Product\AqiqahProductController;
 use App\Http\Controllers\Management\Gen\Product\QurbanProductController;
 use App\Http\Controllers\Management\Gen\Product\SadaqahProductController;
+use App\Http\Controllers\Management\ProgressProduct\ProgressProductController;
 use App\Http\Controllers\Management\Settings\Account\AddressController;
 use App\Http\Controllers\Management\Settings\Account\ChangePasswordController;
 use App\Http\Controllers\Management\Settings\Account\ChangeProfileController;
@@ -63,6 +64,7 @@ Route::middleware(['auth:sanctum', 'custom.throttle:60,1'])->group(function () {
             Route::get('/get-qurban-product', [PublicRequestController::class, 'getQurbanProduct']);
             Route::get('/get-aqiqah-product', [PublicRequestController::class, 'getAqiqahProduct']);
             Route::get('/get-sadaqah-product', [PublicRequestController::class, 'getSadaqahProduct']);
+            Route::get('/get-progress-product/{transactionId}', [PublicRequestController::class, 'getProgressProduct']);
         });
 
         // Untuk Admin
@@ -103,6 +105,13 @@ Route::middleware(['auth:sanctum', 'custom.throttle:60,1'])->group(function () {
             Route::group(['prefix' => 'transaction'], function () {
                 Route::get('/get-list', [TransactionController::class, 'index']);
                 Route::get('/get-transaction/{id}', [TransactionController::class, 'show']);
+
+                // TODO: Revisi alur
+                // 1. setelah create transaksi, langsung create progress product dengan status barang sedang diproses
+                // 2. crud seperti biasa dengan transaksi terkait
+                // 3. get progress product berdasarkan transaksi di public request
+                Route::apiResource('/progress-product', ProgressProductController::class);
+                Route::post('/progress-product/{id}/restore', [ProgressProductController::class, 'restore']);
             });
 
             Route::group(['prefix' => 'settings'], function () {

@@ -257,6 +257,13 @@ return [
             'replace_placeholders' => true,
         ],
 
+        'progress_product' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/Service/Transaction/ProgressProduct/progress_product.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+            'replace_placeholders' => true,
+        ],
+
         // SETTINGS
         'setting_address' => [
             'driver' => 'single',

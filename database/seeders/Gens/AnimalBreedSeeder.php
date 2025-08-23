@@ -15,12 +15,25 @@ class AnimalBreedSeeder extends Seeder
     {
         $labels = [
             'Sapi Bali',
+            'Sapi Madura',
+            'Sapi Ongoles',
+            'Sapi Brahman',
             'Sapi Limousin',
-            'Sapi PO',
+            'Sapi Simmental',
             'Kambing Etawa',
             'Kambing Kacang',
-            'Domba Garut',
+            'Kambing Boer',
+            'Kambing Jawarandu',
+            'Kambing Garut',
+            'Kambing Samosir',
+            'Domba Ekor Gemuk',
+            'Domba Ekor Tipis',
             'Domba Texel',
+            'Domba Merino',
+            'Domba Dorper',
+            'Domba Persilangan (Crossbreed)',
+            'Unta Al-irab',
+            'Unta Al-bakhati',
         ];
 
         foreach ($labels as $label) {

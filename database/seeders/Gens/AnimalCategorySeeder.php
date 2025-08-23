@@ -13,7 +13,7 @@ class AnimalCategorySeeder extends Seeder
      */
     public function run(): void
     {
-        $labels = ['Kambing', 'Sapi', 'Domba'];
+        $labels = ['Kambing', 'Sapi', 'Domba', 'Unta'];
 
         foreach ($labels as $label) {
             DB::table('animal_categories')->insert([
