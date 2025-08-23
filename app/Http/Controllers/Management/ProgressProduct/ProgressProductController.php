@@ -11,7 +11,6 @@ use App\Http\Resources\Service\ProgressProductResource;
 use App\Http\Resources\Templates\WithDataResource;
 use App\Http\Resources\Templates\WithoutDataResource;
 use App\Models\ProgressProduct;
-use Google\Service\Transcoder\Progress;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
@@ -279,7 +278,6 @@ class ProgressProductController extends Controller
             $progressProduct->update([
                 'photo_progress_id' => $finalIconIds ?: null,
                 'status' => $request->status,
-                'transaction_id' => $request->transaction_id,
                 'description' => $request->description
             ]);
 

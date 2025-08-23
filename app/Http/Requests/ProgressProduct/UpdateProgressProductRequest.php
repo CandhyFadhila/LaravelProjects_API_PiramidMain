@@ -27,7 +27,6 @@ class UpdateProgressProductRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'transaction_id' => ['required', 'exists:transactions,id'],
             'status' => [
                 'sometimes',
                 'string',
@@ -52,8 +51,6 @@ class UpdateProgressProductRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'transaction_id.required' => 'Transaksi tidak boleh kosong.',
-            'transaction_id.exists' => 'Transaksi yang dipilih tidak valid.',
             'status.in'               => 'Status yang dipilih tidak valid.',
             'status.lowercase'        => 'Status harus menggunakan huruf kecil.',
             'description.required' => 'Deskripsi tahapan produk tidak boleh kosong.',
