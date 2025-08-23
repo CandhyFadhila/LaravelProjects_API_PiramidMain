@@ -958,7 +958,7 @@ class PaymentController extends Controller
             if (!$existingProgress) {
                 $progress = ProgressProduct::create([
                     'transaction_id' => $transaction->id,
-                    'status'         => 'processed',
+                    'status'         => 'in_queued',
                     'description'    => $description,
                 ]);
 
