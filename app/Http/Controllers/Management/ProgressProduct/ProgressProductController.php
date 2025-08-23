@@ -260,7 +260,6 @@ class ProgressProductController extends Controller
                 );
             }
 
-
             // ✅ Hapus dokumen lama jika ada
             if (!empty($deleteIds)) {
                 DocumentHelper::deleteDocuments($deleteIds);
