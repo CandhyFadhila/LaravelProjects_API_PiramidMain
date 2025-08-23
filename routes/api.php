@@ -106,10 +106,6 @@ Route::middleware(['auth:sanctum', 'custom.throttle:60,1'])->group(function () {
                 Route::get('/get-list', [TransactionController::class, 'index']);
                 Route::get('/get-transaction/{id}', [TransactionController::class, 'show']);
 
-                // TODO: Revisi alur
-                // 1. setelah create transaksi, langsung create progress product dengan status barang sedang diproses
-                // 2. crud seperti biasa dengan transaksi terkait
-                // 3. get progress product berdasarkan transaksi di public request
                 Route::apiResource('/progress-product', ProgressProductController::class);
                 Route::post('/progress-product/{id}/restore', [ProgressProductController::class, 'restore']);
             });

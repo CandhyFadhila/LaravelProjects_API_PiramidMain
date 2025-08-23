@@ -35,10 +35,27 @@ class ProgressProductController extends Controller
                 );
             }
 
-            $query = ProgressProduct::withTrashed();
+            $query = ProgressProduct::withTrashed()
+                ->with(['transaction.order_details', 'transaction.transaction_statuses']);
+
+            // filter
+            $filterRules = [
+                'service_type_id' => function ($q, $val) {
+                    if (!is_array($val)) {
+                        return $q;
+                    }
+                    return $q->whereHas('transaction.order_details', function ($q2) use ($val) {
+                        $q2->whereIn('service_type_id', $val);
+                    });
+                },
+            ];
+
+            $filters = $request->except(['limit', 'search']);
+            $query   = QueryFilterSearch::applyFilters($query, $filters, $filterRules);
 
             if ($request->has('search')) {
                 $query = QueryFilterSearch::applySearch($query, $request->input('search'), [
+                    'status',
                     'transaction.transaction_statuses.label'
                 ]);
             }

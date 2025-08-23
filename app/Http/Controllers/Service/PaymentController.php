@@ -856,7 +856,7 @@ class PaymentController extends Controller
         $parts = explode('-', $orderId);
         $transactionId = end($parts);
 
-        $transaction = Transaction::with('payment_details')->find($transactionId);
+        $transaction = Transaction::with(['payment_details', 'order_details'])->find($transactionId);
         if (!$transaction || !$transaction->payment_details) {
             return response()->json(
                 new WithoutDataResource(
@@ -943,12 +943,23 @@ class PaymentController extends Controller
 
         $settledStatuses = ['settlement', 'capture', 'success'];
         if (in_array($midtransStatus, $settledStatuses)) {
-            // Auto create progress product step 1
+            // Tentukan deskripsi berdasarkan service_type_id di order_details
+            $serviceTypeId = optional($transaction->order_details)->service_type_id;
+
+            $descriptions = [
+                1 => 'Transaksi Qurban telah selesai. Pesanan sedang diproses (penjadwalan pengiriman & tindak lanjut).',
+                2 => 'Transaksi Aqiqah telah selesai. Persiapan aqiqah sedang diproses (penyembelihan & paket).',
+                3 => 'Transaksi Sadaqah telah selesai. Penyaluran donasi sedang diproses sesuai ketentuan.',
+            ];
+
+            $description = $descriptions[$serviceTypeId] ?? 'Transaksi telah selesai dan produk sedang diproses.';
+
             $existingProgress = ProgressProduct::where('transaction_id', $transaction->id)->first();
             if (!$existingProgress) {
                 $progress = ProgressProduct::create([
                     'transaction_id' => $transaction->id,
-                    'description'    => 'Transaksi telah selesai dan produk sedang diproses.',
+                    'status'         => 'processed',
+                    'description'    => $description,
                 ]);
 
                 Log::channel('progress_product')->info('| Store | - ProgressProduct auto created when transaction settled.', [
