@@ -28,7 +28,7 @@ class UpdateProgressProductRequest extends FormRequest
     {
         return [
             'status' => [
-                'sometimes',
+                'required',
                 'string',
                 'lowercase', // jaga konsistensi dengan nilai enum di DB
                 Rule::in([
@@ -51,6 +51,7 @@ class UpdateProgressProductRequest extends FormRequest
     public function messages(): array
     {
         return [
+            'status.required'         => 'Status tidak boleh kosong.',
             'status.in'               => 'Status yang dipilih tidak valid.',
             'status.lowercase'        => 'Status harus menggunakan huruf kecil.',
             'description.required' => 'Deskripsi tahapan produk tidak boleh kosong.',
